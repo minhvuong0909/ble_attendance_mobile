@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../providers/leave_provider.dart';
-import '../shell/placeholder_tab.dart';
+import 'class_report_tab.dart';
 import 'class_sessions_tab.dart';
 import 'class_students_tab.dart';
 
@@ -35,10 +35,7 @@ class TeacherClassDetailScreen extends ConsumerWidget {
           children: [
             ClassStudentsTab(classId: classId),
             ClassSessionsTab(classId: classId),
-            const PlaceholderTab(
-              title: 'Báo cáo',
-              icon: Icons.table_chart_outlined,
-            ),
+            ClassReportTab(classId: classId),
           ],
         ),
       ),
