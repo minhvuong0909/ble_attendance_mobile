@@ -55,7 +55,15 @@ StatefulShellRoute _shellFor(AppRole role) {
 
 final routerProvider = Provider<GoRouter>((ref) {
   final refresh = ValueNotifier<int>(0);
-  ref.listen(authControllerProvider, (_, _) => refresh.value++);
+  // Chỉ làm mới router khi dữ liệu mà authRedirect dựa vào thay đổi. Làm mới thừa sẽ
+  // đặt lại ngăn xếp trang (ví dụ nuốt mất thao tác pop sau khi đổi mật khẩu tự nguyện).
+  ref.listen(authControllerProvider, (previous, next) {
+    final changed =
+        previous?.status != next.status ||
+        previous?.user?.role != next.user?.role ||
+        previous?.user?.mustChangePassword != next.user?.mustChangePassword;
+    if (changed) refresh.value++;
+  });
   ref.onDispose(refresh.dispose);
 
   final router = GoRouter(
