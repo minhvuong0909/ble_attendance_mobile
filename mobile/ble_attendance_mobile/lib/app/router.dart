@@ -10,6 +10,7 @@ import '../screens/auth/register_screen.dart';
 import '../screens/auth/server_settings_screen.dart';
 import '../screens/auth/splash_screen.dart';
 import '../screens/shell/app_shell.dart';
+import '../screens/student/class_detail_screen.dart';
 import '../screens/shell/tab_pages.dart';
 import '../screens/shell/shell_tabs.dart';
 
@@ -83,6 +84,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/settings',
         builder: (_, _) => const ServerSettingsScreen(),
+      ),
+      // Trang chi tiết nằm ngoài khung tab để hiện toàn màn hình với nút Back riêng.
+      GoRoute(
+        path: '/student/classes/:id',
+        builder: (_, state) =>
+            ClassDetailScreen(classId: state.pathParameters['id']!),
       ),
       for (final role in AppRole.values) _shellFor(role),
     ],
