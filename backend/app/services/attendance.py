@@ -14,7 +14,9 @@ from app.models import (
     User,
 )
 from app.schemas.attendance import AttendanceRecordOut
+from app.services.notifier import notify
 from app.services.presence import PRESENT_THRESHOLD, Sample, first_seen_at, presence_ratio
+from app.services.stats import class_stats
 
 RECENT_DETECTION_SECONDS = 90
 
@@ -86,6 +88,28 @@ def finalize_session(db: Session, session: LectureSession) -> None:
     db.flush()
 
 
+def notify_absence_warnings(db: Session, session: LectureSession) -> None:
+    """Cảnh báo SV vắng buổi này và đã vượt mức vắng tối đa của lớp."""
+    cls = db.get(ClassRoom, session.class_id)
+    absent_ids = db.scalars(
+        select(Attendance.student_user_id).where(
+            Attendance.session_id == session.id, Attendance.status == AttendanceStatus.absent
+        )
+    )
+    for student_user_id in absent_ids:
+        stats = class_stats(db, cls, student_user_id)
+        if stats.warning:
+            notify(
+                db,
+                student_user_id,
+                "absence_warning",
+                "Cảnh báo vắng học",
+                f"Bạn đã vắng {stats.absent_percent}% số buổi môn {cls.course.code} ({cls.class_code}), "
+                f"vượt mức cho phép {cls.max_absence_percent}%.",
+                ref_id=cls.id,
+            )
+
+
 def close_session(db: Session, session: LectureSession) -> bool:
     """Đóng buổi học và chốt kết quả cả lớp. Trả False nếu một request khác đã đóng trước.
 
@@ -102,6 +126,7 @@ def close_session(db: Session, session: LectureSession) -> bool:
     if result.rowcount != 1:
         return False
     finalize_session(db, session)
+    notify_absence_warnings(db, session)
     return True
 
 

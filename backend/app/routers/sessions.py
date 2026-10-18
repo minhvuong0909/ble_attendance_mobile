@@ -8,7 +8,7 @@ from app.core.clock import utcnow
 from app.core.database import get_db
 from app.core.errors import ApiError
 from app.core.security import get_current_user, require_roles
-from app.models import Enrollment, LectureSession, User, UserRole
+from app.models import ClassRoom, Enrollment, LectureSession, User, UserRole
 from app.schemas.sessions import SessionOut
 from app.services.access import (
     get_class_or_404,
@@ -16,9 +16,10 @@ from app.services.access import (
     require_class_access,
     require_session_teacher,
 )
-from app.services.attendance import close_session
+from app.services.attendance import close_session, enrolled_students
 from app.services.beacon import student_secret
 from app.services.lecture import session_to_out
+from app.services.notifier import notify_many
 
 router = APIRouter(tags=["sessions"])
 
@@ -81,7 +82,17 @@ def open_finalization(
     require_session_teacher(teacher, session)
     if not session.is_active:
         raise ApiError(409, "session_ended", "Buổi học đã kết thúc")
-    session.finalization_open = True
+    if not session.finalization_open:
+        session.finalization_open = True
+        cls = db.get(ClassRoom, session.class_id)
+        notify_many(
+            db,
+            [student.id for student in enrolled_students(db, cls.id)],
+            "finalization_open",
+            "Mở chốt điểm danh",
+            f"Giảng viên đã mở chốt điểm danh môn {cls.course.code}. Hãy xác nhận ngay.",
+            ref_id=session.id,
+        )
     db.commit()
     return session_to_out(db, session)
 

@@ -84,3 +84,82 @@ def test_read_all_returns_updated_count(client, db, make_user, auth):
 
 def test_requires_login(client):
     assert client.get("/notifications").status_code == 401
+
+
+# --- Sự kiện: mở chốt và cảnh báo vắng ---
+
+import pytest
+
+from app.models import Attendance, AttendanceStatus, LectureSession
+
+
+@pytest.fixture()
+def class_with_students(make_user, make_class, enroll):
+    teacher = make_user(UserRole.teacher, "T001")
+    students = [make_user(UserRole.student, ident) for ident in ("25CE099", "25CE100", "25CE101")]
+    cls = make_class(teacher=teacher)
+    enroll(cls, *students)
+    return teacher, students, cls
+
+
+def notifications_of(db, user, type_=None):
+    query = db.query(Notification).filter(Notification.user_id == user.id)
+    if type_:
+        query = query.filter(Notification.type == type_)
+    return query.all()
+
+
+def test_open_finalization_notifies_each_student_once(client, auth, db, class_with_students, make_user):
+    teacher, students, cls = class_with_students
+    outsider = make_user(UserRole.student, "25CE200")
+    session = client.post(f"/classes/{cls.id}/sessions", headers=auth(teacher)).json()
+
+    client.post(f"/sessions/{session['id']}/open-finalization", headers=auth(teacher))
+    client.post(f"/sessions/{session['id']}/open-finalization", headers=auth(teacher))
+
+    for student in students:
+        found = notifications_of(db, student, "finalization_open")
+        assert len(found) == 1
+        assert found[0].ref_id == session["id"]
+    assert notifications_of(db, outsider) == []
+
+
+def add_history(db, cls, teacher, student, statuses):
+    for index, status in enumerate(statuses):
+        starts = utcnow() - timedelta(days=30 - index)
+        session = LectureSession(
+            class_id=cls.id,
+            teacher_user_id=teacher.id,
+            token=f"hist{student.id[:4]}{index:08d}",
+            starts_at=starts,
+            ends_at=starts + timedelta(hours=1),
+            is_active=False,
+        )
+        db.add(session)
+        db.flush()
+        db.add(Attendance(session_id=session.id, student_user_id=student.id, status=status))
+    db.commit()
+
+
+def test_ending_session_warns_only_students_over_the_absence_limit(client, auth, db, class_with_students):
+    teacher, (always_present, mostly_absent, present_today), cls = class_with_students
+    present, absent = AttendanceStatus.present, AttendanceStatus.absent
+    add_history(db, cls, teacher, always_present, [present] * 4)  # vắng hôm nay: 1/5 = 20%, chưa vượt
+    add_history(db, cls, teacher, mostly_absent, [present, absent, absent, absent])  # 4/5 = 80%
+    add_history(db, cls, teacher, present_today, [present] * 4)
+
+    session = client.post(f"/classes/{cls.id}/sessions", headers=auth(teacher)).json()
+    client.post(
+        f"/sessions/{session['id']}/attendance/override",
+        json={"student_user_id": present_today.id, "status": "present", "reason": "Có mặt đầy đủ"},
+        headers=auth(teacher),
+    )
+    client.post(f"/sessions/{session['id']}/end", headers=auth(teacher))
+    client.post(f"/sessions/{session['id']}/end", headers=auth(teacher))  # gọi lại không cảnh báo thêm
+
+    warnings = notifications_of(db, mostly_absent, "absence_warning")
+    assert len(warnings) == 1
+    assert warnings[0].ref_id == cls.id
+    assert "PRM393" in warnings[0].body
+    assert notifications_of(db, always_present, "absence_warning") == []
+    assert notifications_of(db, present_today, "absence_warning") == []
