@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    app_name: str = "BLE Attendance Prototype"
+    app_name: str = "BLE Attendance API"
     app_env: str = "dev"
     debug: bool = True
 
@@ -19,9 +19,13 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_exp_minutes: int = 60 * 8
 
+    beacon_server_key: str = "change-this-beacon-key"
+    local_utc_offset_hours: int = 7
+
     model_config = SettingsConfigDict(
-        env_file=str(Path(__file__).resolve().parents[1] / ".env"),
+        env_file=str(Path(__file__).resolve().parents[2] / ".env"),
         env_file_encoding="utf-8",
+        extra="ignore",
     )
 
     @property
