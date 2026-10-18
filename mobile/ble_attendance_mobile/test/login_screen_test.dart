@@ -110,7 +110,7 @@ void main() {
       await tester.tap(find.byTooltip('Cài đặt máy chủ'));
       await tester.pumpAndSettle();
       expect(find.text('Cài đặt máy chủ'), findsWidgets);
-      await tester.pageBack();
+      await tester.tap(find.byType(BackButton));
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('Chưa có tài khoản? Đăng ký (sinh viên)'));

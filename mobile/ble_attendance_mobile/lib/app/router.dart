@@ -10,7 +10,9 @@ import '../screens/auth/register_screen.dart';
 import '../screens/auth/server_settings_screen.dart';
 import '../screens/auth/splash_screen.dart';
 import '../screens/shell/app_shell.dart';
-import '../screens/shell/placeholder_tab.dart';
+import '../screens/student/class_detail_screen.dart';
+import '../screens/student/leave_form_screen.dart';
+import '../screens/shell/tab_pages.dart';
 import '../screens/shell/shell_tabs.dart';
 
 /// Quyết định chuyển hướng theo trạng thái đăng nhập. Trả null nếu giữ nguyên vị trí.
@@ -41,13 +43,12 @@ StatefulShellRoute _shellFor(AppRole role) {
     builder: (context, state, shell) =>
         AppShell(navigationShell: shell, role: role),
     branches: [
-      for (final tab in tabs)
+      for (var i = 0; i < tabs.length; i++)
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: tab.path,
-              builder: (context, state) =>
-                  PlaceholderTab(title: tab.label, icon: tab.icon),
+              path: tabs[i].path,
+              builder: (context, state) => pageFor(role, i),
             ),
           ],
         ),
@@ -84,6 +85,16 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/settings',
         builder: (_, _) => const ServerSettingsScreen(),
+      ),
+      // Trang chi tiết nằm ngoài khung tab để hiện toàn màn hình với nút Back riêng.
+      GoRoute(
+        path: '/student/classes/:id',
+        builder: (_, state) =>
+            ClassDetailScreen(classId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/student/leave/new',
+        builder: (_, _) => const LeaveFormScreen(),
       ),
       for (final role in AppRole.values) _shellFor(role),
     ],

@@ -9,12 +9,14 @@ lib/
 ├── main.dart            ProviderScope + App
 ├── app/                 app.dart, router.dart (go_router + authRedirect), theme.dart
 ├── core/                hằng số, ApiException (lỗi tiếng Việt), validators
-├── models/              AppRole, AuthUser
-├── data/                ApiClient (Dio), TokenStore, AuthRepository
-├── providers/           Riverpod: core_providers, auth_controller
+├── models/              AppRole, AuthUser, ClassInfo, SessionInfo, ClassStats, LeaveRequest, ...
+├── data/                ApiClient (Dio), TokenStore và các repository (auth, lớp, buổi học, thống kê, xin phép, thông báo)
+├── providers/           Riverpod: auth_controller, repositories, notifications, stats, leave
 ├── ble/                 quyền Bluetooth và dịch vụ nền Android (dùng lại cho luồng BLE)
 ├── screens/auth/        splash, đăng nhập, đăng ký, đổi mật khẩu, cài đặt máy chủ
-├── screens/shell/       khung điều hướng 3 vai trò (tab giữ chỗ)
+├── screens/shell/       khung điều hướng 3 vai trò (tab giữ chỗ cho phần chưa làm)
+├── screens/student/     trang chủ, lớp của tôi + chi tiết, xin phép
+├── screens/notifications/ thông báo (dùng chung, có badge chưa đọc)
 └── widgets/             thành phần dùng chung
 ```
 
@@ -39,4 +41,5 @@ flutter test
 
 - Chỉ hỗ trợ Android (cần quyền Nearby devices, Bluetooth và dịch vụ nền).
 - Tài khoản mới do admin tạo có mật khẩu tạm bằng mã định danh; lần đầu đăng nhập app bắt buộc đổi mật khẩu.
-- Các tab nghiệp vụ hiện là giữ chỗ; xem `docs/superpowers/plans/` để biết lộ trình.
+- Đã có: màn hình sinh viên (buổi học đang diễn ra + chốt điểm danh bằng vân tay/khóa màn hình, lớp của tôi, thống kê chuyên cần, xin phép) và thông báo.
+- Chưa có: màn hình giảng viên, admin và phần BLE (chỉ báo gần/xa, phát/quét); xem `docs/superpowers/plans/` để biết lộ trình.
