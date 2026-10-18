@@ -1,12 +1,21 @@
-// Kiểm tra cơ bản rằng ứng dụng khởi chạy đúng màn hình đăng nhập.
+// Kiểm tra ứng dụng khởi động đến màn hình đăng nhập khi chưa có phiên.
 
+import 'package:ble_attendance_mobile/app/app.dart';
+import 'package:ble_attendance_mobile/providers/core_providers.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:ble_attendance_mobile/main.dart';
+import 'helpers/memory_token_store.dart';
 
 void main() {
-  testWidgets('App loads login screen', (WidgetTester tester) async {
-    await tester.pumpWidget(const BleAttendanceApp());
-    expect(find.text('BLE Attendance Login'), findsOneWidget);
+  testWidgets('App starts at the login screen', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [tokenStoreProvider.overrideWithValue(MemoryTokenStore())],
+        child: const App(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Điểm danh BLE'), findsWidgets);
   });
 }
