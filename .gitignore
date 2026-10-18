@@ -27,3 +27,4 @@ backend/.env
 .idea/
 .vscode/
 *.iml
+.superpowers/
