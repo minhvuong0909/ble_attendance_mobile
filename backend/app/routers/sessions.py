@@ -16,6 +16,7 @@ from app.services.access import (
     require_class_access,
     require_session_teacher,
 )
+from app.services.attendance import finalize_session
 from app.services.beacon import student_secret
 from app.services.lecture import session_to_out
 
@@ -69,6 +70,7 @@ def end_session(
         session.is_active = False
         session.finalization_open = False
         session.ends_at = utcnow()
+        finalize_session(db, session)
         db.commit()
     return session_to_out(db, session)
 
