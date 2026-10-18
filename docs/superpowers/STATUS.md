@@ -13,7 +13,7 @@
 
 ## ĐANG LÀM DỞ (đọc mục này trước)
 
-- Nhánh `feature/flutter-teacher` (Plan 4B, `plans/2026-10-20-flutter-teacher.md`): **Task 1 xong** (models, repositories, `ApiClient.download`, `FileSharer`, fakes; 172 test xanh). **Tiếp theo: Task 2** (tab Lớp học của giảng viên, chi tiết lớp với tab Sinh viên/Buổi học, bắt đầu buổi), rồi Task 3..6.
+- Nhánh `feature/flutter-teacher` (Plan 4B, `plans/2026-10-20-flutter-teacher.md`): **Task 1–3 xong** (repositories, lớp + chi tiết + bắt đầu buổi, báo cáo + Excel; 188 test xanh). **Tiếp theo: Task 4** (tab Buổi trực tiếp: mở chốt, kết thúc có xác nhận, danh sách điểm danh poll 10 giây, chỉnh tay, Excel buổi), Task 5 (duyệt đơn xin phép), Task 6 (hoàn thiện + review + merge).
 - `main` sạch và xanh (backend 223, Flutter 161 test). Ghi chú: `AttendanceRepository.overrideStatus` (không đặt tên `override`).
 
 ## Việc còn lại (theo thứ tự)
