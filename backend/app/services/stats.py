@@ -31,6 +31,10 @@ def class_stats(db: Session, cls: ClassRoom, student_user_id: str) -> ClassStats
             )
         )
     )
+    return stats_from_statuses(statuses, cls.max_absence_percent)
+
+
+def stats_from_statuses(statuses: list[AttendanceStatus], max_absence_percent: int) -> ClassStats:
     total = len(statuses)
     if total == 0:
         return ClassStats(0, 0, 0, 0, 100.0, 0.0, False)
@@ -46,7 +50,7 @@ def class_stats(db: Session, cls: ClassRoom, student_user_id: str) -> ClassStats
         attendance_percent=round((present + excused) / total * 100, 1),
         absent_percent=round(absent / total * 100, 1),
         # So sánh bằng số nguyên để không bị lệch do làm tròn: absent/total > max/100.
-        warning=absent * 100 > cls.max_absence_percent * total,
+        warning=absent * 100 > max_absence_percent * total,
     )
 
 

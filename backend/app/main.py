@@ -9,6 +9,7 @@ from app.routers import classes as classes_router
 from app.routers import detections as detections_router
 from app.routers import me as me_router
 from app.routers import notifications as notifications_router
+from app.routers import reports as reports_router
 from app.routers import sessions as sessions_router
 
 app = FastAPI(title=settings.app_name)
@@ -21,6 +22,7 @@ app.include_router(detections_router.router)
 app.include_router(attendance_router.router)
 app.include_router(notifications_router.router)
 app.include_router(me_router.router)
+app.include_router(reports_router.router)
 
 
 @app.get("/health")
