@@ -1,35 +1,38 @@
 # Backend hệ thống điểm danh BLE
 
-Backend FastAPI quản lý tài khoản, buổi học, detection BLE và kết quả điểm danh trong PostgreSQL.
+Backend FastAPI quản lý tài khoản (admin, giảng viên, sinh viên), môn/lớp, buổi học, detection BLE và kết quả điểm danh trong PostgreSQL.
 
-## Chạy cục bộ
+## Chạy cục bộ (Linux/macOS)
 
-```powershell
+```bash
+cd backend
 docker compose up -d
-cd ..
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r backend\requirements.txt
-Copy-Item backend\.env.example backend\.env
-$env:PYTHONPATH="backend"
-python backend\scripts\seed_demo.py
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --app-dir backend
+python3 -m venv .venv          # hoặc: uv venv .venv
+source .venv/bin/activate
+pip install -r requirements-dev.txt   # hoặc: uv pip install -r requirements-dev.txt
+cp .env.example .env
+alembic upgrade head
+python scripts/seed_demo.py
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 Swagger: `http://127.0.0.1:8000/docs`
 
-## API chính
+## Kiểm thử
 
-- `POST /auth/register`, `POST /auth/login`
-- `POST /sessions`, `POST /sessions/{session_id}/end`
-- `GET /sessions/active`
-- `POST /teacher/sessions/{session_id}/open-finalization`
-- `POST /detections`, `POST /detections/batch`
-- `POST /attendance/finalize`
-- `GET /teacher/sessions/{session_id}/attendance-summary`
-- `POST /teacher/sessions/{session_id}/attendance/override`
-- `GET /teacher/sessions/{session_id}/attendance-export`
+```bash
+pytest -q
+```
+
+## Tài khoản demo (mật khẩu `Pass@123`)
+
+- Admin: `A001` · Giảng viên: `T001` · Sinh viên: `25CE099`, `25CE100`, `D26CE045`
+
+## Thay đổi schema
+
+Tạo migration bằng `alembic revision --autogenerate -m "mô tả"` rồi `alembic upgrade head`.
+Không còn tự `ALTER TABLE` khi khởi động.
 
 ## Bảo mật
 
-Trước khi triển khai thật, phải thay `JWT_SECRET`, dùng HTTPS, bổ sung rate limit và quản lý schema bằng migration.
+Trước khi triển khai thật, phải thay `JWT_SECRET` và `BEACON_SERVER_KEY`, dùng HTTPS, bổ sung rate limit.
