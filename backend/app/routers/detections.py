@@ -17,6 +17,8 @@ router = APIRouter(tags=["detections"])
 
 MAX_OBSERVATION_AGE = timedelta(minutes=10)
 MAX_FUTURE_SKEW = timedelta(minutes=1)
+MIN_RSSI = -127
+MAX_RSSI = 0
 
 
 @router.post("/detections/batch", response_model=DetectionBatchOut)
@@ -35,6 +37,10 @@ def submit_batch(
             sessions[entry.session_id] = db.get(LectureSession, entry.session_id)
         session = sessions[entry.session_id]
         if session is None or not session.is_active or session.teacher_user_id != teacher.id:
+            rejected += 1
+            continue
+
+        if not MIN_RSSI <= entry.rssi <= MAX_RSSI:
             rejected += 1
             continue
 

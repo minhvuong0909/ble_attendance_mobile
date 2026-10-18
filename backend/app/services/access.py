@@ -40,6 +40,13 @@ def get_session_or_404(db: Session, session_id: str) -> LectureSession:
     return session
 
 
+def require_session_class_teacher(db: Session, user: User, session: LectureSession) -> None:
+    """Xem và chỉnh điểm danh theo giảng viên hiện tại của lớp, không theo người đã mở buổi."""
+    cls = db.get(ClassRoom, session.class_id)
+    if cls is None or cls.teacher_user_id != user.id:
+        raise ApiError(404, "session_not_found", "Không tìm thấy buổi học")
+
+
 def require_session_teacher(user: User, session: LectureSession) -> None:
     if session.teacher_user_id != user.id:
         raise ApiError(404, "session_not_found", "Không tìm thấy buổi học")

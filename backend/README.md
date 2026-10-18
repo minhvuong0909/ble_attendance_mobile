@@ -36,3 +36,7 @@ Không còn tự `ALTER TABLE` khi khởi động.
 ## Bảo mật
 
 Trước khi triển khai thật, phải thay `JWT_SECRET` và `BEACON_SERVER_KEY`, dùng HTTPS, bổ sung rate limit.
+
+## Quy ước thời gian
+
+Mọi thời điểm trả ra JSON là UTC kèm hậu tố `Z` (ví dụ `2026-10-18T03:00:00.123456Z`). Thời điểm gửi lên (`observed_at`) bắt buộc kèm múi giờ; giá trị không có múi giờ bị từ chối với 422.

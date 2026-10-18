@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from app.core.clock import local_date, utcnow
@@ -84,6 +84,25 @@ def finalize_session(db: Session, session: LectureSession) -> None:
             excused = has_approved_leave(db, cls.id, student.id, session)
             row.status = resolve_status(row.presence_ratio, row.finalized, excused)
     db.flush()
+
+
+def close_session(db: Session, session: LectureSession) -> bool:
+    """Đóng buổi học và chốt kết quả cả lớp. Trả False nếu một request khác đã đóng trước.
+
+    Dùng UPDATE có điều kiện để hai request kết thúc chạy chồng nhau không tính lại hai lần.
+    Người gọi chịu trách nhiệm commit.
+    """
+    result = db.execute(
+        update(LectureSession)
+        .where(LectureSession.id == session.id, LectureSession.is_active.is_(True))
+        .values(is_active=False, finalization_open=False, ends_at=utcnow())
+        .execution_options(synchronize_session=False)
+    )
+    db.refresh(session)
+    if result.rowcount != 1:
+        return False
+    finalize_session(db, session)
+    return True
 
 
 def build_records(db: Session, session: LectureSession) -> list[AttendanceRecordOut]:

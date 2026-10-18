@@ -19,6 +19,7 @@ from app.schemas.admin import (
 from app.schemas.auth import UserOut
 from app.schemas.classes import ClassOut
 from app.services.academic import class_to_out, new_join_code
+from app.services.accounts import login_id_taken
 
 router = APIRouter(
     prefix="/admin",
@@ -175,7 +176,7 @@ def assign_teacher(class_id: str, payload: AssignTeacherIn, db: Session = Depend
 @router.post("/teachers", response_model=UserOut, status_code=201)
 def create_teacher(payload: TeacherCreate, db: Session = Depends(get_db)) -> User:
     teacher_id = normalize_id(payload.teacher_id)
-    if db.scalar(select(User.id).where(User.teacher_id == teacher_id)) is not None:
+    if login_id_taken(db, teacher_id):
         raise ApiError(409, "teacher_exists", "Mã giảng viên đã tồn tại")
     teacher = User(
         full_name=payload.full_name.strip(),

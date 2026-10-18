@@ -149,3 +149,19 @@ def test_mixed_batch_counts(client, auth, scenario):
     good = item(session, "25CE099", utcnow())
     bad = item(session, "25CE099", utcnow(), tag="deadbeef")
     assert post(client, auth, teacher, good, bad, good).json() == {"recorded": 2, "rejected": 1}
+
+
+def test_naive_observed_at_is_rejected_with_422(client, auth, scenario):
+    teacher, _, session = scenario
+    payload = item(session, "25CE099", utcnow())
+    payload["observed_at"] = utcnow().isoformat()
+    assert post(client, auth, teacher, payload).status_code == 422
+
+
+def test_out_of_range_rssi_rejects_only_that_item(client, auth, scenario):
+    teacher, _, session = scenario
+    good = item(session, "25CE099", utcnow())
+    bad = item(session, "25CE099", utcnow(), rssi=127)
+    response = post(client, auth, teacher, good, bad)
+    assert response.status_code == 200
+    assert response.json() == {"recorded": 1, "rejected": 1}

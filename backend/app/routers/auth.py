@@ -7,6 +7,7 @@ from app.core.errors import ApiError
 from app.core.security import create_access_token, get_current_user, hash_password, verify_password
 from app.core.validators import is_valid_student_id, normalize_id
 from app.models import User, UserRole
+from app.services.accounts import login_id_taken
 from app.schemas.auth import (
     ChangePasswordRequest,
     LoginRequest,
@@ -23,7 +24,7 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)) -> User:
     identifier = normalize_id(payload.identifier)
     if not is_valid_student_id(identifier):
         raise ApiError(422, "invalid_student_id", "Mã sinh viên phải có dạng 25CE099 hoặc D26CE045")
-    if db.scalar(select(User.id).where(User.student_id == identifier)) is not None:
+    if login_id_taken(db, identifier):
         raise ApiError(409, "student_exists", "Mã sinh viên đã tồn tại")
     user = User(
         full_name=payload.full_name.strip(),

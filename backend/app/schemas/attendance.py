@@ -1,8 +1,7 @@
-from datetime import datetime
-
 from pydantic import BaseModel, Field
 
 from app.models import AttendanceStatus
+from app.schemas.common import UtcDateTime
 
 
 class FinalizeIn(BaseModel):
@@ -12,7 +11,7 @@ class FinalizeIn(BaseModel):
 class FinalizeOut(BaseModel):
     session_id: str
     finalized: bool
-    finalized_at: datetime | None
+    finalized_at: UtcDateTime | None
 
 
 class OverrideIn(BaseModel):
@@ -25,7 +24,7 @@ class OverrideOut(BaseModel):
     student_user_id: str
     status: AttendanceStatus
     overridden_by: str
-    overridden_at: datetime
+    overridden_at: UtcDateTime
     override_reason: str
 
 
@@ -37,7 +36,7 @@ class AttendanceRecordOut(BaseModel):
     presence_ratio: float
     status: AttendanceStatus
     finalized: bool
-    first_seen_at: datetime | None
+    first_seen_at: UtcDateTime | None
     overridden: bool
     override_reason: str | None
 

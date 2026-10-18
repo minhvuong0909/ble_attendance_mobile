@@ -16,7 +16,7 @@ from app.schemas.attendance import (
     OverrideOut,
     SessionAttendanceOut,
 )
-from app.services.access import get_session_or_404, is_enrolled, require_session_teacher
+from app.services.access import get_session_or_404, is_enrolled, require_session_class_teacher
 from app.services.attendance import (
     RECENT_DETECTION_SECONDS,
     build_records,
@@ -68,7 +68,7 @@ def session_attendance(
 ) -> SessionAttendanceOut:
     session = get_session_or_404(db, session_id)
     if user.role == UserRole.teacher:
-        require_session_teacher(user, session)
+        require_session_class_teacher(db, user, session)
     records = build_records(db, session)
     present = sum(1 for record in records if record.status == AttendanceStatus.present)
     return SessionAttendanceOut(
@@ -88,7 +88,7 @@ def override_attendance(
     teacher: User = Depends(require_roles(UserRole.teacher)),
 ) -> OverrideOut:
     session = get_session_or_404(db, session_id)
-    require_session_teacher(teacher, session)
+    require_session_class_teacher(db, teacher, session)
     if not is_enrolled(db, session.class_id, payload.student_user_id):
         raise ApiError(404, "student_not_in_class", "Sinh viên không thuộc lớp này")
 
