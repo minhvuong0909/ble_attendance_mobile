@@ -1,0 +1,89 @@
+import 'package:ble_attendance_mobile/app/app.dart';
+import 'package:ble_attendance_mobile/models/app_role.dart';
+import 'package:ble_attendance_mobile/providers/auth_controller.dart';
+import 'package:ble_attendance_mobile/providers/core_providers.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import 'helpers/fake_auth_repository.dart';
+import 'helpers/memory_token_store.dart';
+
+/// Controller cố định trạng thái ban đầu; logout vẫn chạy thật.
+class FixedAuthController extends AuthController {
+  FixedAuthController(this._initial);
+  final AuthState _initial;
+
+  @override
+  AuthState build() => _initial;
+}
+
+Future<void> _pump(WidgetTester tester, AuthState state) async {
+  await tester.pumpWidget(
+    ProviderScope(
+      overrides: [
+        tokenStoreProvider.overrideWithValue(MemoryTokenStore(token: 'abc')),
+        authControllerProvider.overrideWith(() => FixedAuthController(state)),
+      ],
+      child: const App(),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
+AuthState _signedIn(AppRole role) => AuthState(
+  status: AuthStatus.authenticated,
+  user: testUser(role: role),
+);
+
+void main() {
+  const labels = {
+    AppRole.student: ['Trang chủ', 'Lớp của tôi', 'Xin phép', 'Thông báo'],
+    AppRole.teacher: ['Lớp học', 'Buổi trực tiếp', 'Xin phép', 'Thông báo'],
+    AppRole.admin: ['Môn học', 'Lớp học', 'Giảng viên', 'Sinh viên'],
+  };
+
+  for (final role in AppRole.values) {
+    testWidgets('${role.name} sees its four tabs and can switch', (
+      tester,
+    ) async {
+      await _pump(tester, _signedIn(role));
+      final bar = find.byType(NavigationBar);
+      expect(bar, findsOneWidget);
+      for (final label in labels[role]!) {
+        expect(
+          find.descendant(of: bar, matching: find.text(label)),
+          findsOneWidget,
+        );
+      }
+
+      final second = labels[role]![1];
+      await tester.tap(find.descendant(of: bar, matching: find.text(second)));
+      await tester.pumpAndSettle();
+      expect(
+        find.descendant(of: find.byType(AppBar), matching: find.text(second)),
+        findsOneWidget,
+      );
+    });
+  }
+
+  testWidgets('the profile menu shows the user and logs out', (tester) async {
+    await _pump(tester, _signedIn(AppRole.student));
+    await tester.tap(find.byKey(const Key('profile-menu')));
+    await tester.pumpAndSettle();
+    expect(find.text('Nguyen Van A'), findsOneWidget);
+    expect(find.text('Đổi mật khẩu'), findsOneWidget);
+    expect(find.text('Cài đặt máy chủ'), findsOneWidget);
+
+    await tester.tap(find.text('Đăng xuất'));
+    await tester.pumpAndSettle();
+    expect(find.byType(NavigationBar), findsNothing);
+    expect(find.text('Điểm danh BLE'), findsWidgets);
+  });
+
+  testWidgets('no navigation bar while signed out', (tester) async {
+    await _pump(tester, const AuthState(status: AuthStatus.unauthenticated));
+    expect(find.byType(NavigationBar), findsNothing);
+    expect(find.text('Điểm danh BLE'), findsWidgets);
+  });
+}
