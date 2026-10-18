@@ -819,7 +819,7 @@ __all__ = [
 Trong `backend/tests/conftest.py`, thêm sau dòng `from app.main import app`:
 
 ```python
-import app.models  # noqa: F401  (đăng ký bảng vào Base.metadata)
+from app import models as _models  # noqa: F401  (đăng ký bảng vào Base.metadata)
 ```
 
 - [ ] **Step 5: Chạy test model**

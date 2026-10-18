@@ -12,6 +12,7 @@ from sqlalchemy.pool import StaticPool
 
 from app.core.database import Base, get_db
 from app.main import app
+from app import models as _models  # noqa: F401  (đăng ký bảng vào Base.metadata)
 
 
 @pytest.fixture()
