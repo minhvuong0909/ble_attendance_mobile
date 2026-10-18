@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/app_role.dart';
 import '../notifications/notifications_screen.dart';
+import '../student/student_home_screen.dart';
 import 'placeholder_tab.dart';
 import 'shell_tabs.dart';
 
@@ -9,5 +10,11 @@ import 'shell_tabs.dart';
 Widget pageFor(AppRole role, int index) {
   final tab = tabsFor(role)[index];
   if (tab.path.endsWith('/notifications')) return const NotificationsScreen();
+  if (role == AppRole.student) {
+    switch (index) {
+      case 0:
+        return const StudentHomeScreen();
+    }
+  }
   return PlaceholderTab(title: tab.label, icon: tab.icon);
 }
