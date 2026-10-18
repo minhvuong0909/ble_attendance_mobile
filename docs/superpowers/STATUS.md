@@ -11,6 +11,12 @@
 | Flutter foundation | Riverpod + go_router, đăng nhập/đăng ký/đổi mật khẩu bắt buộc, cài đặt máy chủ, khung 3 vai trò | |
 | Flutter student (4A) | Lớp dữ liệu dùng chung, thông báo + badge, màn hình sinh viên | 161 test Flutter xanh |
 
+## ĐANG LÀM DỞ (đọc mục này trước)
+
+- Nhánh `feature/flutter-teacher` (Plan 4B, file `plans/2026-10-20-flutter-teacher.md`). **Task 1 đang dở**: đã viết xong 2 file test (`test/teacher_models_test.dart`, `test/teacher_repositories_test.dart`) và đã thêm `share_plus`, `path_provider`; test đang ĐỎ vì chưa cài đặt.
+- Việc tiếp theo: cài đặt `models/{student_info,attendance_record,class_report,export_file}.dart`, `data/{attendance_repository,report_repository,file_sharer}.dart` (có hàm `filenameFromDisposition`), `ApiClient.download`, mở rộng `ClassRepository/SessionRepository/LeaveRepository`, cập nhật `test/helpers/fakes.dart`; cho test xanh rồi commit, sau đó Task 2..6 theo plan.
+- `main` đang sạch và xanh (backend 223, Flutter 161 test).
+
 ## Việc còn lại (theo thứ tự)
 
 1. **Plan 4B – giảng viên:** lớp được phân công + sinh viên + lịch sử buổi + báo cáo/Excel, tab Buổi trực tiếp (mở chốt, kết thúc, danh sách điểm danh, chỉnh tay), duyệt đơn xin phép.
