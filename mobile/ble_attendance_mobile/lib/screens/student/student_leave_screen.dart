@@ -27,6 +27,7 @@ class StudentLeaveScreen extends ConsumerWidget {
       body: AsyncValueView<List<LeaveRequest>>(
         value: value,
         onRetry: () => ref.invalidate(myLeaveProvider),
+        onRefresh: () => ref.refresh(myLeaveProvider.future),
         isEmpty: (items) => items.isEmpty,
         emptyMessage: 'Bạn chưa gửi đơn xin phép nào',
         emptyIcon: Icons.event_busy_outlined,

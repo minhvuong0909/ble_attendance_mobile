@@ -42,6 +42,7 @@ class StudentClassesScreen extends ConsumerWidget {
       body: AsyncValueView<List<ClassStats>>(
         value: value,
         onRetry: () => ref.invalidate(classStatsProvider),
+        onRefresh: () => ref.refresh(classStatsProvider.future),
         isEmpty: (items) => items.isEmpty,
         emptyMessage:
             'Bạn chưa tham gia lớp nào.\nBấm "Tham gia lớp" và nhập mã lớp từ giảng viên.',
@@ -94,9 +95,14 @@ class _ClassCard extends StatelessWidget {
                         backgroundColor: color.withValues(alpha: 0.15),
                       ),
                     ),
-                    Text(
-                      '${stats.attendancePercent.round()}%',
-                      style: theme.textTheme.labelLarge,
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: FittedBox(
+                        child: Text(
+                          '${stats.attendancePercent.round()}%',
+                          style: theme.textTheme.labelLarge,
+                        ),
+                      ),
                     ),
                   ],
                 ),

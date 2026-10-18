@@ -33,10 +33,15 @@ class NotificationsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final value = ref.watch(notificationsProvider);
+    // Có thông báo mới (số chưa đọc tăng) thì tải lại danh sách, kể cả khi đang hiển thị trạng thái rỗng.
+    ref.listen(unreadCountProvider, (previous, next) {
+      if (next > (previous ?? 0)) ref.invalidate(notificationsProvider);
+    });
     final controller = ref.read(notificationsProvider.notifier);
     return AsyncValueView<List<AppNotification>>(
       value: value,
       onRetry: () => ref.invalidate(notificationsProvider),
+      onRefresh: controller.reload,
       isEmpty: (items) => items.isEmpty,
       emptyMessage: 'Chưa có thông báo',
       emptyIcon: Icons.notifications_none,

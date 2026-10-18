@@ -10,6 +10,7 @@ import '../../providers/repositories.dart';
 import '../../providers/session_provider.dart';
 import '../../widgets/async_value_view.dart';
 import '../../widgets/error_banner.dart';
+import '../../widgets/warning_banner.dart';
 
 const _refreshInterval = Duration(seconds: 15);
 
@@ -73,6 +74,12 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16),
           children: [
+            if (value.hasError) ...[
+              const WarningBanner(
+                'Không cập nhật được, đang hiển thị dữ liệu gần nhất.',
+              ),
+              const SizedBox(height: 12),
+            ],
             if (session == null)
               const _NoSession()
             else
@@ -143,10 +150,12 @@ class _SessionCard extends StatelessWidget {
               children: [
                 Icon(Icons.sensors, color: theme.colorScheme.primary),
                 const SizedBox(width: 8),
-                Text(
-                  'Đang diễn ra',
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    color: theme.colorScheme.primary,
+                Expanded(
+                  child: Text(
+                    'Đang diễn ra',
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      color: theme.colorScheme.primary,
+                    ),
                   ),
                 ),
               ],
@@ -161,9 +170,11 @@ class _SessionCard extends StatelessWidget {
                 children: [
                   const Icon(Icons.check_circle, color: Colors.green),
                   const SizedBox(width: 8),
-                  Text(
-                    'Đã xác nhận điểm danh',
-                    style: theme.textTheme.titleMedium,
+                  Expanded(
+                    child: Text(
+                      'Đã xác nhận điểm danh',
+                      style: theme.textTheme.titleMedium,
+                    ),
                   ),
                 ],
               )

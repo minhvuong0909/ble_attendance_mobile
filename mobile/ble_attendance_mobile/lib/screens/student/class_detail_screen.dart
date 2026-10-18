@@ -76,14 +76,14 @@ class _Summary extends StatelessWidget {
             Text(stats.courseName, style: theme.textTheme.titleLarge),
             Text('${stats.title} · ${stats.semester}'),
             const SizedBox(height: 12),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.end,
+              spacing: 8,
               children: [
                 Text(
                   '${stats.attendancePercent.round()}%',
                   style: theme.textTheme.displaySmall,
                 ),
-                const SizedBox(width: 8),
                 const Padding(
                   padding: EdgeInsets.only(bottom: 6),
                   child: Text('chuyên cần'),

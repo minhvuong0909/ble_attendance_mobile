@@ -10,6 +10,7 @@ class AsyncValueView<T> extends StatelessWidget {
     required this.value,
     required this.data,
     required this.onRetry,
+    this.onRefresh,
     this.isEmpty,
     this.emptyMessage = 'Không có dữ liệu',
     this.emptyIcon = Icons.inbox_outlined,
@@ -18,29 +19,48 @@ class AsyncValueView<T> extends StatelessWidget {
   final AsyncValue<T> value;
   final Widget Function(T data) data;
   final VoidCallback onRetry;
+
+  /// Nếu có, trạng thái rỗng kéo xuống để làm mới được.
+  final Future<void> Function()? onRefresh;
   final bool Function(T data)? isEmpty;
   final String emptyMessage;
   final IconData emptyIcon;
 
   @override
   Widget build(BuildContext context) {
-    return value.when(
-      skipLoadingOnReload: true,
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, _) => _Centered(
-        icon: Icons.error_outline,
-        message: friendlyError(error),
-        action: FilledButton.tonal(
-          onPressed: onRetry,
-          child: const Text('Thử lại'),
+    // Đã có dữ liệu thì luôn hiển thị (kể cả khi lần làm mới sau đó lỗi), để một lần mất mạng
+    // thoáng qua không làm biến mất nội dung đang dùng.
+    if (value.hasValue) {
+      final items = value.value as T;
+      if (isEmpty?.call(items) ?? false) {
+        return _refreshable(_Centered(icon: emptyIcon, message: emptyMessage));
+      }
+      return data(items);
+    }
+    if (value.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return _Centered(
+      icon: Icons.error_outline,
+      message: friendlyError(value.error ?? ''),
+      action: FilledButton.tonal(
+        onPressed: onRetry,
+        child: const Text('Thử lại'),
+      ),
+    );
+  }
+
+  Widget _refreshable(Widget child) {
+    final refresh = onRefresh;
+    if (refresh == null) return child;
+    return RefreshIndicator(
+      onRefresh: refresh,
+      child: LayoutBuilder(
+        builder: (context, constraints) => ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: [SizedBox(height: constraints.maxHeight, child: child)],
         ),
       ),
-      data: (items) {
-        if (isEmpty?.call(items) ?? false) {
-          return _Centered(icon: emptyIcon, message: emptyMessage);
-        }
-        return data(items);
-      },
     );
   }
 }
