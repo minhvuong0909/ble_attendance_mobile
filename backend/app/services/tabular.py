@@ -36,7 +36,11 @@ def _read_csv(content: bytes) -> Table:
         raise ApiError(422, "file_unreadable", "Không đọc được file, hãy lưu CSV dạng UTF-8") from exc
     first_line = text.splitlines()[0] if text.strip() else ""
     delimiter = ";" if first_line.count(";") > first_line.count(",") else ","
-    return _build_table([row for row in csv.reader(io.StringIO(text), delimiter=delimiter)])
+    try:
+        raw_rows = [row for row in csv.reader(io.StringIO(text), delimiter=delimiter)]
+    except csv.Error as exc:
+        raise ApiError(422, "file_unreadable", "File CSV bị lỗi định dạng hoặc có ô quá dài") from exc
+    return _build_table(raw_rows)
 
 
 def _read_xlsx(content: bytes) -> Table:

@@ -93,8 +93,14 @@ def _header_row(ws, row: int, headers: list[str]) -> None:
         cell.border = BORDER
 
 
+FORMULA_PREFIXES = ("=", "+", "-", "@", "\t", "\r")
+
+
 def _body_cell(ws, row: int, column: int, value) -> None:
     cell = ws.cell(row=row, column=column, value=value if value != "" else None)
+    if isinstance(value, str) and value.startswith(FORMULA_PREFIXES):
+        # Dữ liệu người dùng nhập (tên, lý do) tuyệt đối không được thành công thức Excel.
+        cell.data_type = "s"
     cell.border = BORDER
     cell.alignment = Alignment(horizontal="center")
 

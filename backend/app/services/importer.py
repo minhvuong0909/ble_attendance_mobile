@@ -14,6 +14,10 @@ from app.services.tabular import Table, require_columns
 
 Runner = Callable[[Session, Table, bool], list[ImportRowOut]]
 
+# Giới hạn độ dài khớp với cột trong database.
+MAX_NAME = 120
+MAX_CODE = 32
+
 
 def _row(number: int, status: str, message: str) -> ImportRowOut:
     return ImportRowOut(row=number, status=status, message=message)
@@ -43,6 +47,9 @@ def students_runner(cls: ClassRoom) -> Runner:
                 continue
             if len(name) < 2:
                 results.append(_row(number, "error", "Thiếu họ tên"))
+                continue
+            if len(name) > MAX_NAME:
+                results.append(_row(number, "error", f"Họ tên quá dài (tối đa {MAX_NAME} ký tự)"))
                 continue
             if ident in seen:
                 results.append(_row(number, "error", "Mã sinh viên bị trùng trong file"))
@@ -86,6 +93,9 @@ def teachers_runner() -> Runner:
             if len(name) < 2:
                 results.append(_row(number, "error", "Thiếu họ tên"))
                 continue
+            if len(name) > MAX_NAME:
+                results.append(_row(number, "error", f"Họ tên quá dài (tối đa {MAX_NAME} ký tự)"))
+                continue
             if ident in seen:
                 results.append(_row(number, "error", "Mã giảng viên bị trùng trong file"))
                 continue
@@ -125,6 +135,11 @@ def classes_runner() -> Runner:
 
             if len(course_code) < 2 or not class_code or len(semester) < 2:
                 results.append(_row(number, "error", "Thiếu mã môn, mã lớp hoặc học kỳ"))
+                continue
+            if max(len(course_code), len(class_code), len(semester)) > MAX_CODE or len(course_name) > MAX_NAME:
+                results.append(
+                    _row(number, "error", f"Mã/học kỳ tối đa {MAX_CODE} ký tự, tên môn tối đa {MAX_NAME} ký tự")
+                )
                 continue
             key = (course_code, class_code, semester)
             if key in seen:

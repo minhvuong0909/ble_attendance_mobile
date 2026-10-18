@@ -14,7 +14,7 @@ from app.models import (
     User,
 )
 from app.schemas.attendance import AttendanceRecordOut
-from app.services.notifier import notify
+from app.services.notifier import notify, notify_many
 from app.services.presence import PRESENT_THRESHOLD, Sample, first_seen_at, presence_ratio
 from app.services.stats import class_stats
 
@@ -108,6 +108,36 @@ def notify_absence_warnings(db: Session, session: LectureSession) -> None:
                 f"vượt mức cho phép {cls.max_absence_percent}%.",
                 ref_id=cls.id,
             )
+
+
+def open_finalization(db: Session, session: LectureSession) -> bool:
+    """Mở chốt điểm danh và báo cho SV trong lớp. Trả False nếu đã mở rồi (kể cả bởi request khác).
+
+    UPDATE có điều kiện để hai request đồng thời không gửi thông báo hai lần. Người gọi chịu trách nhiệm commit.
+    """
+    result = db.execute(
+        update(LectureSession)
+        .where(
+            LectureSession.id == session.id,
+            LectureSession.is_active.is_(True),
+            LectureSession.finalization_open.is_(False),
+        )
+        .values(finalization_open=True)
+        .execution_options(synchronize_session=False)
+    )
+    db.refresh(session)
+    if result.rowcount != 1:
+        return False
+    cls = db.get(ClassRoom, session.class_id)
+    notify_many(
+        db,
+        [student.id for student in enrolled_students(db, cls.id)],
+        "finalization_open",
+        "Mở chốt điểm danh",
+        f"Giảng viên đã mở chốt điểm danh môn {cls.course.code}. Hãy xác nhận ngay.",
+        ref_id=session.id,
+    )
+    return True
 
 
 def close_session(db: Session, session: LectureSession) -> bool:

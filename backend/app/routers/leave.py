@@ -2,14 +2,13 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 
-from app.core.clock import utcnow
 from app.core.database import get_db
 from app.core.errors import ApiError
 from app.core.security import require_roles
 from app.models import ClassRoom, LeaveRequest, LeaveStatus, User, UserRole
 from app.schemas.leave import LeaveCreate, LeaveOut, LeaveReview
 from app.services.access import get_class_or_404, is_enrolled, require_class_access
-from app.services.leave import apply_leave_to_settled_sessions, leave_to_out
+from app.services.leave import leave_to_out, review_leave_request
 from app.services.notifier import notify
 
 router = APIRouter(tags=["leave"])
@@ -99,24 +98,8 @@ def review_leave(
     cls = db.get(ClassRoom, leave.class_id) if leave else None
     if leave is None or cls is None or cls.teacher_user_id != teacher.id:
         raise ApiError(404, "leave_not_found", "Không tìm thấy đơn xin phép")
-    if leave.status != LeaveStatus.pending:
+    if not review_leave_request(db, leave, teacher, payload.decision, payload.note):
+        db.rollback()
         raise ApiError(409, "already_reviewed", "Đơn này đã được xử lý")
-
-    leave.status = LeaveStatus(payload.decision)
-    leave.reviewed_by = teacher.id
-    leave.reviewed_at = utcnow()
-    leave.review_note = payload.note.strip() if payload.note else None
-    if leave.status == LeaveStatus.approved:
-        apply_leave_to_settled_sessions(db, leave)
-
-    verdict = "đã được duyệt" if leave.status == LeaveStatus.approved else "bị từ chối"
-    notify(
-        db,
-        leave.student_user_id,
-        "leave_reviewed",
-        "Kết quả đơn xin phép",
-        f"Đơn xin phép ngày {leave.date:%d/%m/%Y} môn {cls.course.code} {verdict}.",
-        ref_id=str(leave.id),
-    )
     db.commit()
     return leave_to_out(db, leave)
