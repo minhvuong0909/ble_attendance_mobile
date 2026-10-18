@@ -11,7 +11,8 @@ class ChangePasswordScreen extends ConsumerStatefulWidget {
   const ChangePasswordScreen({super.key});
 
   @override
-  ConsumerState<ChangePasswordScreen> createState() => _ChangePasswordScreenState();
+  ConsumerState<ChangePasswordScreen> createState() =>
+      _ChangePasswordScreenState();
 }
 
 class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
@@ -41,7 +42,10 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final router = GoRouter.of(context);
     try {
-      await controller.changePassword(oldPassword: _oldCtrl.text, newPassword: _newCtrl.text);
+      await controller.changePassword(
+        oldPassword: _oldCtrl.text,
+        newPassword: _newCtrl.text,
+      );
       messenger.showSnackBar(const SnackBar(content: Text('Đã đổi mật khẩu')));
       if (forced) {
         router.go(home);
@@ -59,7 +63,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final forced = ref.watch(authControllerProvider).user?.mustChangePassword ?? false;
+    final forced =
+        ref.watch(authControllerProvider).user?.mustChangePassword ?? false;
     return PopScope(
       canPop: !forced,
       child: Scaffold(
@@ -69,7 +74,8 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
           actions: [
             if (forced)
               TextButton(
-                onPressed: () => ref.read(authControllerProvider.notifier).logout(),
+                onPressed: () =>
+                    ref.read(authControllerProvider.notifier).logout(),
                 child: const Text('Đăng xuất'),
               ),
           ],
@@ -85,7 +91,9 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     if (forced) ...[
-                      const Text('Bạn đang dùng mật khẩu tạm. Hãy đặt mật khẩu mới để tiếp tục.'),
+                      const Text(
+                        'Bạn đang dùng mật khẩu tạm. Hãy đặt mật khẩu mới để tiếp tục.',
+                      ),
                       const SizedBox(height: 16),
                     ],
                     TextFormField(
@@ -93,8 +101,11 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                       controller: _oldCtrl,
                       obscureText: true,
                       textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(labelText: 'Mật khẩu hiện tại'),
-                      validator: (v) => Validators.requiredField(v, 'mật khẩu hiện tại'),
+                      decoration: const InputDecoration(
+                        labelText: 'Mật khẩu hiện tại',
+                      ),
+                      validator: (v) =>
+                          Validators.requiredField(v, 'mật khẩu hiện tại'),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -102,7 +113,9 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                       controller: _newCtrl,
                       obscureText: true,
                       textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(labelText: 'Mật khẩu mới'),
+                      decoration: const InputDecoration(
+                        labelText: 'Mật khẩu mới',
+                      ),
                       validator: Validators.password,
                     ),
                     const SizedBox(height: 16),
@@ -110,7 +123,9 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                       key: const Key('confirm-password'),
                       controller: _confirmCtrl,
                       obscureText: true,
-                      decoration: const InputDecoration(labelText: 'Nhập lại mật khẩu mới'),
+                      decoration: const InputDecoration(
+                        labelText: 'Nhập lại mật khẩu mới',
+                      ),
                       validator: (v) => Validators.confirm(v, _newCtrl.text),
                     ),
                     if (_error != null) ...[

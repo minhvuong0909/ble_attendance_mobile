@@ -15,7 +15,10 @@ class ApiClient {
       ..connectTimeout = const Duration(seconds: 12)
       ..receiveTimeout = const Duration(seconds: 12);
     this.dio.interceptors.add(
-      InterceptorsWrapper(onRequest: _attachToken, onError: _handleUnauthorized),
+      InterceptorsWrapper(
+        onRequest: _attachToken,
+        onError: _handleUnauthorized,
+      ),
     );
   }
 
@@ -72,7 +75,8 @@ class ApiClient {
     DioException error,
     ErrorInterceptorHandler handler,
   ) async {
-    if (error.response?.statusCode == 401 && error.requestOptions.path != '/auth/login') {
+    if (error.response?.statusCode == 401 &&
+        error.requestOptions.path != '/auth/login') {
       await store.clearToken();
       onUnauthorized?.call();
     }

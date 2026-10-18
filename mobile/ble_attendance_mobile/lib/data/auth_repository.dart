@@ -2,7 +2,10 @@ import '../models/auth_user.dart';
 import 'api_client.dart';
 
 class LoginResult {
-  const LoginResult({required this.accessToken, required this.mustChangePassword});
+  const LoginResult({
+    required this.accessToken,
+    required this.mustChangePassword,
+  });
 
   final String accessToken;
   final bool mustChangePassword;
@@ -16,7 +19,10 @@ abstract class AuthRepository {
     required String password,
   });
   Future<AuthUser> me();
-  Future<void> changePassword({required String oldPassword, required String newPassword});
+  Future<void> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  });
 }
 
 class ApiAuthRepository implements AuthRepository {
@@ -27,7 +33,10 @@ class ApiAuthRepository implements AuthRepository {
   @override
   Future<LoginResult> login(String id, String password) async {
     final json =
-        await _api.post('/auth/login', data: {'identifier': id, 'password': password})
+        await _api.post(
+              '/auth/login',
+              data: {'identifier': id, 'password': password},
+            )
             as Map<String, dynamic>;
     return LoginResult(
       accessToken: json['access_token'] as String,
@@ -44,7 +53,11 @@ class ApiAuthRepository implements AuthRepository {
     final json =
         await _api.post(
               '/auth/register',
-              data: {'full_name': fullName, 'identifier': identifier, 'password': password},
+              data: {
+                'full_name': fullName,
+                'identifier': identifier,
+                'password': password,
+              },
             )
             as Map<String, dynamic>;
     return AuthUser.fromJson(json);

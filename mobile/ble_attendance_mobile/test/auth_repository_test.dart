@@ -26,7 +26,11 @@ void main() {
     adapter = FakeAdapter((options) async {
       switch (options.path) {
         case '/auth/login':
-          return jsonBody({'access_token': 'jwt', 'token_type': 'bearer', 'must_change_password': true});
+          return jsonBody({
+            'access_token': 'jwt',
+            'token_type': 'bearer',
+            'must_change_password': true,
+          });
         case '/auth/me':
         case '/auth/register':
           return jsonBody(_userJson);
@@ -48,25 +52,36 @@ void main() {
     expect(result.mustChangePassword, isTrue);
     final request = adapter.requests.single;
     expect(request.path, '/auth/login');
-    expect(jsonDecode(jsonEncode(request.data)), {'identifier': 'T001', 'password': 'Pass@123'});
+    expect(jsonDecode(jsonEncode(request.data)), {
+      'identifier': 'T001',
+      'password': 'Pass@123',
+    });
   });
 
   test('register posts the student payload without a role', () async {
-    final user = await repo.register(fullName: 'Nguyen Van A', identifier: '25CE099', password: 'Pass@123');
-    expect(user.role, AppRole.student);
-    expect(
-      jsonDecode(jsonEncode(adapter.requests.single.data)),
-      {'full_name': 'Nguyen Van A', 'identifier': '25CE099', 'password': 'Pass@123'},
+    final user = await repo.register(
+      fullName: 'Nguyen Van A',
+      identifier: '25CE099',
+      password: 'Pass@123',
     );
+    expect(user.role, AppRole.student);
+    expect(jsonDecode(jsonEncode(adapter.requests.single.data)), {
+      'full_name': 'Nguyen Van A',
+      'identifier': '25CE099',
+      'password': 'Pass@123',
+    });
   });
 
   test('me and changePassword use the expected endpoints', () async {
     expect((await repo.me()).loginId, '25CE099');
     await repo.changePassword(oldPassword: 'a', newPassword: 'bbbbbb');
-    expect(adapter.requests.map((r) => r.path), ['/auth/me', '/auth/change-password']);
-    expect(
-      jsonDecode(jsonEncode(adapter.requests.last.data)),
-      {'old_password': 'a', 'new_password': 'bbbbbb'},
-    );
+    expect(adapter.requests.map((r) => r.path), [
+      '/auth/me',
+      '/auth/change-password',
+    ]);
+    expect(jsonDecode(jsonEncode(adapter.requests.last.data)), {
+      'old_password': 'a',
+      'new_password': 'bbbbbb',
+    });
   });
 }

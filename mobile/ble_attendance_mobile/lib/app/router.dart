@@ -38,14 +38,16 @@ String? authRedirect(AuthState auth, String location) {
 StatefulShellRoute _shellFor(AppRole role) {
   final tabs = tabsFor(role);
   return StatefulShellRoute.indexedStack(
-    builder: (context, state, shell) => AppShell(navigationShell: shell, role: role),
+    builder: (context, state, shell) =>
+        AppShell(navigationShell: shell, role: role),
     branches: [
       for (final tab in tabs)
         StatefulShellBranch(
           routes: [
             GoRoute(
               path: tab.path,
-              builder: (context, state) => PlaceholderTab(title: tab.label, icon: tab.icon),
+              builder: (context, state) =>
+                  PlaceholderTab(title: tab.label, icon: tab.icon),
             ),
           ],
         ),
@@ -75,8 +77,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/splash', builder: (_, _) => const SplashScreen()),
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
       GoRoute(path: '/register', builder: (_, _) => const RegisterScreen()),
-      GoRoute(path: '/change-password', builder: (_, _) => const ChangePasswordScreen()),
-      GoRoute(path: '/settings', builder: (_, _) => const ServerSettingsScreen()),
+      GoRoute(
+        path: '/change-password',
+        builder: (_, _) => const ChangePasswordScreen(),
+      ),
+      GoRoute(
+        path: '/settings',
+        builder: (_, _) => const ServerSettingsScreen(),
+      ),
       for (final role in AppRole.values) _shellFor(role),
     ],
   );

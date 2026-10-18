@@ -24,7 +24,10 @@ DioException _error({
 void main() {
   test('maps backend {detail, code} to ApiException', () {
     final e = ApiException.fromDio(
-      _error(status: 409, data: {'detail': 'Mã đã tồn tại', 'code': 'student_exists'}),
+      _error(
+        status: 409,
+        data: {'detail': 'Mã đã tồn tại', 'code': 'student_exists'},
+      ),
     );
     expect(e.code, 'student_exists');
     expect(e.message, 'Mã đã tồn tại');
@@ -33,7 +36,14 @@ void main() {
 
   test('maps FastAPI default 422 list to validation', () {
     final e = ApiException.fromDio(
-      _error(status: 422, data: {'detail': [{'msg': 'bad'}]}),
+      _error(
+        status: 422,
+        data: {
+          'detail': [
+            {'msg': 'bad'},
+          ],
+        },
+      ),
     );
     expect(e.code, 'validation');
     expect(e.message, contains('hợp lệ'));
@@ -51,7 +61,9 @@ void main() {
       'network',
     );
     expect(
-      ApiException.fromDio(_error(type: DioExceptionType.connectionTimeout)).code,
+      ApiException.fromDio(
+        _error(type: DioExceptionType.connectionTimeout),
+      ).code,
       'timeout',
     );
     expect(
@@ -60,7 +72,10 @@ void main() {
     );
     expect(
       ApiException.fromDio(
-        _error(type: DioExceptionType.unknown, error: const SocketException('x')),
+        _error(
+          type: DioExceptionType.unknown,
+          error: const SocketException('x'),
+        ),
       ).code,
       'network',
     );
@@ -71,14 +86,18 @@ void main() {
   });
 
   test('network and timeout messages are Vietnamese', () {
-    final network = ApiException.fromDio(_error(type: DioExceptionType.connectionError));
+    final network = ApiException.fromDio(
+      _error(type: DioExceptionType.connectionError),
+    );
     expect(network.message, contains('máy chủ'));
   });
 
   test('friendlyError handles ApiException, DioException and others', () {
     expect(friendlyError(ApiException('x', 'Lỗi A')), 'Lỗi A');
     expect(
-      friendlyError(_error(status: 409, data: {'detail': 'Lỗi B', 'code': 'b'})),
+      friendlyError(
+        _error(status: 409, data: {'detail': 'Lỗi B', 'code': 'b'}),
+      ),
       'Lỗi B',
     );
     expect(friendlyError(StateError('boom')), contains('không mong muốn'));

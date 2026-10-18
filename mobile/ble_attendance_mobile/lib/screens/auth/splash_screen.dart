@@ -14,7 +14,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => ref.read(authControllerProvider.notifier).bootstrap());
+    Future.microtask(
+      () => ref.read(authControllerProvider.notifier).bootstrap(),
+    );
   }
 
   @override

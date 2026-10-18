@@ -30,18 +30,21 @@ void main() {
     expect(user.mustChangePassword, isFalse);
   });
 
-  test('AuthUser.fromJson for teacher and admin uses teacher_id as login id', () {
-    for (final role in ['teacher', 'admin']) {
-      final user = AuthUser.fromJson({
-        'id': 'u2',
-        'full_name': 'Co Lan',
-        'role': role,
-        'student_id': null,
-        'teacher_id': 'T001',
-        'must_change_password': true,
-      });
-      expect(user.loginId, 'T001');
-      expect(user.mustChangePassword, isTrue);
-    }
-  });
+  test(
+    'AuthUser.fromJson for teacher and admin uses teacher_id as login id',
+    () {
+      for (final role in ['teacher', 'admin']) {
+        final user = AuthUser.fromJson({
+          'id': 'u2',
+          'full_name': 'Co Lan',
+          'role': role,
+          'student_id': null,
+          'teacher_id': 'T001',
+          'must_change_password': true,
+        });
+        expect(user.loginId, 'T001');
+        expect(user.mustChangePassword, isTrue);
+      }
+    },
+  );
 }

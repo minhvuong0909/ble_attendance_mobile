@@ -17,7 +17,10 @@ class PlaceholderTab extends StatelessWidget {
           const SizedBox(height: 12),
           Text(title, style: theme.textTheme.titleMedium),
           const SizedBox(height: 4),
-          Text('Tính năng đang được phát triển', style: theme.textTheme.bodyMedium),
+          Text(
+            'Tính năng đang được phát triển',
+            style: theme.textTheme.bodyMedium,
+          ),
         ],
       ),
     );

@@ -7,7 +7,11 @@ import '../../providers/auth_controller.dart';
 import 'shell_tabs.dart';
 
 class AppShell extends ConsumerWidget {
-  const AppShell({super.key, required this.navigationShell, required this.role});
+  const AppShell({
+    super.key,
+    required this.navigationShell,
+    required this.role,
+  });
 
   final StatefulNavigationShell navigationShell;
   final AppRole role;
@@ -45,7 +49,9 @@ class ProfileMenu extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authControllerProvider).user;
-    final initial = (user?.fullName.isNotEmpty ?? false) ? user!.fullName[0].toUpperCase() : '?';
+    final initial = (user?.fullName.isNotEmpty ?? false)
+        ? user!.fullName[0].toUpperCase()
+        : '?';
     return PopupMenuButton<String>(
       key: const Key('profile-menu'),
       tooltip: 'Tài khoản',
@@ -66,7 +72,10 @@ class ProfileMenu extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(user?.fullName ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                user?.fullName ?? '',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
               Text('${user?.role.label ?? ''} · ${user?.loginId ?? ''}'),
             ],
           ),

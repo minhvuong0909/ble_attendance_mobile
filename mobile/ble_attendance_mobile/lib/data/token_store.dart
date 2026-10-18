@@ -20,11 +20,13 @@ class SecureTokenStore implements TokenStore {
   @override
   Future<String?> readToken() => _storage.read(key: _tokenKey);
   @override
-  Future<void> saveToken(String token) => _storage.write(key: _tokenKey, value: token);
+  Future<void> saveToken(String token) =>
+      _storage.write(key: _tokenKey, value: token);
   @override
   Future<void> clearToken() => _storage.delete(key: _tokenKey);
   @override
   Future<String?> readBaseUrl() => _storage.read(key: _baseUrlKey);
   @override
-  Future<void> saveBaseUrl(String url) => _storage.write(key: _baseUrlKey, value: url);
+  Future<void> saveBaseUrl(String url) =>
+      _storage.write(key: _baseUrlKey, value: url);
 }

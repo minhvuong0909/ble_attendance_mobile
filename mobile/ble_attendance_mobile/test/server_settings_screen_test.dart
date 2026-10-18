@@ -37,13 +37,19 @@ Future<FakeAdapter> _openSettings(
 
 void main() {
   testWidgets('shows the current address', (tester) async {
-    await _openSettings(tester, handler: (_) async => jsonBody({'status': 'ok'}));
+    await _openSettings(
+      tester,
+      handler: (_) async => jsonBody({'status': 'ok'}),
+    );
     final field = tester.widget<TextField>(find.byKey(const Key('server-url')));
     expect(field.controller!.text, 'http://192.168.1.7:8000');
   });
 
   testWidgets('an invalid address is rejected with a message', (tester) async {
-    await _openSettings(tester, handler: (_) async => jsonBody({'status': 'ok'}));
+    await _openSettings(
+      tester,
+      handler: (_) async => jsonBody({'status': 'ok'}),
+    );
     await tester.enterText(find.byKey(const Key('server-url')), '   ');
     await tester.tap(find.text('Kiểm tra kết nối'));
     await tester.pumpAndSettle();
@@ -51,19 +57,29 @@ void main() {
   });
 
   testWidgets('a successful connection test is reported', (tester) async {
-    final adapter = await _openSettings(tester, handler: (_) async => jsonBody({'status': 'ok'}));
-    await tester.enterText(find.byKey(const Key('server-url')), '10.0.0.5:8000');
+    final adapter = await _openSettings(
+      tester,
+      handler: (_) async => jsonBody({'status': 'ok'}),
+    );
+    await tester.enterText(
+      find.byKey(const Key('server-url')),
+      '10.0.0.5:8000',
+    );
     await tester.tap(find.text('Kiểm tra kết nối'));
     await tester.pumpAndSettle();
     expect(find.text('Kết nối thành công'), findsOneWidget);
     expect(adapter.requests.last.uri.toString(), 'http://10.0.0.5:8000/health');
   });
 
-  testWidgets('a failed connection test shows the network message', (tester) async {
+  testWidgets('a failed connection test shows the network message', (
+    tester,
+  ) async {
     await _openSettings(
       tester,
-      handler: (options) async =>
-          throw DioException(requestOptions: options, type: DioExceptionType.connectionError),
+      handler: (options) async => throw DioException(
+        requestOptions: options,
+        type: DioExceptionType.connectionError,
+      ),
     );
     await tester.tap(find.text('Kiểm tra kết nối'));
     await tester.pumpAndSettle();
@@ -72,21 +88,33 @@ void main() {
 
   testWidgets('saving normalizes and stores the address', (tester) async {
     final store = MemoryTokenStore();
-    await _openSettings(tester, handler: (_) async => jsonBody({'status': 'ok'}), store: store);
-    await tester.enterText(find.byKey(const Key('server-url')), ' 10.0.0.5:8000/ ');
+    await _openSettings(
+      tester,
+      handler: (_) async => jsonBody({'status': 'ok'}),
+      store: store,
+    );
+    await tester.enterText(
+      find.byKey(const Key('server-url')),
+      ' 10.0.0.5:8000/ ',
+    );
     await tester.tap(find.text('Lưu'));
     await tester.pumpAndSettle();
     expect(store.baseUrl, 'http://10.0.0.5:8000');
   });
 
-  testWidgets('wake-up retries until the server answers, then stops', (tester) async {
+  testWidgets('wake-up retries until the server answers, then stops', (
+    tester,
+  ) async {
     var calls = 0;
     final adapter = await _openSettings(
       tester,
       handler: (options) async {
         calls++;
         if (calls < 3) {
-          throw DioException(requestOptions: options, type: DioExceptionType.connectionError);
+          throw DioException(
+            requestOptions: options,
+            type: DioExceptionType.connectionError,
+          );
         }
         return jsonBody({'status': 'ok'});
       },
@@ -104,8 +132,10 @@ void main() {
   testWidgets('wake-up gives up after the configured attempts', (tester) async {
     final adapter = await _openSettings(
       tester,
-      handler: (options) async =>
-          throw DioException(requestOptions: options, type: DioExceptionType.connectionError),
+      handler: (options) async => throw DioException(
+        requestOptions: options,
+        type: DioExceptionType.connectionError,
+      ),
     );
     await tester.ensureVisible(find.text('Đánh thức máy chủ (Render)'));
     await tester.tap(find.text('Đánh thức máy chủ (Render)'));

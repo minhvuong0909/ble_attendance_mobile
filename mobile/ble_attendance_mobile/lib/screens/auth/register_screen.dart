@@ -38,11 +38,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       _error = null;
     });
     try {
-      await ref.read(authControllerProvider.notifier).register(
-        fullName: _nameCtrl.text,
-        identifier: _idCtrl.text,
-        password: _passwordCtrl.text,
-      );
+      await ref
+          .read(authControllerProvider.notifier)
+          .register(
+            fullName: _nameCtrl.text,
+            identifier: _idCtrl.text,
+            password: _passwordCtrl.text,
+          );
     } catch (error) {
       if (mounted) setState(() => _error = friendlyError(error));
     } finally {
@@ -81,7 +83,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       labelText: 'Mã sinh viên',
                       helperText: 'Ví dụ 25CE099 hoặc D26CE045',
                     ),
-                    validator: (v) => Validators.requiredField(v, 'mã sinh viên'),
+                    validator: (v) =>
+                        Validators.requiredField(v, 'mã sinh viên'),
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
@@ -97,7 +100,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     key: const Key('register-confirm'),
                     controller: _confirmCtrl,
                     obscureText: true,
-                    decoration: const InputDecoration(labelText: 'Nhập lại mật khẩu'),
+                    decoration: const InputDecoration(
+                      labelText: 'Nhập lại mật khẩu',
+                    ),
                     validator: (v) => Validators.confirm(v, _passwordCtrl.text),
                   ),
                   if (_error != null) ...[

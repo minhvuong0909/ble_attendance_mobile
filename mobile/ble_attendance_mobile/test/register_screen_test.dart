@@ -62,7 +62,9 @@ void main() {
     expect(find.text('Vui lòng nhập mã sinh viên'), findsOneWidget);
   });
 
-  testWidgets('a valid registration signs in and lands on the student home', (tester) async {
+  testWidgets('a valid registration signs in and lands on the student home', (
+    tester,
+  ) async {
     final repo = FakeAuthRepository();
     String? registeredId;
     repo.onRegister = (n, id, p) async {
@@ -77,10 +79,15 @@ void main() {
     expect(find.byType(NavigationBar), findsOneWidget);
   });
 
-  testWidgets('a server error is shown and the user stays on the form', (tester) async {
+  testWidgets('a server error is shown and the user stays on the form', (
+    tester,
+  ) async {
     final repo = FakeAuthRepository()
-      ..onRegister = (n, id, p) async =>
-          throw ApiException('student_exists', 'Mã sinh viên đã tồn tại', statusCode: 409);
+      ..onRegister = (n, id, p) async => throw ApiException(
+        'student_exists',
+        'Mã sinh viên đã tồn tại',
+        statusCode: 409,
+      );
     await pumpApp(tester, repo: repo);
     await _openRegister(tester);
     await _fill(tester);

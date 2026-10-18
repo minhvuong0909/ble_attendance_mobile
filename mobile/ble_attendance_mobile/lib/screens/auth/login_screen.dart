@@ -36,7 +36,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _error = null;
     });
     try {
-      await ref.read(authControllerProvider.notifier).login(_idCtrl.text, _passwordCtrl.text);
+      await ref
+          .read(authControllerProvider.notifier)
+          .login(_idCtrl.text, _passwordCtrl.text);
       // Đăng nhập xong, router tự chuyển sang trang chủ theo vai trò.
     } catch (error) {
       if (mounted) setState(() => _error = friendlyError(error));
@@ -69,7 +71,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Icon(Icons.sensors, size: 64, color: theme.colorScheme.primary),
+                  Icon(
+                    Icons.sensors,
+                    size: 64,
+                    color: theme.colorScheme.primary,
+                  ),
                   const SizedBox(height: 8),
                   Text(
                     'Đăng nhập để điểm danh',
@@ -87,7 +93,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       helperText: 'MSSV hoặc mã giảng viên, ví dụ 25CE099',
                       prefixIcon: Icon(Icons.person_outline),
                     ),
-                    validator: (v) => Validators.requiredField(v, 'mã đăng nhập'),
+                    validator: (v) =>
+                        Validators.requiredField(v, 'mã đăng nhập'),
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
@@ -101,7 +108,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       suffixIcon: IconButton(
                         key: const Key('toggle-password'),
                         tooltip: _obscure ? 'Hiện mật khẩu' : 'Ẩn mật khẩu',
-                        icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
+                        icon: Icon(
+                          _obscure ? Icons.visibility : Icons.visibility_off,
+                        ),
                         onPressed: () => setState(() => _obscure = !_obscure),
                       ),
                     ),

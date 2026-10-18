@@ -30,69 +30,104 @@ FakeAuthRepository _forcedRepo() {
 }
 
 void main() {
-  testWidgets('a forced change cannot be skipped: no back button, only logout', (tester) async {
-    await pumpApp(tester, repo: _forcedRepo(), store: MemoryTokenStore(token: 't'));
-    expect(find.text('Đổi mật khẩu'), findsWidgets);
-    expect(find.byType(BackButton), findsNothing);
-    expect(find.byType(NavigationBar), findsNothing);
-    expect(find.text('Đăng xuất'), findsOneWidget);
-  });
+  testWidgets(
+    'a forced change cannot be skipped: no back button, only logout',
+    (tester) async {
+      await pumpApp(
+        tester,
+        repo: _forcedRepo(),
+        store: MemoryTokenStore(token: 't'),
+      );
+      expect(find.text('Đổi mật khẩu'), findsWidgets);
+      expect(find.byType(BackButton), findsNothing);
+      expect(find.byType(NavigationBar), findsNothing);
+      expect(find.text('Đăng xuất'), findsOneWidget);
+    },
+  );
 
   testWidgets('mismatching confirmation is blocked', (tester) async {
     final repo = _forcedRepo();
     var called = false;
     repo.onChangePassword = (o, n) async => called = true;
-    await pumpApp(tester, repo: repo, store: MemoryTokenStore(token: 't'));
+    await pumpApp(
+      tester,
+      repo: repo,
+      store: MemoryTokenStore(token: 't'),
+    );
     await _fill(tester, confirm: 'Khac@123');
     await _submit(tester);
     expect(find.text('Mật khẩu nhập lại không khớp'), findsOneWidget);
     expect(called, isFalse);
   });
 
-  testWidgets('a wrong current password shows the server message', (tester) async {
+  testWidgets('a wrong current password shows the server message', (
+    tester,
+  ) async {
     final repo = _forcedRepo()
-      ..onChangePassword = (o, n) async =>
-          throw ApiException('invalid_password', 'Mật khẩu hiện tại không đúng', statusCode: 400);
-    await pumpApp(tester, repo: repo, store: MemoryTokenStore(token: 't'));
+      ..onChangePassword = (o, n) async => throw ApiException(
+        'invalid_password',
+        'Mật khẩu hiện tại không đúng',
+        statusCode: 400,
+      );
+    await pumpApp(
+      tester,
+      repo: repo,
+      store: MemoryTokenStore(token: 't'),
+    );
     await _fill(tester);
     await _submit(tester);
     expect(find.text('Mật khẩu hiện tại không đúng'), findsOneWidget);
     expect(find.byType(NavigationBar), findsNothing);
   });
 
-  testWidgets('after a forced change the user reaches the role home', (tester) async {
+  testWidgets('after a forced change the user reaches the role home', (
+    tester,
+  ) async {
     final repo = _forcedRepo();
     repo.onChangePassword = (o, n) async {
       repo.onMe = () async => testUser(mustChangePassword: false);
     };
-    await pumpApp(tester, repo: repo, store: MemoryTokenStore(token: 't'));
+    await pumpApp(
+      tester,
+      repo: repo,
+      store: MemoryTokenStore(token: 't'),
+    );
     await _fill(tester);
     await _submit(tester);
     expect(find.byType(NavigationBar), findsOneWidget);
   });
 
-  testWidgets('logout from the forced screen returns to the login screen', (tester) async {
-    await pumpApp(tester, repo: _forcedRepo(), store: MemoryTokenStore(token: 't'));
+  testWidgets('logout from the forced screen returns to the login screen', (
+    tester,
+  ) async {
+    await pumpApp(
+      tester,
+      repo: _forcedRepo(),
+      store: MemoryTokenStore(token: 't'),
+    );
     await tester.tap(find.text('Đăng xuất'));
     await tester.pumpAndSettle();
     expect(find.text('Điểm danh BLE'), findsWidgets);
     expect(find.byKey(const Key('login-id')), findsOneWidget);
   });
 
-  testWidgets('a voluntary change has a back button and returns home with a message', (tester) async {
-    await pumpApp(tester, store: MemoryTokenStore(token: 't'));
-    expect(find.byType(NavigationBar), findsOneWidget);
+  testWidgets(
+    'a voluntary change has a back button and returns home with a message',
+    (tester) async {
+      await pumpApp(tester, store: MemoryTokenStore(token: 't'));
+      expect(find.byType(NavigationBar), findsOneWidget);
 
-    await tester.tap(find.byKey(const Key('profile-menu')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Đổi mật khẩu'));
-    await tester.pumpAndSettle();
-    expect(find.byType(BackButton), findsOneWidget);
+      await tester.tap(find.byKey(const Key('profile-menu')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Đổi mật khẩu'));
+      await tester.pumpAndSettle();
+      expect(find.byType(BackButton), findsOneWidget);
 
-    await _fill(tester);
-    await _submit(tester);
-    expect(find.text('Đã đổi mật khẩu'), findsOneWidget);
-    expect(find.byType(NavigationBar), findsOneWidget);
-    expect(find.byKey(const Key('old-password')), findsNothing);
-  });
+      await _fill(tester);
+      await _submit(tester);
+      expect(find.text('Đã đổi mật khẩu'), findsOneWidget);
+      expect(find.byType(NavigationBar), findsOneWidget);
+      expect(find.byKey(const Key('old-password')), findsNothing);
+    },
+  );
 }

@@ -47,14 +47,20 @@ void main() {
 
     test('stays inside its own branch', () {
       expect(authRedirect(_signedIn(AppRole.student), '/student'), isNull);
-      expect(authRedirect(_signedIn(AppRole.student), '/student/classes'), isNull);
+      expect(
+        authRedirect(_signedIn(AppRole.student), '/student/classes'),
+        isNull,
+      );
       expect(authRedirect(_signedIn(AppRole.teacher), '/teacher/live'), isNull);
       expect(authRedirect(_signedIn(AppRole.admin), '/admin/teachers'), isNull);
     });
 
     test('is sent home when it opens another role area', () {
       expect(authRedirect(_signedIn(AppRole.teacher), '/admin'), '/teacher');
-      expect(authRedirect(_signedIn(AppRole.student), '/teacher/live'), '/student');
+      expect(
+        authRedirect(_signedIn(AppRole.student), '/teacher/live'),
+        '/student',
+      );
       expect(authRedirect(_signedIn(AppRole.admin), '/student'), '/admin');
       expect(authRedirect(_signedIn(AppRole.student), '/studentx'), '/student');
     });
@@ -66,7 +72,10 @@ void main() {
     });
 
     test('query strings do not confuse the match', () {
-      expect(authRedirect(_signedIn(AppRole.student), '/student/classes?x=1'), isNull);
+      expect(
+        authRedirect(_signedIn(AppRole.student), '/student/classes?x=1'),
+        isNull,
+      );
     });
   });
 

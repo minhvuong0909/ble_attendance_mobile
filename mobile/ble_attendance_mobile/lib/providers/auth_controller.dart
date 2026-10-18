@@ -69,7 +69,11 @@ class AuthController extends Notifier<AuthState> {
     final id = normalizeId(identifier);
     await ref
         .read(authRepositoryProvider)
-        .register(fullName: fullName.trim(), identifier: id, password: password);
+        .register(
+          fullName: fullName.trim(),
+          identifier: id,
+          password: password,
+        );
     await login(id, password);
   }
 
@@ -78,7 +82,10 @@ class AuthController extends Notifier<AuthState> {
     required String newPassword,
   }) async {
     final repo = ref.read(authRepositoryProvider);
-    await repo.changePassword(oldPassword: oldPassword, newPassword: newPassword);
+    await repo.changePassword(
+      oldPassword: oldPassword,
+      newPassword: newPassword,
+    );
     final user = await repo.me();
     state = AuthState(status: AuthStatus.authenticated, user: user);
   }

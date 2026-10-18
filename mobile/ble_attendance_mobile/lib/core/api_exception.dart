@@ -40,7 +40,10 @@ class ApiException implements Exception {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return ApiException('timeout', 'Máy chủ phản hồi quá chậm, hãy thử lại.');
+        return ApiException(
+          'timeout',
+          'Máy chủ phản hồi quá chậm, hãy thử lại.',
+        );
       case DioExceptionType.connectionError:
         return _network();
       default:

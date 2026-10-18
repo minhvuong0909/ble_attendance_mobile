@@ -22,7 +22,8 @@ class ServerSettingsScreen extends ConsumerStatefulWidget {
   const ServerSettingsScreen({super.key});
 
   @override
-  ConsumerState<ServerSettingsScreen> createState() => _ServerSettingsScreenState();
+  ConsumerState<ServerSettingsScreen> createState() =>
+      _ServerSettingsScreenState();
 }
 
 class _ServerSettingsScreenState extends ConsumerState<ServerSettingsScreen> {
@@ -69,7 +70,9 @@ class _ServerSettingsScreenState extends ConsumerState<ServerSettingsScreen> {
     await ref.read(apiClientProvider).setBaseUrl(_urlCtrl.text);
     if (!mounted) return;
     _urlCtrl.text = ref.read(apiClientProvider).baseUrl;
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đã lưu địa chỉ máy chủ')));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Đã lưu địa chỉ máy chủ')));
     if (context.canPop()) context.pop();
   });
 
@@ -79,7 +82,10 @@ class _ServerSettingsScreenState extends ConsumerState<ServerSettingsScreen> {
     await api.setBaseUrl(_urlCtrl.text);
     for (var attempt = 1; attempt <= config.attempts; attempt++) {
       if (!mounted) return;
-      setState(() => _status = 'Đang đánh thức máy chủ... ($attempt/${config.attempts})');
+      setState(
+        () =>
+            _status = 'Đang đánh thức máy chủ... ($attempt/${config.attempts})',
+      );
       try {
         await api.get('/health');
         if (mounted) setState(() => _status = 'Máy chủ đã sẵn sàng');
@@ -89,7 +95,9 @@ class _ServerSettingsScreenState extends ConsumerState<ServerSettingsScreen> {
       }
     }
     if (mounted) {
-      setState(() => _status = 'Máy chủ chưa phản hồi, hãy thử lại sau ít phút.');
+      setState(
+        () => _status = 'Máy chủ chưa phản hồi, hãy thử lại sau ít phút.',
+      );
     }
   });
 
@@ -111,7 +119,8 @@ class _ServerSettingsScreenState extends ConsumerState<ServerSettingsScreen> {
                   keyboardType: TextInputType.url,
                   decoration: const InputDecoration(
                     labelText: 'Địa chỉ máy chủ',
-                    helperText: 'Trên điện thoại thật dùng http://<IP máy tính>:8000',
+                    helperText:
+                        'Trên điện thoại thật dùng http://<IP máy tính>:8000',
                     prefixIcon: Icon(Icons.dns_outlined),
                   ),
                 ),
@@ -134,7 +143,10 @@ class _ServerSettingsScreenState extends ConsumerState<ServerSettingsScreen> {
                   child: const Text('Đánh thức máy chủ (Render)'),
                 ),
                 const SizedBox(height: 8),
-                FilledButton(onPressed: _busy ? null : _save, child: const Text('Lưu')),
+                FilledButton(
+                  onPressed: _busy ? null : _save,
+                  child: const Text('Lưu'),
+                ),
               ],
             ),
           ),

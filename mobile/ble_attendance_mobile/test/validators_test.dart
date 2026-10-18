@@ -27,7 +27,10 @@ void main() {
 
   test('normalizeBaseUrl adds scheme and strips trailing slash', () {
     expect(normalizeBaseUrl('192.168.1.7:8000/'), 'http://192.168.1.7:8000');
-    expect(normalizeBaseUrl('https://api.example.com'), 'https://api.example.com');
+    expect(
+      normalizeBaseUrl('https://api.example.com'),
+      'https://api.example.com',
+    );
     expect(normalizeBaseUrl(' http://10.0.0.2:8000 '), 'http://10.0.0.2:8000');
   });
 

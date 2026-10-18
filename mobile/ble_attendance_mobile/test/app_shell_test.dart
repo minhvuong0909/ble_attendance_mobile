@@ -31,8 +31,10 @@ Future<void> _pump(WidgetTester tester, AuthState state) async {
   await tester.pumpAndSettle();
 }
 
-AuthState _signedIn(AppRole role) =>
-    AuthState(status: AuthStatus.authenticated, user: testUser(role: role));
+AuthState _signedIn(AppRole role) => AuthState(
+  status: AuthStatus.authenticated,
+  user: testUser(role: role),
+);
 
 void main() {
   const labels = {
@@ -42,18 +44,26 @@ void main() {
   };
 
   for (final role in AppRole.values) {
-    testWidgets('${role.name} sees its four tabs and can switch', (tester) async {
+    testWidgets('${role.name} sees its four tabs and can switch', (
+      tester,
+    ) async {
       await _pump(tester, _signedIn(role));
       final bar = find.byType(NavigationBar);
       expect(bar, findsOneWidget);
       for (final label in labels[role]!) {
-        expect(find.descendant(of: bar, matching: find.text(label)), findsOneWidget);
+        expect(
+          find.descendant(of: bar, matching: find.text(label)),
+          findsOneWidget,
+        );
       }
 
       final second = labels[role]![1];
       await tester.tap(find.descendant(of: bar, matching: find.text(second)));
       await tester.pumpAndSettle();
-      expect(find.descendant(of: find.byType(AppBar), matching: find.text(second)), findsOneWidget);
+      expect(
+        find.descendant(of: find.byType(AppBar), matching: find.text(second)),
+        findsOneWidget,
+      );
     });
   }
 
