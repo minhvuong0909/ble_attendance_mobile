@@ -17,6 +17,7 @@ from app.services.access import (
     require_session_teacher,
 )
 from app.services.attendance import close_session
+from app.services.attendance import open_finalization as open_finalization_once
 from app.services.beacon import student_secret
 from app.services.lecture import session_to_out
 
@@ -81,7 +82,7 @@ def open_finalization(
     require_session_teacher(teacher, session)
     if not session.is_active:
         raise ApiError(409, "session_ended", "Buổi học đã kết thúc")
-    session.finalization_open = True
+    open_finalization_once(db, session)
     db.commit()
     return session_to_out(db, session)
 
