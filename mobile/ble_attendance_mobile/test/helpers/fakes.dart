@@ -24,6 +24,8 @@ ClassInfo sampleClass({
   String classCode = 'SE1901',
   String courseCode = 'PRM393',
   String courseName = 'Lập trình di động',
+  String? joinCode,
+  int studentCount = 30,
 }) => ClassInfo(
   id: id,
   courseId: 'k1',
@@ -33,10 +35,10 @@ ClassInfo sampleClass({
   semester: 'FA26',
   teacherUserId: 't1',
   teacherName: 'Co Lan',
-  joinCode: null,
+  joinCode: joinCode,
   maxAbsencePercent: 20,
   rssiThreshold: -75,
-  studentCount: 30,
+  studentCount: studentCount,
 );
 
 SessionInfo sampleSession({bool finalizationOpen = false, String id = 's1'}) =>
