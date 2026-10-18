@@ -56,20 +56,26 @@ const _leave = {
   return (client: client, adapter: adapter);
 }
 
-Map<String, dynamic> _body(RequestOptions r) => jsonDecode(jsonEncode(r.data)) as Map<String, dynamic>;
+Map<String, dynamic> _body(RequestOptions r) =>
+    jsonDecode(jsonEncode(r.data)) as Map<String, dynamic>;
 
-ResponseBody _bytes(List<int> data, {String? disposition, int status = 200}) => ResponseBody.fromBytes(
-  data,
-  status,
-  headers: {
-    if (disposition != null) 'content-disposition': [disposition],
-    Headers.contentTypeHeader: ['application/octet-stream'],
-  },
-);
+ResponseBody _bytes(List<int> data, {String? disposition, int status = 200}) =>
+    ResponseBody.fromBytes(
+      data,
+      status,
+      headers: {
+        if (disposition != null) 'content-disposition': [disposition],
+        Headers.contentTypeHeader: ['application/octet-stream'],
+      },
+    );
 
 void main() {
   test('ClassRepository.classStudents', () async {
-    final s = _setup((_) async => jsonBody([{'id': 'u1', 'student_id': '25CE099', 'full_name': 'An'}]));
+    final s = _setup(
+      (_) async => jsonBody([
+        {'id': 'u1', 'student_id': '25CE099', 'full_name': 'An'},
+      ]),
+    );
     final students = await ApiClassRepository(s.client).classStudents('c1');
     expect(students.single.fullName, 'An');
     expect(s.adapter.requests.single.path, '/classes/c1/students');
@@ -77,7 +83,10 @@ void main() {
 
   test('SessionRepository teacher actions', () async {
     final start = _setup((_) async => jsonBody(_session, status: 201));
-    expect((await ApiSessionRepository(start.client).startSession('c1')).id, 's1');
+    expect(
+      (await ApiSessionRepository(start.client).startSession('c1')).id,
+      's1',
+    );
     expect(start.adapter.requests.single.method, 'POST');
     expect(start.adapter.requests.single.path, '/classes/c1/sessions');
 
@@ -90,7 +99,10 @@ void main() {
     expect(open.adapter.requests.single.path, '/sessions/s1/open-finalization');
 
     final history = _setup((_) async => jsonBody([_session, _session]));
-    expect(await ApiSessionRepository(history.client).classSessions('c1'), hasLength(2));
+    expect(
+      await ApiSessionRepository(history.client).classSessions('c1'),
+      hasLength(2),
+    );
     expect(history.adapter.requests.single.path, '/classes/c1/sessions');
   });
 
@@ -104,7 +116,9 @@ void main() {
         'records': [],
       }),
     );
-    final result = await ApiAttendanceRepository(list.client).sessionAttendance('s1');
+    final result = await ApiAttendanceRepository(
+      list.client,
+    ).sessionAttendance('s1');
     expect(result.records, isEmpty);
     expect(list.adapter.requests.single.path, '/sessions/s1/attendance');
 
@@ -117,13 +131,16 @@ void main() {
         'override_reason': 'Có giấy phép',
       }),
     );
-    await ApiAttendanceRepository(override.client).override(
+    await ApiAttendanceRepository(override.client).overrideStatus(
       sessionId: 's1',
       studentUserId: 'u1',
       status: AttendanceStatus.excused,
       reason: 'Có giấy phép',
     );
-    expect(override.adapter.requests.single.path, '/sessions/s1/attendance/override');
+    expect(
+      override.adapter.requests.single.path,
+      '/sessions/s1/attendance/override',
+    );
     expect(_body(override.adapter.requests.single), {
       'student_user_id': 'u1',
       'status': 'excused',
@@ -149,45 +166,78 @@ void main() {
     expect(s.adapter.requests.single.path, '/classes/c1/report');
   });
 
-  test('ReportRepository exports return bytes and the server file name', () async {
-    final data = [80, 75, 3, 4];
-    final cls = _setup((_) async => _bytes(data, disposition: 'attachment; filename="attendance_PRM393_SE1901_FA26.xlsx"'));
-    final file = await ApiReportRepository(cls.client).exportClass('c1');
-    expect(file.filename, 'attendance_PRM393_SE1901_FA26.xlsx');
-    expect(file.bytes, data);
-    expect(cls.adapter.requests.single.path, '/classes/c1/report/export');
+  test(
+    'ReportRepository exports return bytes and the server file name',
+    () async {
+      final data = [80, 75, 3, 4];
+      final cls = _setup(
+        (_) async => _bytes(
+          data,
+          disposition:
+              'attachment; filename="attendance_PRM393_SE1901_FA26.xlsx"',
+        ),
+      );
+      final file = await ApiReportRepository(cls.client).exportClass('c1');
+      expect(file.filename, 'attendance_PRM393_SE1901_FA26.xlsx');
+      expect(file.bytes, data);
+      expect(cls.adapter.requests.single.path, '/classes/c1/report/export');
 
-    final session = _setup((_) async => _bytes(data));
-    final fallback = await ApiReportRepository(session.client).exportSession('s1');
-    expect(fallback.filename, 'attendance.xlsx');
-    expect(session.adapter.requests.single.path, '/sessions/s1/export');
-  });
+      final session = _setup((_) async => _bytes(data));
+      final fallback = await ApiReportRepository(
+        session.client,
+      ).exportSession('s1');
+      expect(fallback.filename, 'attendance.xlsx');
+      expect(session.adapter.requests.single.path, '/sessions/s1/export');
+    },
+  );
 
-  test('a failed export becomes an ApiException with the server code', () async {
-    final s = _setup(
-      (_) async => ResponseBody.fromString(
-        jsonEncode({'detail': 'Không tìm thấy lớp', 'code': 'class_not_found'}),
-        404,
-        headers: {Headers.contentTypeHeader: [Headers.jsonContentType]},
-      ),
-    );
-    await expectLater(
-      ApiReportRepository(s.client).exportClass('c1'),
-      throwsA(isA<ApiException>().having((e) => e.code, 'code', 'class_not_found')),
-    );
-  });
+  test(
+    'a failed export becomes an ApiException with the server code',
+    () async {
+      final s = _setup(
+        (_) async => ResponseBody.fromString(
+          jsonEncode({
+            'detail': 'Không tìm thấy lớp',
+            'code': 'class_not_found',
+          }),
+          404,
+          headers: {
+            Headers.contentTypeHeader: [Headers.jsonContentType],
+          },
+        ),
+      );
+      await expectLater(
+        ApiReportRepository(s.client).exportClass('c1'),
+        throwsA(
+          isA<ApiException>().having((e) => e.code, 'code', 'class_not_found'),
+        ),
+      );
+    },
+  );
 
-  test('filenameFromDisposition handles quotes, missing header and extra params', () {
-    expect(filenameFromDisposition('attachment; filename="a b.xlsx"', 'x'), 'a b.xlsx');
-    expect(filenameFromDisposition('attachment; filename=plain.xlsx; size=3', 'x'), 'plain.xlsx');
-    expect(filenameFromDisposition(null, 'x.xlsx'), 'x.xlsx');
-    expect(filenameFromDisposition('inline', 'x.xlsx'), 'x.xlsx');
-  });
+  test(
+    'filenameFromDisposition handles quotes, missing header and extra params',
+    () {
+      expect(
+        filenameFromDisposition('attachment; filename="a b.xlsx"', 'x'),
+        'a b.xlsx',
+      );
+      expect(
+        filenameFromDisposition('attachment; filename=plain.xlsx; size=3', 'x'),
+        'plain.xlsx',
+      );
+      expect(filenameFromDisposition(null, 'x.xlsx'), 'x.xlsx');
+      expect(filenameFromDisposition('inline', 'x.xlsx'), 'x.xlsx');
+    },
+  );
 
   test('LeaveRepository.classRequests and review', () async {
     final list = _setup((_) async => jsonBody([_leave]));
     final repo = ApiLeaveRepository(list.client);
-    expect((await repo.classRequests('c1', status: LeaveStatus.pending)).single.id, 4);
+    expect(
+      (await repo.classRequests('c1', status: LeaveStatus.pending)).single.id,
+      4,
+    );
     expect(list.adapter.requests.single.path, '/classes/c1/leave-requests');
     expect(list.adapter.requests.single.queryParameters, {'status': 'pending'});
 
@@ -196,8 +246,13 @@ void main() {
     expect(all.adapter.requests.single.queryParameters, isEmpty);
 
     final review = _setup((_) async => jsonBody(_leave));
-    await ApiLeaveRepository(review.client).review(leaveId: 4, decision: 'approved', note: 'OK');
+    await ApiLeaveRepository(
+      review.client,
+    ).review(leaveId: 4, decision: 'approved', note: 'OK');
     expect(review.adapter.requests.single.path, '/leave-requests/4/review');
-    expect(_body(review.adapter.requests.single), {'decision': 'approved', 'note': 'OK'});
+    expect(_body(review.adapter.requests.single), {
+      'decision': 'approved',
+      'note': 'OK',
+    });
   });
 }

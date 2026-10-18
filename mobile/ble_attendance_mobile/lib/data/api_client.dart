@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 
 import '../core/api_exception.dart';
@@ -53,6 +55,36 @@ class ApiClient {
 
   Future<dynamic> post(String path, {Object? data}) =>
       _send(() => dio.post<dynamic>(path, data: data));
+
+  /// Tải một tệp nhị phân (ví dụ Excel). Lỗi của server (JSON) được chuyển thành [ApiException].
+  Future<({List<int> bytes, String? contentDisposition})> download(
+    String path,
+  ) async {
+    try {
+      final response = await dio.get<List<int>>(
+        path,
+        options: Options(responseType: ResponseType.bytes),
+      );
+      return (
+        bytes: response.data ?? const <int>[],
+        contentDisposition: response.headers.value('content-disposition'),
+      );
+    } on DioException catch (error) {
+      throw ApiException.fromDio(_decodeBinaryError(error));
+    }
+  }
+
+  DioException _decodeBinaryError(DioException error) {
+    final response = error.response;
+    final data = response?.data;
+    if (response == null || data is! List<int>) return error;
+    try {
+      response.data = jsonDecode(utf8.decode(data));
+    } catch (_) {
+      response.data = null;
+    }
+    return error;
+  }
 
   /// Kiểm tra `/health` của một địa chỉ bất kỳ mà không lưu nó và không gửi token.
   Future<void> ping(String input) async {

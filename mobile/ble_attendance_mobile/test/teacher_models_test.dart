@@ -6,10 +6,21 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('StudentInfo.fromJson', () {
-    final s = StudentInfo.fromJson({'id': 'u1', 'student_id': '25CE099', 'full_name': 'An'});
+    final s = StudentInfo.fromJson({
+      'id': 'u1',
+      'student_id': '25CE099',
+      'full_name': 'An',
+    });
     expect(s.studentId, '25CE099');
     expect(s.fullName, 'An');
-    expect(StudentInfo.fromJson({'id': 'u2', 'student_id': null, 'full_name': 'B'}).studentId, isNull);
+    expect(
+      StudentInfo.fromJson({
+        'id': 'u2',
+        'student_id': null,
+        'full_name': 'B',
+      }).studentId,
+      isNull,
+    );
   });
 
   test('SessionAttendance.fromJson parses records', () {
