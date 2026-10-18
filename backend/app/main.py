@@ -7,6 +7,7 @@ from app.routers import attendance as attendance_router
 from app.routers import auth as auth_router
 from app.routers import classes as classes_router
 from app.routers import detections as detections_router
+from app.routers import me as me_router
 from app.routers import notifications as notifications_router
 from app.routers import sessions as sessions_router
 
@@ -19,6 +20,7 @@ app.include_router(sessions_router.router)
 app.include_router(detections_router.router)
 app.include_router(attendance_router.router)
 app.include_router(notifications_router.router)
+app.include_router(me_router.router)
 
 
 @app.get("/health")
