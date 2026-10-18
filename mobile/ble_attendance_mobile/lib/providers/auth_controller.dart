@@ -32,17 +32,27 @@ class AuthController extends Notifier<AuthState> {
   /// Khôi phục phiên khi mở app. Mất mạng thì giữ token để lần sau thử lại.
   Future<void> bootstrap() async {
     final store = ref.read(tokenStoreProvider);
-    await ref.read(apiClientProvider).init();
-    final token = await store.readToken();
-    if (token == null || token.isEmpty) {
-      state = const AuthState(status: AuthStatus.unauthenticated);
-      return;
-    }
     try {
+      try {
+        await ref.read(apiClientProvider).init();
+      } on ApiException {
+        // Địa chỉ máy chủ đã lưu bị hỏng: dùng địa chỉ mặc định.
+      }
+      final token = await store.readToken();
+      if (token == null || token.isEmpty) {
+        state = const AuthState(status: AuthStatus.unauthenticated);
+        return;
+      }
       final user = await ref.read(authRepositoryProvider).me();
       state = AuthState(status: AuthStatus.authenticated, user: user);
-    } on ApiException catch (error) {
-      if (error.statusCode == 401) await store.clearToken();
+    } catch (error) {
+      // Mọi lỗi (mất mạng, trang đăng nhập Wi-Fi trả HTML, lỗi kho khóa...) đều phải kết thúc
+      // ở màn hình đăng nhập chứ không kẹt ở splash. Chỉ 401 mới xóa token.
+      if (error is ApiException && error.statusCode == 401) {
+        try {
+          await store.clearToken();
+        } catch (_) {}
+      }
       state = const AuthState(status: AuthStatus.unauthenticated);
     }
   }
@@ -86,8 +96,19 @@ class AuthController extends Notifier<AuthState> {
       oldPassword: oldPassword,
       newPassword: newPassword,
     );
-    final user = await repo.me();
-    state = AuthState(status: AuthStatus.authenticated, user: user);
+    // Đã đổi thành công; nếu làm mới thông tin lỗi thì tự hạ cờ ở máy để không báo lỗi oan.
+    try {
+      final user = await repo.me();
+      state = AuthState(status: AuthStatus.authenticated, user: user);
+    } catch (_) {
+      final current = state.user;
+      if (current != null) {
+        state = AuthState(
+          status: AuthStatus.authenticated,
+          user: current.copyWith(mustChangePassword: false),
+        );
+      }
+    }
   }
 
   Future<void> logout() async {

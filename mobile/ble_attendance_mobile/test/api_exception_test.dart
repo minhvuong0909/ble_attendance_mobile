@@ -22,6 +22,7 @@ DioException _error({
 }
 
 void main() {
+  _codeTypes();
   test('maps backend {detail, code} to ApiException', () {
     final e = ApiException.fromDio(
       _error(
@@ -101,5 +102,15 @@ void main() {
       'Lỗi B',
     );
     expect(friendlyError(StateError('boom')), contains('không mong muốn'));
+  });
+}
+
+void _codeTypes() {
+  test('a non-string code in the error body falls back to http_<status>', () {
+    final e = ApiException.fromDio(
+      _error(status: 409, data: {'detail': 'Lỗi', 'code': 5}),
+    );
+    expect(e.code, 'http_409');
+    expect(e.message, 'Lỗi');
   });
 }

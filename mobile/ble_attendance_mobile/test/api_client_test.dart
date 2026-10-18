@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ble_attendance_mobile/core/api_exception.dart';
 import 'package:ble_attendance_mobile/data/api_client.dart';
 import 'package:dio/dio.dart';
@@ -16,6 +18,7 @@ ApiClient _client(MemoryTokenStore store, FakeAdapter adapter) {
 }
 
 void main() {
+  _lateResponses();
   test('adds the bearer header when a token is stored', () async {
     final adapter = FakeAdapter((_) async => jsonBody({'ok': true}));
     final client = _client(MemoryTokenStore(token: 'abc'), adapter);
@@ -142,6 +145,57 @@ void main() {
       await expectLater(client.setBaseUrl('  '), throwsA(isA<ApiException>()));
       expect(client.baseUrl, 'http://default:8000');
       expect(store.baseUrl, isNull);
+    },
+  );
+}
+
+void _lateResponses() {
+  test(
+    'a late 401 from a request sent with an old token does not sign out a new session',
+    () async {
+      final gate = Completer<void>();
+      final adapter = FakeAdapter((options) async {
+        await gate.future;
+        return jsonBody({'detail': 'x', 'code': 'invalid_token'}, status: 401);
+      });
+      final store = MemoryTokenStore(token: 'T1');
+      final client = _client(store, adapter);
+      var notified = 0;
+      client.onUnauthorized = () => notified++;
+
+      final pending = client.get('/sessions/active');
+      while (adapter.requests.isEmpty) {
+        await Future<void>.delayed(const Duration(milliseconds: 1));
+      }
+      store.token =
+          'T2'; // người dùng đăng xuất rồi đăng nhập lại trong lúc request đang chạy
+      gate.complete();
+
+      await expectLater(pending, throwsA(isA<ApiException>()));
+      expect(store.token, 'T2');
+      expect(notified, 0);
+    },
+  );
+
+  test(
+    'ping checks /health on the given address without saving it or sending the token',
+    () async {
+      final adapter = FakeAdapter((_) async => jsonBody({'status': 'ok'}));
+      final store = MemoryTokenStore(token: 'secret');
+      final client = _client(store, adapter);
+
+      await client.ping('10.0.0.5:8000/');
+
+      expect(
+        adapter.requests.single.uri.toString(),
+        'http://10.0.0.5:8000/health',
+      );
+      expect(
+        adapter.requests.single.headers.containsKey('Authorization'),
+        isFalse,
+      );
+      expect(store.baseUrl, isNull);
+      expect(client.baseUrl, 'http://default:8000');
     },
   );
 }

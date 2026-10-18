@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'helpers/fake_auth_repository.dart';
 import 'helpers/memory_token_store.dart';
+import 'helpers/throwing_token_store.dart';
 
 ({ProviderContainer container, FakeAuthRepository repo, MemoryTokenStore store})
 _setup({String? token}) {
@@ -26,6 +27,7 @@ AuthController _controller(ProviderContainer c) =>
 AuthState _state(ProviderContainer c) => c.read(authControllerProvider);
 
 void main() {
+  _extra();
   test('starts in the unknown state', () {
     final s = _setup();
     expect(_state(s.container).status, AuthStatus.unknown);
@@ -151,4 +153,50 @@ void main() {
     s.container.read(apiClientProvider).onUnauthorized!();
     expect(_state(s.container).status, AuthStatus.unauthenticated);
   });
+}
+
+void _extra() {
+  test(
+    'bootstrap survives a malformed server response and ends unauthenticated',
+    () async {
+      final s = _setup(token: 'tok');
+      s.repo.onMe = () async => throw StateError('HTML thay vì JSON');
+      await _controller(s.container).bootstrap();
+      expect(_state(s.container).status, AuthStatus.unauthenticated);
+      expect(s.store.token, 'tok');
+    },
+  );
+
+  test('bootstrap survives a secure-storage failure', () async {
+    final repo = FakeAuthRepository();
+    final container = ProviderContainer(
+      overrides: [
+        tokenStoreProvider.overrideWithValue(ThrowingTokenStore()),
+        authRepositoryProvider.overrideWithValue(repo),
+      ],
+    );
+    addTearDown(container.dispose);
+    await container.read(authControllerProvider.notifier).bootstrap();
+    expect(
+      container.read(authControllerProvider).status,
+      AuthStatus.unauthenticated,
+    );
+  });
+
+  test(
+    'a successful password change is kept even if refreshing the user fails',
+    () async {
+      final s = _setup();
+      s.repo.onMe = () async => testUser(mustChangePassword: true);
+      await _controller(s.container).login('25CE099', 'Pass@123');
+      s.repo.onMe = () async => throw ApiException('network', 'Mất mạng');
+
+      await _controller(
+        s.container,
+      ).changePassword(oldPassword: 'a', newPassword: 'bbbbbb');
+
+      expect(_state(s.container).status, AuthStatus.authenticated);
+      expect(_state(s.container).user!.mustChangePassword, isFalse);
+    },
+  );
 }

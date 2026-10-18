@@ -16,8 +16,9 @@ class ApiException implements Exception {
       final status = response.statusCode;
       final data = response.data;
       if (data is Map && data['detail'] is String) {
+        final code = data['code'];
         return ApiException(
-          (data['code'] as String?) ?? 'http_$status',
+          code is String ? code : 'http_$status',
           data['detail'] as String,
           statusCode: status,
         );

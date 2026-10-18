@@ -22,6 +22,8 @@ class ApiClient {
     );
   }
 
+  static const _skipAuth = 'skipAuth';
+
   final TokenStore store;
   final Dio dio;
   String _baseUrl;
@@ -52,6 +54,17 @@ class ApiClient {
   Future<dynamic> post(String path, {Object? data}) =>
       _send(() => dio.post<dynamic>(path, data: data));
 
+  /// Kiểm tra `/health` của một địa chỉ bất kỳ mà không lưu nó và không gửi token.
+  Future<void> ping(String input) async {
+    final url = normalizeBaseUrl(input);
+    await _send(
+      () => dio.get<dynamic>(
+        '$url/health',
+        options: Options(extra: {_skipAuth: true}),
+      ),
+    );
+  }
+
   Future<dynamic> _send(Future<Response<dynamic>> Function() call) async {
     try {
       return (await call()).data;
@@ -64,7 +77,9 @@ class ApiClient {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    final token = await store.readToken();
+    final token = options.extra[_skipAuth] == true
+        ? null
+        : await store.readToken();
     if (token != null && token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';
     }
@@ -77,8 +92,14 @@ class ApiClient {
   ) async {
     if (error.response?.statusCode == 401 &&
         error.requestOptions.path != '/auth/login') {
-      await store.clearToken();
-      onUnauthorized?.call();
+      // Chỉ đăng xuất nếu request này còn mang đúng token hiện tại; một phản hồi 401 muộn
+      // của phiên cũ không được xóa phiên mới vừa đăng nhập.
+      final sent = error.requestOptions.headers['Authorization'];
+      final current = await store.readToken();
+      if (sent != null && current != null && sent == 'Bearer $current') {
+        await store.clearToken();
+        onUnauthorized?.call();
+      }
     }
     handler.next(error);
   }

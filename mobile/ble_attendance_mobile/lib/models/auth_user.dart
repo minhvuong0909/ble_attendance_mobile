@@ -19,6 +19,15 @@ class AuthUser {
     mustChangePassword: (json['must_change_password'] as bool?) ?? false,
   );
 
+  AuthUser copyWith({bool? mustChangePassword}) => AuthUser(
+    id: id,
+    fullName: fullName,
+    role: role,
+    studentId: studentId,
+    teacherId: teacherId,
+    mustChangePassword: mustChangePassword ?? this.mustChangePassword,
+  );
+
   final String id;
   final String fullName;
   final AppRole role;

@@ -60,9 +60,7 @@ class _ServerSettingsScreenState extends ConsumerState<ServerSettingsScreen> {
   }
 
   Future<void> _check() => _run(() async {
-    final api = ref.read(apiClientProvider);
-    await api.setBaseUrl(_urlCtrl.text);
-    await api.get('/health');
+    await ref.read(apiClientProvider).ping(_urlCtrl.text);
     if (mounted) setState(() => _status = 'Kết nối thành công');
   });
 
@@ -79,7 +77,6 @@ class _ServerSettingsScreenState extends ConsumerState<ServerSettingsScreen> {
   Future<void> _wake() => _run(() async {
     final api = ref.read(apiClientProvider);
     final config = ref.read(wakeConfigProvider);
-    await api.setBaseUrl(_urlCtrl.text);
     for (var attempt = 1; attempt <= config.attempts; attempt++) {
       if (!mounted) return;
       setState(
@@ -87,7 +84,7 @@ class _ServerSettingsScreenState extends ConsumerState<ServerSettingsScreen> {
             _status = 'Đang đánh thức máy chủ... ($attempt/${config.attempts})',
       );
       try {
-        await api.get('/health');
+        await api.ping(_urlCtrl.text);
         if (mounted) setState(() => _status = 'Máy chủ đã sẵn sàng');
         return;
       } on ApiException {

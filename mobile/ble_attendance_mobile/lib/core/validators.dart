@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'api_exception.dart';
 
 class Validators {
@@ -27,14 +29,29 @@ String normalizeBaseUrl(String input) {
   if (raw.isEmpty) {
     throw ApiException('invalid_url', 'Vui lòng nhập địa chỉ máy chủ.');
   }
-  final withScheme = raw.startsWith('http://') || raw.startsWith('https://')
-      ? raw
-      : 'http://$raw';
-  final uri = Uri.tryParse(withScheme);
-  if (uri == null || uri.host.isEmpty) {
+  final hasScheme = RegExp(r'^[A-Za-z][A-Za-z0-9+.-]*://').hasMatch(raw);
+  if (!hasScheme &&
+      RegExp(r'^(https?|ftp):', caseSensitive: false).hasMatch(raw)) {
+    // Ví dụ "http:/x.com" gõ thiếu một dấu gạch chéo.
     throw ApiException('invalid_url', 'Địa chỉ máy chủ không hợp lệ.');
   }
-  return withScheme.endsWith('/')
-      ? withScheme.substring(0, withScheme.length - 1)
-      : withScheme;
+  final Uri? uri;
+  if (hasScheme) {
+    uri = Uri.tryParse(raw);
+  } else {
+    // Địa chỉ trần: IP và localhost dùng http (mạng LAN), tên miền công khai dùng https.
+    final probe = Uri.tryParse('http://$raw');
+    final host = probe?.host ?? '';
+    final local = host == 'localhost' || InternetAddress.tryParse(host) != null;
+    uri = Uri.tryParse('${local ? 'http' : 'https'}://$raw');
+  }
+  if (uri == null ||
+      uri.host.isEmpty ||
+      (uri.scheme != 'http' && uri.scheme != 'https')) {
+    throw ApiException('invalid_url', 'Địa chỉ máy chủ không hợp lệ.');
+  }
+  final host = uri.host.contains(':') ? '[${uri.host}]' : uri.host;
+  final port = uri.hasPort ? ':${uri.port}' : '';
+  final path = uri.path.replaceAll(RegExp(r'/+$'), '');
+  return '${uri.scheme}://$host$port$path';
 }

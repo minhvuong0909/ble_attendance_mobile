@@ -71,6 +71,24 @@ void main() {
     expect(adapter.requests.last.uri.toString(), 'http://10.0.0.5:8000/health');
   });
 
+  testWidgets('testing a connection does not persist the address until Lưu', (
+    tester,
+  ) async {
+    final store = MemoryTokenStore();
+    await _openSettings(
+      tester,
+      handler: (_) async => jsonBody({'status': 'ok'}),
+      store: store,
+    );
+    await tester.enterText(
+      find.byKey(const Key('server-url')),
+      '10.0.0.5:8000',
+    );
+    await tester.tap(find.text('Kiểm tra kết nối'));
+    await tester.pumpAndSettle();
+    expect(store.baseUrl, isNull);
+  });
+
   testWidgets('a failed connection test shows the network message', (
     tester,
   ) async {
