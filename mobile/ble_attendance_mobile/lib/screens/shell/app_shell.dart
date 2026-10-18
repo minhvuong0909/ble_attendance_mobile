@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../models/app_role.dart';
 import '../../providers/auth_controller.dart';
+import '../../providers/notifications_provider.dart';
 import 'shell_tabs.dart';
 
 class AppShell extends ConsumerWidget {
@@ -33,8 +34,8 @@ class AppShell extends ConsumerWidget {
         destinations: [
           for (final tab in tabs)
             NavigationDestination(
-              icon: Icon(tab.icon),
-              selectedIcon: Icon(tab.selectedIcon),
+              icon: _TabIcon(tab: tab, selected: false),
+              selectedIcon: _TabIcon(tab: tab, selected: true),
               label: tab.label,
             ),
         ],
@@ -85,6 +86,26 @@ class ProfileMenu extends ConsumerWidget {
         const PopupMenuItem(value: 'settings', child: Text('Cài đặt máy chủ')),
         const PopupMenuItem(value: 'logout', child: Text('Đăng xuất')),
       ],
+    );
+  }
+}
+
+/// Biểu tượng tab; tab thông báo có badge số chưa đọc.
+class _TabIcon extends ConsumerWidget {
+  const _TabIcon({required this.tab, required this.selected});
+
+  final ShellTab tab;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final icon = Icon(selected ? tab.selectedIcon : tab.icon);
+    if (!tab.path.endsWith('/notifications')) return icon;
+    final count = ref.watch(unreadCountProvider);
+    return Badge(
+      isLabelVisible: count > 0,
+      label: Text(count > 99 ? '99+' : '$count'),
+      child: icon,
     );
   }
 }

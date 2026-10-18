@@ -10,7 +10,7 @@ import '../screens/auth/register_screen.dart';
 import '../screens/auth/server_settings_screen.dart';
 import '../screens/auth/splash_screen.dart';
 import '../screens/shell/app_shell.dart';
-import '../screens/shell/placeholder_tab.dart';
+import '../screens/shell/tab_pages.dart';
 import '../screens/shell/shell_tabs.dart';
 
 /// Quyết định chuyển hướng theo trạng thái đăng nhập. Trả null nếu giữ nguyên vị trí.
@@ -41,13 +41,12 @@ StatefulShellRoute _shellFor(AppRole role) {
     builder: (context, state, shell) =>
         AppShell(navigationShell: shell, role: role),
     branches: [
-      for (final tab in tabs)
+      for (var i = 0; i < tabs.length; i++)
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: tab.path,
-              builder: (context, state) =>
-                  PlaceholderTab(title: tab.label, icon: tab.icon),
+              path: tabs[i].path,
+              builder: (context, state) => pageFor(role, i),
             ),
           ],
         ),

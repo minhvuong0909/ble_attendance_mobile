@@ -1,6 +1,7 @@
 import 'package:ble_attendance_mobile/app/app.dart';
 import 'package:ble_attendance_mobile/data/api_client.dart';
 import 'package:ble_attendance_mobile/providers/core_providers.dart';
+import 'package:ble_attendance_mobile/providers/retry.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
@@ -18,6 +19,7 @@ Future<void> pumpApp(
 }) async {
   await tester.pumpWidget(
     ProviderScope(
+      retry: noAutoRetry,
       overrides: [
         tokenStoreProvider.overrideWithValue(store ?? MemoryTokenStore()),
         authRepositoryProvider.overrideWithValue(repo ?? FakeAuthRepository()),
