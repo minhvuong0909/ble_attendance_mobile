@@ -51,6 +51,7 @@ void main() {
       'is_active': true,
       'finalization_open': false,
       'beacon_secret': 'sec',
+      'rssi_threshold': -80,
     });
     expect(
       session.startsAt.isAtSameMomentAs(
@@ -60,6 +61,7 @@ void main() {
     );
     expect(session.endsAt, isNull);
     expect(session.beaconSecret, 'sec');
+    expect(session.rssiThreshold, -80);
     expect(session.isActive, isTrue);
     expect(session.finalizationOpen, isFalse);
   });
