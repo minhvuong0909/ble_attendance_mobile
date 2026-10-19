@@ -11,8 +11,8 @@ lib/
 ├── core/                hằng số, ApiException (lỗi tiếng Việt), validators
 ├── models/              AppRole, AuthUser, ClassInfo, SessionInfo, ClassStats, LeaveRequest, ...
 ├── data/                ApiClient (Dio), TokenStore và các repository (auth, lớp, buổi học, thống kê, xin phép, thông báo)
-├── providers/           Riverpod: auth_controller, repositories, notifications, stats, leave
-├── ble/                 quyền Bluetooth và dịch vụ nền Android (dùng lại cho luồng BLE)
+├── providers/           Riverpod: auth, repositories, notifications, stats, leave, student_beacon, teacher_beacon
+├── ble/                 mã hóa gói + tag HMAC, BleGateway (phát/quét), quyền Bluetooth, dịch vụ nền
 ├── screens/auth/        splash, đăng nhập, đăng ký, đổi mật khẩu, cài đặt máy chủ
 ├── screens/shell/       khung điều hướng 3 vai trò (tab giữ chỗ cho phần chưa làm)
 ├── screens/student/     trang chủ, lớp của tôi + chi tiết, xin phép
@@ -46,4 +46,5 @@ flutter test
 - Đã có: màn hình sinh viên (buổi học đang diễn ra + chốt điểm danh bằng vân tay/khóa màn hình, lớp của tôi, thống kê chuyên cần, xin phép) và thông báo.
 - Đã có thêm: màn hình giảng viên (lớp, bắt đầu/kết thúc buổi, mở chốt, chỉnh tay điểm danh, báo cáo + xuất Excel, duyệt đơn xin phép).
 - Đã có thêm: màn hình admin (môn học, lớp, giảng viên, sinh viên, import danh sách có xem trước).
-- Chưa có: phần BLE (chỉ báo gần/xa, phát/quét); xem `docs/superpowers/plans/` để biết lộ trình.
+- Đã có BLE: sinh viên phát tag HMAC và thấy gần/xa lớp; giảng viên quét và gửi lô detection mỗi 30 giây (xem `docs/superpowers/STATUS.md` mục Thử BLE).
+- Build web: `backend/scripts/build_web.sh`. Android ≤ 11 cần bật Vị trí để quét BLE.

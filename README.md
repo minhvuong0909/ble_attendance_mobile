@@ -1,64 +1,68 @@
 # Hệ thống điểm danh bằng BLE
 
-Đây là bản mẫu hệ thống điểm danh lớp học bằng Bluetooth Low Energy (BLE) và xác thực trên thiết bị.
+Hệ thống điểm danh lớp học bằng Bluetooth Low Energy cho đồ án môn Lập trình di động (Flutter). Giảng viên mở buổi học, điện thoại giảng viên và sinh viên phát/quét BLE, server xác minh và tính chuyên cần; sinh viên xác nhận bằng vân tay hoặc khóa màn hình ở cuối buổi.
 
-## Công nghệ
+## Thành phần
 
-- Ứng dụng Flutter dùng chung cho giảng viên và sinh viên
-- Backend FastAPI
-- Cơ sở dữ liệu PostgreSQL chạy bằng Docker Compose
+- `mobile/ble_attendance_mobile/`: ứng dụng Flutter (Android). Cùng mã còn build được ra **web** cho admin/giảng viên (import, xuất Excel).
+- `backend/`: FastAPI + SQLAlchemy + Alembic, PostgreSQL chạy bằng Docker Compose.
+- `docs/superpowers/`: spec thiết kế, các plan, `STATUS.md` (trạng thái công việc).
+- `DEMO.md`: kịch bản demo. `ARCHITECTURE.md`: kiến trúc và quy tắc nghiệp vụ.
 
-## Cấu trúc
+## Vai trò
 
-- `backend/`: API, model dữ liệu và script tạo dữ liệu mẫu
-- `mobile/ble_attendance_mobile/`: ứng dụng Flutter
-- `ARCHITECTURE.md`: kiến trúc và phạm vi bản mẫu
+| Vai trò | Làm được |
+|---|---|
+| Admin | Tạo môn, lớp, giảng viên; gán giảng viên cho lớp; import danh sách (CSV/XLSX có xem trước); đặt lại mật khẩu |
+| Giảng viên | Xem lớp được gán; bắt đầu/kết thúc buổi, mở chốt; chỉnh tay điểm danh; báo cáo và xuất Excel; duyệt đơn xin phép |
+| Sinh viên | Tham gia lớp bằng mã; điểm danh bằng BLE; xem thống kê chuyên cần; xin phép nghỉ; nhận thông báo |
 
-## Chức năng
+## Chạy nhanh (Linux/macOS)
 
-- Đăng ký, đăng nhập và phân quyền
-- Tạo, mở chốt và kết thúc buổi học
-- Phát và quét beacon BLE giữa thiết bị giảng viên và sinh viên
-- Ghi nhận RSSI và gửi detection lên backend
-- Chốt điểm danh bằng xác thực trên thiết bị
-- Xem tổng kết, điều chỉnh thủ công và xuất Excel
-
-## Tài khoản mẫu
-
-- Giảng viên: `T001` / `Pass@123`
-- Sinh viên: `25CE099` / `Pass@123`
-- Sinh viên: `25CE100` / `Pass@123`
-- Sinh viên: `D26CE045` / `Pass@123`
-
-## Chạy trên Windows
-
-```powershell
+```bash
 cd backend
 docker compose up -d
-cd ..
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r backend\requirements.txt
-$env:PYTHONPATH="backend"
-python backend\scripts\seed_demo.py
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --app-dir backend
+uv venv .venv && uv pip install -r requirements-dev.txt   # hoặc python3 -m venv
+cp .env.example .env
+.venv/bin/alembic upgrade head
+.venv/bin/python scripts/seed_demo.py
+.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-Tài liệu API: `http://127.0.0.1:8000/docs`
+Swagger: `http://127.0.0.1:8000/docs`. Trên Windows dùng `.\.venv\Scripts\...` tương ứng.
 
-Chạy Flutter trên điện thoại cùng mạng Wi-Fi:
+**Bản web** (import/xuất file trên laptop): `backend/scripts/build_web.sh`, rồi mở `http://<IP-máy>:8000/app/`.
 
-```powershell
-cd mobile\ble_attendance_mobile
+**Ứng dụng Android:**
+
+```bash
+cd mobile/ble_attendance_mobile
 flutter pub get
-flutter run --dart-define=API_BASE_URL=http://192.168.1.7:8000
+flutter run --dart-define=API_BASE_URL=http://<IP-máy-chạy-backend>:8000
+flutter build apk --release --target-platform android-arm,android-arm64
 ```
 
-Thay địa chỉ IP bằng IPv4 của máy chạy backend.
+Địa chỉ máy chủ cũng đổi được trong app (biểu tượng bánh răng ở màn hình đăng nhập). Điện thoại và máy chủ cùng mạng Wi-Fi; emulator dùng `http://10.0.2.2:8000`.
 
-## Lưu ý
+**Ký APK release:** đặt `android/key.properties` và `android/app/upload-keystore.jks` (cả hai bị gitignore). Thiếu thì build vẫn chạy nhưng ký bằng khóa debug. Tạo khóa: xem `keytool -genkeypair` trong tài liệu Flutter; đổi khóa thì phải gỡ bản cũ trên điện thoại trước khi cài.
 
-- Đây là bản mẫu học tập, chưa phù hợp triển khai production.
-- RSSI chỉ ước lượng độ gần, không đo khoảng cách chính xác.
-- Trên iOS, cần giữ ứng dụng hoạt động trong buổi học.
-- Khi triển khai thật, phải thay JWT secret, bật HTTPS và cấu hình khóa ký release.
+## Kiểm thử
+
+```bash
+cd backend && .venv/bin/pytest -q                       # 226 test
+cd mobile/ble_attendance_mobile && flutter analyze && flutter test   # 317 test
+```
+
+Thử BLE khi chỉ có một điện thoại: `backend/scripts/ble_teacher_sim.py` dùng Bluetooth laptop giả máy giảng viên (cần `pip install bleak`).
+
+## Tài khoản demo (mật khẩu `Pass@123`)
+
+Admin `A001` · Giảng viên `T001` · Sinh viên `25CE099`, `25CE100`, `D26CE045`. Tài khoản do admin tạo có mật khẩu tạm bằng mã đăng nhập và bắt buộc đổi ở lần đăng nhập đầu.
+
+## Giới hạn đã biết
+
+- Chỉ hỗ trợ Android cho điểm danh BLE. Android 11 trở xuống cần bật Vị trí để quét BLE.
+- RSSI chỉ ước lượng độ gần. Vân tay/khóa màn hình là xác nhận phía client.
+- Bắt gói rồi phát lại chỉ dùng được trong 30–60 giây; giảng viên dùng client giả vẫn gửi được detection sai (có nhật ký chỉnh tay).
+- Chưa thử đầy đủ trên hai điện thoại thật: mới thử điện thoại phát + laptop quét.
+- Trước khi triển khai thật: đổi `JWT_SECRET`, `BEACON_SERVER_KEY`, dùng HTTPS, thêm rate limit.
