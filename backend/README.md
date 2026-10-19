@@ -63,3 +63,7 @@ File `.csv` (UTF-8, có hoặc không có BOM) hoặc `.xlsx`, tối đa 2 MB, d
 ## Thông báo tự động
 
 Mở chốt điểm danh (gửi cho SV trong lớp), SV gửi đơn xin phép (gửi GV của lớp), GV duyệt hoặc từ chối đơn (gửi SV), kết thúc buổi mà SV vắng vượt mức cho phép (cảnh báo SV).
+
+## Bản web (admin/giảng viên)
+
+`scripts/build_web.sh` build app Flutter ra web vào `backend/web_dist/`; backend tự phục vụ tại `http://<IP-máy>:8000/app/` (cùng origin nên không cần CORS). Dùng để import CSV/XLSX và xuất Excel trên laptop. Bản web không hỗ trợ BLE nên sinh viên vẫn dùng app Android.

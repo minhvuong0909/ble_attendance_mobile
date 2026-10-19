@@ -29,3 +29,4 @@ backend/.env
 *.iml
 .superpowers/
 .venv/
+backend/web_dist/
