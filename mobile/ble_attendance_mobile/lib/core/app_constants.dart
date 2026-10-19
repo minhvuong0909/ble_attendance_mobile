@@ -5,7 +5,7 @@ const String studentServiceUuid = '0000181C-0000-1000-8000-00805F9B34FB';
 
 const int rssiThreshold = -88;
 const int rssiWindowSize = 8;
-const int manufacturerId = 0x004C;
+const int manufacturerId = 0xFFFF; // dành cho thử nghiệm
 
 const Duration teacherDetectionBatchInterval = Duration(seconds: 30);
 const Duration teacherPollInterval = Duration(seconds: 10);

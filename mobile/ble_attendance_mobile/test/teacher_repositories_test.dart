@@ -4,6 +4,7 @@ import 'package:ble_attendance_mobile/core/api_exception.dart';
 import 'package:ble_attendance_mobile/data/api_client.dart';
 import 'package:ble_attendance_mobile/data/attendance_repository.dart';
 import 'package:ble_attendance_mobile/data/class_repository.dart';
+import 'package:ble_attendance_mobile/data/detection_repository.dart';
 import 'package:ble_attendance_mobile/data/leave_repository.dart';
 import 'package:ble_attendance_mobile/data/report_repository.dart';
 import 'package:ble_attendance_mobile/data/session_repository.dart';
@@ -70,6 +71,7 @@ ResponseBody _bytes(List<int> data, {String? disposition, int status = 200}) =>
     );
 
 void main() {
+  detectionTests();
   test('ClassRepository.classStudents', () async {
     final s = _setup(
       (_) async => jsonBody([
@@ -255,4 +257,37 @@ void main() {
       'note': 'OK',
     });
   });
+}
+
+void detectionTests() {
+  test(
+    'DetectionRepository.postBatch sends entries and parses the result',
+    () async {
+      final s = _setup((_) async => jsonBody({'recorded': 2, 'rejected': 1}));
+      final result = await ApiDetectionRepository(s.client).postBatch([
+        DetectionEntry(
+          sessionId: 's1',
+          studentId: '25CE099',
+          bucket: 59743080,
+          tag: 'deadbeef',
+          rssi: -60,
+          observedAt: DateTime.utc(2026, 10, 18, 3),
+        ),
+      ]);
+      expect(result.recorded, 2);
+      expect(result.rejected, 1);
+      final request = s.adapter.requests.single;
+      expect(request.path, '/detections/batch');
+      expect(_body(request)['detections'], [
+        {
+          'session_id': 's1',
+          'student_identifier': '25CE099',
+          'bucket': 59743080,
+          'tag': 'deadbeef',
+          'rssi': -60,
+          'observed_at': '2026-10-18T03:00:00.000Z',
+        },
+      ]);
+    },
+  );
 }
