@@ -25,6 +25,10 @@
 
 APK release ký bằng khóa riêng (`android/key.properties` + `app/upload-keystore.jks`, gitignore; **sao lưu hai file này**, mất thì không cập nhật được app đã cài), README/ARCHITECTURE/DEMO viết lại, sửa PATCH lớp trùng mã (backend) và tên file tải về không chứa đường dẫn. 226 test backend, 318 test Flutter.
 
+## Bản web hoàn chỉnh (admin + giảng viên)
+
+Giao diện desktop (thanh điều hướng trái từ 840 px, nội dung tối đa 1280 px). Đã thử thật trên trình duyệt: tải file mẫu, import CSV có dòng lỗi (chặn xác nhận) và file đúng (nhập thành công). Chưa thử trên trình duyệt: hộp thoại chọn file của hệ điều hành, import .xlsx, xuất Excel của giảng viên (dùng chung đường tải xuống với file mẫu). Trên web tab Buổi trực tiếp vẫn hiện thẻ 'không hỗ trợ BLE'. Dữ liệu demo có thêm giảng viên T901, T902 từ lần thử import.
+
 ## Việc còn lại (theo thứ tự)
 
 1. **Thử BLE trên 2 điện thoại thật** và chỉnh theo kết quả (xem bên dưới).
