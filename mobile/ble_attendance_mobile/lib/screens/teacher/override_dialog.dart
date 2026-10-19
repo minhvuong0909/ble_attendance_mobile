@@ -51,62 +51,67 @@ class _OverrideDialogState extends State<OverrideDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Chỉnh tay điểm danh'),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '${widget.record.studentId ?? '-'} · ${widget.record.studentName}',
-              ),
-              RadioGroup<AttendanceStatus>(
-                groupValue: _status,
-                onChanged: (value) {
-                  if (value != null && !_busy) setState(() => _status = value);
-                },
-                child: Column(
-                  children: [
-                    for (final s in AttendanceStatus.values)
-                      RadioListTile<AttendanceStatus>(
-                        value: s,
-                        title: Text(s.label),
-                        contentPadding: EdgeInsets.zero,
-                        dense: true,
-                      ),
-                  ],
+    return PopScope(
+      canPop: !_busy,
+      child: AlertDialog(
+        title: const Text('Chỉnh tay điểm danh'),
+        content: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${widget.record.studentId ?? '-'} · ${widget.record.studentName}',
                 ),
-              ),
-              TextFormField(
-                key: const Key('override-reason'),
-                controller: _reasonCtrl,
-                maxLength: 255,
-                decoration: const InputDecoration(labelText: 'Lý do'),
-                validator: (v) => (v == null || v.trim().length < 3)
-                    ? 'Lý do cần ít nhất 3 ký tự'
-                    : null,
-              ),
-              if (_error != null) ...[
-                const SizedBox(height: 8),
-                ErrorBanner(_error!),
+                RadioGroup<AttendanceStatus>(
+                  groupValue: _status,
+                  onChanged: (value) {
+                    if (value != null && !_busy) {
+                      setState(() => _status = value);
+                    }
+                  },
+                  child: Column(
+                    children: [
+                      for (final s in AttendanceStatus.values)
+                        RadioListTile<AttendanceStatus>(
+                          value: s,
+                          title: Text(s.label),
+                          contentPadding: EdgeInsets.zero,
+                          dense: true,
+                        ),
+                    ],
+                  ),
+                ),
+                TextFormField(
+                  key: const Key('override-reason'),
+                  controller: _reasonCtrl,
+                  maxLength: 255,
+                  decoration: const InputDecoration(labelText: 'Lý do'),
+                  validator: (v) => (v == null || v.trim().length < 3)
+                      ? 'Lý do cần ít nhất 3 ký tự'
+                      : null,
+                ),
+                if (_error != null) ...[
+                  const SizedBox(height: 8),
+                  ErrorBanner(_error!),
+                ],
               ],
-            ],
+            ),
           ),
         ),
+        actions: [
+          TextButton(
+            onPressed: _busy ? null : () => Navigator.of(context).pop(false),
+            child: const Text('Hủy'),
+          ),
+          FilledButton(
+            onPressed: _busy ? null : _submit,
+            child: const Text('Lưu'),
+          ),
+        ],
       ),
-      actions: [
-        TextButton(
-          onPressed: _busy ? null : () => Navigator.of(context).pop(false),
-          child: const Text('Hủy'),
-        ),
-        FilledButton(
-          onPressed: _busy ? null : _submit,
-          child: const Text('Lưu'),
-        ),
-      ],
     );
   }
 }

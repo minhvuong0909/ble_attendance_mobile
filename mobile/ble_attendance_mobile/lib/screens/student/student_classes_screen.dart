@@ -35,6 +35,7 @@ class StudentClassesScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.transparent,
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: null,
         onPressed: () => _join(context, ref),
         icon: const Icon(Icons.group_add),
         label: const Text('Tham gia lớp'),

@@ -21,6 +21,7 @@ Fakes _teacherFakes(List<LeaveRequest> Function() leaves) {
 }
 
 void main() {
+  _heroCases();
   testWidgets(
     'a request sent after the teacher leave tab was first opened appears when returning to it',
     (tester) async {
@@ -90,4 +91,20 @@ void main() {
     await _selectTab(tester, 'Lớp của tôi');
     expect(find.text('50%'), findsOneWidget);
   });
+}
+
+void _heroCases() {
+  testWidgets(
+    'floating buttons of several visited tabs do not clash when opening a page',
+    (tester) async {
+      final fakes = Fakes();
+      fakes.classes.onMyClasses = () async => [sampleClass()];
+      await openApp(tester, fakes: fakes, tab: 'Lớp của tôi');
+      await _selectTab(tester, 'Xin phép');
+      await tester.tap(find.widgetWithText(FloatingActionButton, 'Xin phép'));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text('Xin phép vắng'), findsOneWidget);
+    },
+  );
 }

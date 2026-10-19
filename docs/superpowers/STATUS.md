@@ -14,7 +14,7 @@
 
 ## ĐANG LÀM DỞ (đọc mục này trước)
 
-- Plan 4B (giảng viên) **đã merge vào `main`** (213 test Flutter xanh, APK debug build được). Plan 4C (admin) đã viết ở `plans/2026-10-20-flutter-admin.md`; bắt đầu từ Task 1 trên nhánh `feature/flutter-admin`.
+- Plan 4C (admin) đang làm trên nhánh `feature/flutter-admin` (`plans/2026-10-20-flutter-admin.md`): **Task 1–2 xong** (repository + tab Môn học; 238 test xanh). **Tiếp theo: Task 3** (tab Lớp học: danh sách, tạo lớp, chi tiết: cấu hình, gán giảng viên, xóa), rồi Task 4 (Giảng viên), 5 (Sinh viên), 6 (Import có xem trước), 7 (hoàn thiện/review/merge). Sau đó: **bản web** (build Flutter web, phục vụ từ backend) rồi BLE. Bản APK release mới nhất đã gửi người dùng; backend đang chạy ở cổng 8000.
 - Lỗi nhỏ hoãn lại của Plan 4B: tab Buổi trực tiếp vẫn poll `/sessions/active` khi không hiển thị; kéo làm mới ở tab trực tiếp trả về sớm; đóng hộp thoại chỉnh tay khi đang lưu làm mất thông báo; tên file Excel chưa lọc ký tự `/` và chưa xóa file tạm; `DataTable` báo cáo chậm với lớp rất lớn (100 SV x 40 buổi) và chưa cố định cột MSSV/Họ tên; chưa có biểu đồ `fl_chart`; timeout 12 s cũng áp cho tải Excel.
 
 ## Việc còn lại (theo thứ tự)

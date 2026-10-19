@@ -1,8 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../data/admin_repository.dart';
 import '../data/attendance_repository.dart';
 import '../data/class_repository.dart';
 import '../data/device_authenticator.dart';
+import '../data/file_chooser.dart';
 import '../data/file_sharer.dart';
 import '../data/leave_repository.dart';
 import '../data/notification_repository.dart';
@@ -33,6 +35,10 @@ final reportRepositoryProvider = Provider<ReportRepository>(
   (ref) => ApiReportRepository(ref.watch(apiClientProvider)),
 );
 final fileSharerProvider = Provider<FileSharer>((ref) => SharePlusFileSharer());
+final adminRepositoryProvider = Provider<AdminRepository>(
+  (ref) => ApiAdminRepository(ref.watch(apiClientProvider)),
+);
+final fileChooserProvider = Provider<FileChooser>((ref) => FilePickerChooser());
 final deviceAuthenticatorProvider = Provider<DeviceAuthenticator>(
   (ref) => LocalAuthAuthenticator(),
 );
