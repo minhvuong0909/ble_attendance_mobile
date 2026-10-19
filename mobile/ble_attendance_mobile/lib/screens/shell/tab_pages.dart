@@ -11,6 +11,7 @@ import '../../providers/stats_provider.dart';
 import '../../providers/teacher_providers.dart';
 import '../admin/admin_classes_screen.dart';
 import '../admin/admin_courses_screen.dart';
+import '../admin/admin_teachers_screen.dart';
 import '../notifications/notifications_screen.dart';
 import '../student/student_classes_screen.dart';
 import '../teacher/teacher_classes_screen.dart';
@@ -33,6 +34,7 @@ Widget pageFor(AppRole role, int index) {
   if (role == AppRole.admin) {
     if (index == 0) return const AdminCoursesScreen();
     if (index == 1) return const AdminClassesScreen();
+    if (index == 2) return const AdminTeachersScreen();
   }
   if (role == AppRole.student) {
     switch (index) {
@@ -83,6 +85,7 @@ List<ProviderOrFamily> _providersFor(AppRole role, int index) {
       return switch (index) {
         0 => [adminCoursesProvider],
         1 => [adminClassesProvider],
+        2 => [adminTeachersProvider],
         _ => const [],
       };
   }
