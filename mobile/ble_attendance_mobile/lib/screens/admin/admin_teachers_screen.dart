@@ -185,59 +185,62 @@ class _TeacherDialogState extends State<_TeacherDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Thêm giảng viên'),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                key: const Key('teacher-id'),
-                controller: _idCtrl,
-                textCapitalization: TextCapitalization.characters,
-                decoration: const InputDecoration(
-                  labelText: 'Mã giảng viên',
-                  helperText: 'Ví dụ T002',
+    return PopScope(
+      canPop: !_busy,
+      child: AlertDialog(
+        title: const Text('Thêm giảng viên'),
+        content: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  key: const Key('teacher-id'),
+                  controller: _idCtrl,
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: const InputDecoration(
+                    labelText: 'Mã giảng viên',
+                    helperText: 'Ví dụ T002',
+                  ),
+                  validator: (v) {
+                    final length = (v ?? '').trim().length;
+                    return length < 3 || length > 16
+                        ? 'Mã giảng viên từ 3 đến 16 ký tự'
+                        : null;
+                  },
                 ),
-                validator: (v) {
-                  final length = (v ?? '').trim().length;
-                  return length < 3 || length > 16
-                      ? 'Mã giảng viên từ 3 đến 16 ký tự'
-                      : null;
-                },
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                key: const Key('teacher-name'),
-                controller: _nameCtrl,
-                decoration: const InputDecoration(labelText: 'Họ và tên'),
-                validator: (v) {
-                  final length = (v ?? '').trim().length;
-                  return length < 2 || length > 120
-                      ? 'Họ tên từ 2 đến 120 ký tự'
-                      : null;
-                },
-              ),
-              if (_error != null) ...[
-                const SizedBox(height: 12),
-                ErrorBanner(_error!),
+                const SizedBox(height: 8),
+                TextFormField(
+                  key: const Key('teacher-name'),
+                  controller: _nameCtrl,
+                  decoration: const InputDecoration(labelText: 'Họ và tên'),
+                  validator: (v) {
+                    final length = (v ?? '').trim().length;
+                    return length < 2 || length > 120
+                        ? 'Họ tên từ 2 đến 120 ký tự'
+                        : null;
+                  },
+                ),
+                if (_error != null) ...[
+                  const SizedBox(height: 12),
+                  ErrorBanner(_error!),
+                ],
               ],
-            ],
+            ),
           ),
         ),
+        actions: [
+          TextButton(
+            onPressed: _busy ? null : () => Navigator.of(context).pop(),
+            child: const Text('Hủy'),
+          ),
+          FilledButton(
+            onPressed: _busy ? null : _submit,
+            child: const Text('Tạo'),
+          ),
+        ],
       ),
-      actions: [
-        TextButton(
-          onPressed: _busy ? null : () => Navigator.of(context).pop(),
-          child: const Text('Hủy'),
-        ),
-        FilledButton(
-          onPressed: _busy ? null : _submit,
-          child: const Text('Tạo'),
-        ),
-      ],
     );
   }
 }

@@ -103,82 +103,88 @@ class _CourseFormDialogState extends State<CourseFormDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(_editing ? 'Sửa môn học' : 'Thêm môn học'),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                key: const Key('course-code'),
-                controller: _codeCtrl,
-                enabled: !_editing,
-                textCapitalization: TextCapitalization.characters,
-                decoration: const InputDecoration(
-                  labelText: 'Mã môn',
-                  helperText: 'Ví dụ PRM393',
+    return PopScope(
+      canPop: !_busy,
+      child: AlertDialog(
+        title: Text(_editing ? 'Sửa môn học' : 'Thêm môn học'),
+        content: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  key: const Key('course-code'),
+                  controller: _codeCtrl,
+                  enabled: !_editing,
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: const InputDecoration(
+                    labelText: 'Mã môn',
+                    helperText: 'Ví dụ PRM393',
+                  ),
+                  validator: (v) {
+                    final length = (v ?? '').trim().length;
+                    return length < 2 || length > 32
+                        ? 'Mã môn từ 2 đến 32 ký tự'
+                        : null;
+                  },
                 ),
-                validator: (v) {
-                  final length = (v ?? '').trim().length;
-                  return length < 2 || length > 32
-                      ? 'Mã môn từ 2 đến 32 ký tự'
-                      : null;
-                },
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                key: const Key('course-name'),
-                controller: _nameCtrl,
-                decoration: const InputDecoration(labelText: 'Tên môn'),
-                validator: (v) {
-                  final length = (v ?? '').trim().length;
-                  return length < 2 || length > 120
-                      ? 'Tên môn từ 2 đến 120 ký tự'
-                      : null;
-                },
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                key: const Key('course-credits'),
-                controller: _creditsCtrl,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Số tín chỉ (không bắt buộc)',
+                const SizedBox(height: 8),
+                TextFormField(
+                  key: const Key('course-name'),
+                  controller: _nameCtrl,
+                  decoration: const InputDecoration(labelText: 'Tên môn'),
+                  validator: (v) {
+                    final length = (v ?? '').trim().length;
+                    return length < 2 || length > 120
+                        ? 'Tên môn từ 2 đến 120 ký tự'
+                        : null;
+                  },
                 ),
-                validator: (v) {
-                  final text = (v ?? '').trim();
-                  if (text.isEmpty) return null;
-                  final value = int.tryParse(text);
-                  return value == null || value < 0 || value > 30
-                      ? 'Tín chỉ từ 0 đến 30'
-                      : null;
-                },
-              ),
-              if (_error != null) ...[
-                const SizedBox(height: 12),
-                ErrorBanner(_error!),
+                const SizedBox(height: 8),
+                TextFormField(
+                  key: const Key('course-credits'),
+                  controller: _creditsCtrl,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Số tín chỉ (không bắt buộc)',
+                  ),
+                  validator: (v) {
+                    final text = (v ?? '').trim();
+                    if (text.isEmpty) return null;
+                    final value = int.tryParse(text);
+                    return value == null || value < 0 || value > 30
+                        ? 'Tín chỉ từ 0 đến 30'
+                        : null;
+                  },
+                ),
+                if (_error != null) ...[
+                  const SizedBox(height: 12),
+                  ErrorBanner(_error!),
+                ],
               ],
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        if (_editing && widget.onDelete != null)
-          TextButton(
-            onPressed: _busy ? null : _delete,
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
             ),
-            child: const Text('Xóa môn'),
           ),
-        TextButton(
-          onPressed: _busy ? null : () => Navigator.of(context).pop(),
-          child: const Text('Hủy'),
         ),
-        FilledButton(onPressed: _busy ? null : _save, child: const Text('Lưu')),
-      ],
+        actions: [
+          if (_editing && widget.onDelete != null)
+            TextButton(
+              onPressed: _busy ? null : _delete,
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error,
+              ),
+              child: const Text('Xóa môn'),
+            ),
+          TextButton(
+            onPressed: _busy ? null : () => Navigator.of(context).pop(),
+            child: const Text('Hủy'),
+          ),
+          FilledButton(
+            onPressed: _busy ? null : _save,
+            child: const Text('Lưu'),
+          ),
+        ],
+      ),
     );
   }
 }

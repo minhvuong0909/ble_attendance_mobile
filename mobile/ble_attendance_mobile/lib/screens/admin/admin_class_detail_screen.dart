@@ -362,54 +362,57 @@ class _AssignDialogState extends ConsumerState<_AssignDialog> {
   @override
   Widget build(BuildContext context) {
     final teachers = ref.watch(adminTeachersProvider);
-    return AlertDialog(
-      title: const Text('Chọn giảng viên'),
-      content: SizedBox(
-        width: double.maxFinite,
-        child: AsyncValueView<List<AuthUser>>(
-          value: teachers,
-          onRetry: () => ref.invalidate(adminTeachersProvider),
-          isEmpty: (items) => items.isEmpty,
-          emptyMessage: 'Chưa có giảng viên nào',
-          data: (items) => SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                RadioGroup<String>(
-                  groupValue: _selected,
-                  onChanged: (v) {
-                    if (!_busy) setState(() => _selected = v);
-                  },
-                  child: Column(
-                    children: [
-                      for (final t in items)
-                        RadioListTile<String>(
-                          value: t.id,
-                          title: Text('${t.fullName} · ${t.loginId}'),
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                    ],
+    return PopScope(
+      canPop: !_busy,
+      child: AlertDialog(
+        title: const Text('Chọn giảng viên'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: AsyncValueView<List<AuthUser>>(
+            value: teachers,
+            onRetry: () => ref.invalidate(adminTeachersProvider),
+            isEmpty: (items) => items.isEmpty,
+            emptyMessage: 'Chưa có giảng viên nào',
+            data: (items) => SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  RadioGroup<String>(
+                    groupValue: _selected,
+                    onChanged: (v) {
+                      if (!_busy) setState(() => _selected = v);
+                    },
+                    child: Column(
+                      children: [
+                        for (final t in items)
+                          RadioListTile<String>(
+                            value: t.id,
+                            title: Text('${t.fullName} · ${t.loginId}'),
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-                if (_error != null) ...[
-                  const SizedBox(height: 8),
-                  ErrorBanner(_error!),
+                  if (_error != null) ...[
+                    const SizedBox(height: 8),
+                    ErrorBanner(_error!),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),
+        actions: [
+          TextButton(
+            onPressed: _busy ? null : () => Navigator.of(context).pop(false),
+            child: const Text('Hủy'),
+          ),
+          FilledButton(
+            onPressed: _busy || _selected == null ? null : _submit,
+            child: const Text('Phân công'),
+          ),
+        ],
       ),
-      actions: [
-        TextButton(
-          onPressed: _busy ? null : () => Navigator.of(context).pop(false),
-          child: const Text('Hủy'),
-        ),
-        FilledButton(
-          onPressed: _busy || _selected == null ? null : _submit,
-          child: const Text('Phân công'),
-        ),
-      ],
     );
   }
 }

@@ -71,7 +71,13 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
 
   Future<void> _pickAndPreview() => _guard(() async {
     final file = await ref.read(fileChooserProvider).pick();
-    if (file == null) return;
+    if (file == null) return; // Hủy chọn: giữ nguyên bản xem trước hiện tại.
+    // Từ đây file cũ không còn hợp lệ để xác nhận, dù file mới có lỗi hay không.
+    setState(() {
+      _file = null;
+      _preview = null;
+      _importedRows = null;
+    });
     final name = file.name.toLowerCase();
     if (!name.endsWith('.csv') && !name.endsWith('.xlsx')) {
       throw ApiException('unsupported_file', 'Chỉ hỗ trợ file .csv hoặc .xlsx');
@@ -84,7 +90,6 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       setState(() {
         _file = file;
         _preview = report;
-        _importedRows = null;
       });
     }
   });
@@ -94,6 +99,8 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     if (file == null) return;
     final report = await _call(file, dryRun: false);
     if (!report.committed) {
+      // Server từ chối ghi: hiển thị báo cáo mới nhất để người dùng thấy dòng lỗi.
+      if (mounted) setState(() => _preview = report);
       throw ApiException(
         'not_committed',
         'Dữ liệu chưa được ghi, hãy kiểm tra lại file rồi thử lại.',
