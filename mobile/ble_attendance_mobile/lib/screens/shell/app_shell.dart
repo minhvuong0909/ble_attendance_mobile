@@ -6,6 +6,7 @@ import '../../models/app_role.dart';
 import '../../providers/auth_controller.dart';
 import '../../providers/notifications_provider.dart';
 import 'shell_tabs.dart';
+import 'tab_pages.dart';
 
 class AppShell extends ConsumerWidget {
   const AppShell({
@@ -21,6 +22,10 @@ class AppShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final tabs = tabsFor(role);
     final index = navigationShell.currentIndex;
+    // Có thông báo mới thường đi kèm dữ liệu mới (đơn xin phép, buổi học, kết quả...): làm mới các tab.
+    ref.listen(unreadCountProvider, (previous, next) {
+      if (next > (previous ?? 0)) refreshAllTabs(ref, role);
+    });
     return Scaffold(
       appBar: AppBar(
         title: Text(tabs[index].label),
@@ -29,8 +34,10 @@ class AppShell extends ConsumerWidget {
       body: navigationShell,
       bottomNavigationBar: NavigationBar(
         selectedIndex: index,
-        onDestinationSelected: (i) =>
-            navigationShell.goBranch(i, initialLocation: i == index),
+        onDestinationSelected: (i) {
+          refreshTab(ref, role, i);
+          navigationShell.goBranch(i, initialLocation: i == index);
+        },
         destinations: [
           for (final tab in tabs)
             NavigationDestination(
