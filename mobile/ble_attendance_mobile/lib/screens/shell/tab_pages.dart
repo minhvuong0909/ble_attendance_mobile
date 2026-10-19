@@ -3,11 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show ProviderOrFamily;
 
 import '../../models/app_role.dart';
+import '../../providers/admin_providers.dart';
 import '../../providers/leave_provider.dart';
 import '../../providers/notifications_provider.dart';
 import '../../providers/session_provider.dart';
 import '../../providers/stats_provider.dart';
 import '../../providers/teacher_providers.dart';
+import '../admin/admin_courses_screen.dart';
 import '../notifications/notifications_screen.dart';
 import '../student/student_classes_screen.dart';
 import '../teacher/teacher_classes_screen.dart';
@@ -27,6 +29,7 @@ Widget pageFor(AppRole role, int index) {
     if (index == 1) return const TeacherLiveScreen();
     if (index == 2) return const TeacherLeaveScreen();
   }
+  if (role == AppRole.admin && index == 0) return const AdminCoursesScreen();
   if (role == AppRole.student) {
     switch (index) {
       case 0:
@@ -73,6 +76,9 @@ List<ProviderOrFamily> _providersFor(AppRole role, int index) {
         _ => const [],
       };
     case AppRole.admin:
-      return const [];
+      return switch (index) {
+        0 => [adminCoursesProvider],
+        _ => const [],
+      };
   }
 }
