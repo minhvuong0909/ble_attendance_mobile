@@ -22,6 +22,7 @@ def test_teacher_starts_session_for_assigned_class(client, auth, scene):
     assert len(body["beacon_code"]) == 8
     assert body["is_active"] is True
     assert body["beacon_secret"] is None
+    assert body["rssi_threshold"] == cls.rssi_threshold
 
 
 def test_teacher_cannot_start_session_for_other_class(client, auth, make_user, make_class):
@@ -72,6 +73,7 @@ def test_teacher_sees_own_active_session_without_secret(client, auth, scene):
     client.post(f"/classes/{cls.id}/sessions", headers=auth(teacher))
     body = client.get("/sessions/active", headers=auth(teacher)).json()
     assert body["beacon_secret"] is None
+    assert body["rssi_threshold"] == cls.rssi_threshold
 
 
 def test_admin_cannot_use_active_endpoint(client, auth, make_user):
