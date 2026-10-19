@@ -16,7 +16,7 @@ Nếu chỉ có **một điện thoại**: điện thoại làm sinh viên, lapt
 
 ## 3. Giảng viên bắt đầu buổi (2 phút)
 
-Đăng nhập `T001` (web hoặc điện thoại thứ hai) → chi tiết lớp SE1901 → **Bắt đầu buổi**. Tab **Buổi trực tiếp** hiện thẻ "Đang phát và quét BLE" (trên điện thoại giảng viên).
+Đăng nhập `T001` (web hoặc điện thoại thứ hai) → chi tiết lớp SE1901 → tab Buổi học → **Bắt đầu buổi học**. Tab **Buổi trực tiếp** hiện thẻ "Đang phát và quét BLE" (trên điện thoại giảng viên).
 
 ## 4. BLE hoạt động (2 phút)
 
