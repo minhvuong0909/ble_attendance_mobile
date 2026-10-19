@@ -264,6 +264,13 @@ class _DetailState extends ConsumerState<_Detail> {
           style: theme.textTheme.titleMedium,
         ),
         const SizedBox(height: 8),
+        OutlinedButton.icon(
+          onPressed: () =>
+              context.push('/admin/import/students?classId=${info.id}'),
+          icon: const Icon(Icons.upload_file),
+          label: const Text('Nhập danh sách sinh viên'),
+        ),
+        const SizedBox(height: 8),
         _StudentsSection(
           value: students,
           onRetry: () => ref.invalidate(classStudentsProvider(info.id)),

@@ -8,6 +8,7 @@ import '../../providers/admin_providers.dart';
 import '../../providers/repositories.dart';
 import '../../providers/teacher_providers.dart';
 import '../../widgets/async_value_view.dart';
+import 'import_entry_button.dart';
 import 'temp_password_notice.dart';
 
 /// Lớp mà admin đang xem ở tab Sinh viên (giữ lại khi chuyển tab).
@@ -104,6 +105,11 @@ class _AdminStudentsScreenState extends ConsumerState<AdminStudentsScreen> {
                     ref.read(adminSelectedClassProvider.notifier).select(v),
               ),
             ),
+            if (current != null)
+              ImportEntryButton(
+                label: 'Nhập danh sách sinh viên',
+                path: '/admin/import/students?classId=$current',
+              ),
             Expanded(
               child: current == null
                   ? const Center(child: Text('Chọn một lớp để xem sinh viên'))

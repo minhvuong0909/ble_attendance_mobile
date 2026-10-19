@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../models/class_info.dart';
 import '../../providers/admin_providers.dart';
 import '../../widgets/async_value_view.dart';
+import 'import_entry_button.dart';
 
 class AdminClassesScreen extends ConsumerWidget {
   const AdminClassesScreen({super.key});
@@ -23,23 +24,34 @@ class AdminClassesScreen extends ConsumerWidget {
         icon: const Icon(Icons.add),
         label: const Text('Tạo lớp'),
       ),
-      body: AsyncValueView<List<ClassInfo>>(
-        value: value,
-        onRetry: () => ref.invalidate(adminClassesProvider),
-        onRefresh: () => ref.refresh(adminClassesProvider.future),
-        isEmpty: (items) => items.isEmpty,
-        emptyMessage: 'Chưa có lớp nào',
-        emptyIcon: Icons.class_outlined,
-        data: (items) => RefreshIndicator(
-          onRefresh: () => ref.refresh(adminClassesProvider.future),
-          child: ListView.separated(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
-            itemCount: items.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 8),
-            itemBuilder: (context, index) => _ClassCard(info: items[index]),
+      body: Column(
+        children: [
+          const ImportEntryButton(
+            label: 'Nhập môn/lớp từ file',
+            path: '/admin/import/classes',
           ),
-        ),
+          Expanded(
+            child: AsyncValueView<List<ClassInfo>>(
+              value: value,
+              onRetry: () => ref.invalidate(adminClassesProvider),
+              onRefresh: () => ref.refresh(adminClassesProvider.future),
+              isEmpty: (items) => items.isEmpty,
+              emptyMessage: 'Chưa có lớp nào',
+              emptyIcon: Icons.class_outlined,
+              data: (items) => RefreshIndicator(
+                onRefresh: () => ref.refresh(adminClassesProvider.future),
+                child: ListView.separated(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
+                  itemCount: items.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 8),
+                  itemBuilder: (context, index) =>
+                      _ClassCard(info: items[index]),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

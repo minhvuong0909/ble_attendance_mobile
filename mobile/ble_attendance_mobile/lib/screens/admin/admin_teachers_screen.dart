@@ -6,6 +6,7 @@ import '../../models/auth_user.dart';
 import '../../providers/admin_providers.dart';
 import '../../providers/repositories.dart';
 import '../../widgets/async_value_view.dart';
+import 'import_entry_button.dart';
 import '../../widgets/error_banner.dart';
 import 'temp_password_notice.dart';
 
@@ -89,42 +90,52 @@ class _AdminTeachersScreenState extends ConsumerState<AdminTeachersScreen> {
         icon: const Icon(Icons.person_add),
         label: const Text('Thêm giảng viên'),
       ),
-      body: AsyncValueView<List<AuthUser>>(
-        value: value,
-        onRetry: () => ref.invalidate(adminTeachersProvider),
-        onRefresh: () => ref.refresh(adminTeachersProvider.future),
-        isEmpty: (items) => items.isEmpty,
-        emptyMessage: 'Chưa có giảng viên nào',
-        emptyIcon: Icons.badge_outlined,
-        data: (items) => RefreshIndicator(
-          onRefresh: () => ref.refresh(adminTeachersProvider.future),
-          child: ListView.separated(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
-            itemCount: items.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 8),
-            itemBuilder: (context, index) {
-              final t = items[index];
-              return Card(
-                child: ListTile(
-                  leading: const Icon(Icons.badge_outlined),
-                  title: Text(t.fullName),
-                  subtitle: Text(t.loginId),
-                  trailing: PopupMenuButton<String>(
-                    tooltip: 'Tùy chọn',
-                    onSelected: (_) => _reset(t),
-                    itemBuilder: (_) => const [
-                      PopupMenuItem(
-                        value: 'reset',
-                        child: Text('Đặt lại mật khẩu'),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
+      body: Column(
+        children: [
+          const ImportEntryButton(
+            label: 'Nhập từ file',
+            path: '/admin/import/teachers',
           ),
-        ),
+          Expanded(
+            child: AsyncValueView<List<AuthUser>>(
+              value: value,
+              onRetry: () => ref.invalidate(adminTeachersProvider),
+              onRefresh: () => ref.refresh(adminTeachersProvider.future),
+              isEmpty: (items) => items.isEmpty,
+              emptyMessage: 'Chưa có giảng viên nào',
+              emptyIcon: Icons.badge_outlined,
+              data: (items) => RefreshIndicator(
+                onRefresh: () => ref.refresh(adminTeachersProvider.future),
+                child: ListView.separated(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
+                  itemCount: items.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 8),
+                  itemBuilder: (context, index) {
+                    final t = items[index];
+                    return Card(
+                      child: ListTile(
+                        leading: const Icon(Icons.badge_outlined),
+                        title: Text(t.fullName),
+                        subtitle: Text(t.loginId),
+                        trailing: PopupMenuButton<String>(
+                          tooltip: 'Tùy chọn',
+                          onSelected: (_) => _reset(t),
+                          itemBuilder: (_) => const [
+                            PopupMenuItem(
+                              value: 'reset',
+                              child: Text('Đặt lại mật khẩu'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
