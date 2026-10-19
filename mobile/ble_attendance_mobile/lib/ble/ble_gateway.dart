@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_ble_peripheral/flutter_ble_peripheral.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 
@@ -41,6 +42,7 @@ class RealBleGateway implements BleGateway {
 
   @override
   Future<BleReadiness> ensureReady({required bool advertise}) async {
+    if (kIsWeb) return BleReadiness.unsupported;
     final granted = advertise
         ? await ensureBlePermissions()
         : await ensureBleScanPermissions();
