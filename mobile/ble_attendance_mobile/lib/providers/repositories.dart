@@ -34,7 +34,7 @@ final attendanceRepositoryProvider = Provider<AttendanceRepository>(
 final reportRepositoryProvider = Provider<ReportRepository>(
   (ref) => ApiReportRepository(ref.watch(apiClientProvider)),
 );
-final fileSharerProvider = Provider<FileSharer>((ref) => SharePlusFileSharer());
+final fileSharerProvider = Provider<FileSharer>((ref) => createFileSharer());
 final adminRepositoryProvider = Provider<AdminRepository>(
   (ref) => ApiAdminRepository(ref.watch(apiClientProvider)),
 );

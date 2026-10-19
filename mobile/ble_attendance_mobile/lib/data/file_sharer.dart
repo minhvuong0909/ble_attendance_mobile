@@ -1,21 +1,9 @@
-import 'dart:io';
+import 'file_sharer_io.dart'
+    if (dart.library.js_interop) 'file_sharer_web.dart';
 
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
-
-/// Chia sẻ một tệp ra ngoài app (mở share sheet của Android).
+/// Chia sẻ một tệp ra ngoài app (share sheet trên Android, tải xuống trên web).
 abstract class FileSharer {
   Future<void> share(String filename, List<int> bytes);
 }
 
-class SharePlusFileSharer implements FileSharer {
-  @override
-  Future<void> share(String filename, List<int> bytes) async {
-    final dir = await getTemporaryDirectory();
-    final file = File('${dir.path}/$filename');
-    await file.writeAsBytes(bytes, flush: true);
-    await SharePlus.instance.share(
-      ShareParams(files: [XFile(file.path)], title: filename),
-    );
-  }
-}
+FileSharer createFileSharer() => createPlatformFileSharer();

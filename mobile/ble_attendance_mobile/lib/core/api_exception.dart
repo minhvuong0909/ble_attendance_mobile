@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 
 /// Lỗi gọi API đã được chuẩn hóa: [code] để xử lý logic, [message] (tiếng Việt) để hiển thị.
@@ -48,7 +46,10 @@ class ApiException implements Exception {
       case DioExceptionType.connectionError:
         return _network();
       default:
-        if (error.error is SocketException) return _network();
+        // Không import dart:io để mã chạy được trên web.
+        if ('${error.error.runtimeType}' == 'SocketException') {
+          return _network();
+        }
         return ApiException('unknown', 'Đã xảy ra lỗi không mong muốn.');
     }
   }

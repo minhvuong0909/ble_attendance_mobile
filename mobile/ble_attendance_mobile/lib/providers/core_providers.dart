@@ -4,7 +4,7 @@ import '../data/api_client.dart';
 import '../data/auth_repository.dart';
 import '../data/token_store.dart';
 
-final tokenStoreProvider = Provider<TokenStore>((ref) => SecureTokenStore());
+final tokenStoreProvider = Provider<TokenStore>((ref) => createTokenStore());
 
 final apiClientProvider = Provider<ApiClient>(
   (ref) => ApiClient(store: ref.watch(tokenStoreProvider)),
