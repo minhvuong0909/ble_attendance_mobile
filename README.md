@@ -31,7 +31,7 @@ cp .env.example .env
 
 Swagger: `http://127.0.0.1:8000/docs`. Trên Windows dùng `.\.venv\Scripts\...` tương ứng.
 
-**Bản web** (import/xuất file trên laptop): `backend/scripts/build_web.sh`, rồi mở `http://<IP-máy>:8000/app/`.
+**Bản web** (giao diện desktop cho admin/giảng viên, import/xuất file trên laptop): `backend/scripts/build_web.sh`, rồi mở `http://<IP-máy>:8000/app/`.
 
 **Ứng dụng Android:**
 
