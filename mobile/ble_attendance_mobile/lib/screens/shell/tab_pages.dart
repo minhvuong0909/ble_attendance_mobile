@@ -4,6 +4,7 @@ import '../../models/app_role.dart';
 import '../notifications/notifications_screen.dart';
 import '../student/student_classes_screen.dart';
 import '../teacher/teacher_classes_screen.dart';
+import '../teacher/teacher_leave_screen.dart';
 import '../teacher/teacher_live_screen.dart';
 import '../student/student_home_screen.dart';
 import '../student/student_leave_screen.dart';
@@ -17,6 +18,7 @@ Widget pageFor(AppRole role, int index) {
   if (role == AppRole.teacher) {
     if (index == 0) return const TeacherClassesScreen();
     if (index == 1) return const TeacherLiveScreen();
+    if (index == 2) return const TeacherLeaveScreen();
   }
   if (role == AppRole.student) {
     switch (index) {
