@@ -18,3 +18,10 @@ String formatPercent(double value) {
       : value.toStringAsFixed(1);
   return '$text%';
 }
+
+/// Số phút đến trễ (làm tròn xuống, không âm); null nếu chưa ghi nhận lúc đến.
+int? lateMinutes(DateTime startsAt, DateTime? firstSeenAt) {
+  if (firstSeenAt == null) return null;
+  final minutes = firstSeenAt.difference(startsAt).inMinutes;
+  return minutes < 0 ? 0 : minutes;
+}

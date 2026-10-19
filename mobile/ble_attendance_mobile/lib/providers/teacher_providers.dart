@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/attendance_record.dart';
 import '../models/class_report.dart';
 import '../models/session_info.dart';
 import '../models/student_info.dart';
@@ -21,4 +22,10 @@ final classReportProvider = FutureProvider.autoDispose
     .family<ClassReport, String>(
       (ref, classId) =>
           ref.watch(reportRepositoryProvider).classReport(classId),
+    );
+
+final sessionAttendanceProvider = FutureProvider.autoDispose
+    .family<SessionAttendance, String>(
+      (ref, sessionId) =>
+          ref.watch(attendanceRepositoryProvider).sessionAttendance(sessionId),
     );
