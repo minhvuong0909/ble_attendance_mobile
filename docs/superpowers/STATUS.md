@@ -21,10 +21,14 @@
 - Lỗi nhỏ hoãn lại của Plan 4C: form tạo lớp không báo khi tải danh sách giảng viên lỗi; xóa ô tín chỉ khi sửa môn không có tác dụng nhưng vẫn báo thành công; màn hình import mở thẳng không kèm `classId` báo lỗi chung; danh sách sinh viên ở chi tiết lớp không hiện lỗi khi làm mới thất bại; backend `PATCH /admin/classes/{id}` không kiểm tra trùng mã lớp/học kỳ (có thể 500).
 - Lỗi nhỏ hoãn lại của Plan 4B: tab Buổi trực tiếp vẫn poll `/sessions/active` khi không hiển thị; kéo làm mới ở tab trực tiếp trả về sớm; đóng hộp thoại chỉnh tay khi đang lưu làm mất thông báo; tên file Excel chưa lọc ký tự `/` và chưa xóa file tạm; `DataTable` báo cáo chậm với lớp rất lớn (100 SV x 40 buổi) và chưa cố định cột MSSV/Họ tên; chưa có biểu đồ `fl_chart`; timeout 12 s cũng áp cho tải Excel.
 
+## Hoàn thiện đã xong
+
+APK release ký bằng khóa riêng (`android/key.properties` + `app/upload-keystore.jks`, gitignore; **sao lưu hai file này**, mất thì không cập nhật được app đã cài), README/ARCHITECTURE/DEMO viết lại, sửa PATCH lớp trùng mã (backend) và tên file tải về không chứa đường dẫn. 226 test backend, 318 test Flutter.
+
 ## Việc còn lại (theo thứ tự)
 
 1. **Thử BLE trên 2 điện thoại thật** và chỉnh theo kết quả (xem bên dưới).
-2. **Hoàn thiện:** release APK có ký, kịch bản demo, rà soát tài liệu, sửa các lỗi nhỏ đã hoãn.
+2. **Còn hoãn:** các lỗi nhỏ liệt kê ở trên (tab trực tiếp vẫn poll khi ẩn, form tạo lớp không báo lỗi tải giảng viên, v.v.), thử BLE hai điện thoại.
 
 ## Quy trình đang dùng
 

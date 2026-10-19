@@ -12,8 +12,11 @@ abstract class ReportRepository {
 String filenameFromDisposition(String? header, String fallback) {
   if (header == null) return fallback;
   final match = RegExp(r'filename="?([^";]+)"?').firstMatch(header);
-  final name = match?.group(1)?.trim();
-  return (name == null || name.isEmpty) ? fallback : name;
+  // Chỉ lấy phần tên cuối, tránh ký tự dẫn ra ngoài thư mục tạm.
+  final name = match?.group(1)?.trim().split(RegExp(r'[\\/]')).last.trim();
+  return (name == null || name.isEmpty || name == '.' || name == '..')
+      ? fallback
+      : name;
 }
 
 class ApiReportRepository implements ReportRepository {
