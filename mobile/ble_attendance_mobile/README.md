@@ -17,6 +17,7 @@ lib/
 ├── screens/shell/       khung điều hướng 3 vai trò (tab giữ chỗ cho phần chưa làm)
 ├── screens/student/     trang chủ, lớp của tôi + chi tiết, xin phép
 ├── screens/teacher/     lớp được phân công (sinh viên, buổi học, báo cáo + Excel), buổi trực tiếp, duyệt xin phép
+├── screens/admin/       môn học, lớp (tạo, cấu hình, gán giảng viên), giảng viên, sinh viên, import CSV/Excel có xem trước
 ├── screens/notifications/ thông báo (dùng chung, có badge chưa đọc)
 └── widgets/             thành phần dùng chung
 ```
@@ -44,4 +45,5 @@ flutter test
 - Tài khoản mới do admin tạo có mật khẩu tạm bằng mã định danh; lần đầu đăng nhập app bắt buộc đổi mật khẩu.
 - Đã có: màn hình sinh viên (buổi học đang diễn ra + chốt điểm danh bằng vân tay/khóa màn hình, lớp của tôi, thống kê chuyên cần, xin phép) và thông báo.
 - Đã có thêm: màn hình giảng viên (lớp, bắt đầu/kết thúc buổi, mở chốt, chỉnh tay điểm danh, báo cáo + xuất Excel, duyệt đơn xin phép).
-- Chưa có: màn hình admin và phần BLE (chỉ báo gần/xa, phát/quét); xem `docs/superpowers/plans/` để biết lộ trình.
+- Đã có thêm: màn hình admin (môn học, lớp, giảng viên, sinh viên, import danh sách có xem trước).
+- Chưa có: phần BLE (chỉ báo gần/xa, phát/quét); xem `docs/superpowers/plans/` để biết lộ trình.
