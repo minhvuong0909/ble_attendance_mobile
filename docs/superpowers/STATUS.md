@@ -10,18 +10,18 @@
 | Backend extras | Thông báo, thống kê SV, báo cáo + Excel, xin phép, import CSV/XLSX | 223 test backend xanh |
 | Flutter foundation | Riverpod + go_router, đăng nhập/đăng ký/đổi mật khẩu bắt buộc, cài đặt máy chủ, khung 3 vai trò | |
 | Flutter student (4A) | Lớp dữ liệu dùng chung, thông báo + badge, màn hình sinh viên | 161 test Flutter xanh |
+| Flutter teacher (4B) | Lớp + sinh viên + buổi học + báo cáo/Excel, buổi trực tiếp, chỉnh tay, duyệt xin phép | 213 test Flutter xanh |
 
 ## ĐANG LÀM DỞ (đọc mục này trước)
 
-- Nhánh `feature/flutter-teacher` (Plan 4B, `plans/2026-10-20-flutter-teacher.md`): **Task 1–4 xong** (199 test xanh). **Tiếp theo: Task 5** (tab Xin phép của giảng viên: gộp đơn mọi lớp, lọc Chờ duyệt/Tất cả, Duyệt/Từ chối kèm ghi chú), Task 6 (README, build APK, review, sửa lỗi, merge `--no-ff` vào main).
-- `main` sạch và xanh (backend 223, Flutter 161 test). Ghi chú: `AttendanceRepository.overrideStatus` (không đặt tên `override`).
+- Plan 4B (giảng viên) **đã merge vào `main`** (213 test Flutter xanh, APK debug build được). Plan 4C (admin) đã viết ở `plans/2026-10-20-flutter-admin.md`; bắt đầu từ Task 1 trên nhánh `feature/flutter-admin`.
+- Lỗi nhỏ hoãn lại của Plan 4B: tab Buổi trực tiếp vẫn poll `/sessions/active` khi không hiển thị; kéo làm mới ở tab trực tiếp trả về sớm; đóng hộp thoại chỉnh tay khi đang lưu làm mất thông báo; tên file Excel chưa lọc ký tự `/` và chưa xóa file tạm; `DataTable` báo cáo chậm với lớp rất lớn (100 SV x 40 buổi) và chưa cố định cột MSSV/Họ tên; chưa có biểu đồ `fl_chart`; timeout 12 s cũng áp cho tải Excel.
 
 ## Việc còn lại (theo thứ tự)
 
-1. **Plan 4B – giảng viên:** lớp được phân công + sinh viên + lịch sử buổi + báo cáo/Excel, tab Buổi trực tiếp (mở chốt, kết thúc, danh sách điểm danh, chỉnh tay), duyệt đơn xin phép.
-2. **Plan 4C – admin:** môn, lớp, gán GV, giảng viên, import (xem trước), sinh viên, đặt lại mật khẩu.
-3. **Plan BLE:** phát/quét BLE với tag HMAC (xem spec mục 5), chỉ báo gần/xa cho sinh viên, gửi lô detection từ máy GV, foreground service. Cần thử trên 2 điện thoại thật.
-4. **Hoàn thiện:** release APK có ký, kịch bản demo, rà soát tài liệu, sửa các lỗi nhỏ đã hoãn.
+1. **Plan 4C – admin:** môn, lớp, gán GV, giảng viên, import (xem trước), sinh viên, đặt lại mật khẩu.
+2. **Plan BLE:** phát/quét BLE với tag HMAC (xem spec mục 5), chỉ báo gần/xa cho sinh viên, gửi lô detection từ máy GV, foreground service. Cần thử trên 2 điện thoại thật.
+3. **Hoàn thiện:** release APK có ký, kịch bản demo, rà soát tài liệu, sửa các lỗi nhỏ đã hoãn.
 
 ## Quy trình đang dùng
 
