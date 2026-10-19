@@ -1,6 +1,8 @@
+import 'package:ble_attendance_mobile/data/admin_repository.dart';
 import 'package:ble_attendance_mobile/data/attendance_repository.dart';
 import 'package:ble_attendance_mobile/data/class_repository.dart';
 import 'package:ble_attendance_mobile/data/device_authenticator.dart';
+import 'package:ble_attendance_mobile/data/file_chooser.dart';
 import 'package:ble_attendance_mobile/data/file_sharer.dart';
 import 'package:ble_attendance_mobile/data/leave_repository.dart';
 import 'package:ble_attendance_mobile/data/notification_repository.dart';
@@ -9,6 +11,10 @@ import 'package:ble_attendance_mobile/data/session_repository.dart';
 import 'package:ble_attendance_mobile/data/stats_repository.dart';
 import 'package:ble_attendance_mobile/models/app_notification.dart';
 import 'package:ble_attendance_mobile/models/attendance_record.dart';
+import 'package:ble_attendance_mobile/models/auth_user.dart';
+import 'package:ble_attendance_mobile/models/course.dart';
+import 'package:ble_attendance_mobile/models/import_report.dart';
+import 'package:ble_attendance_mobile/models/app_role.dart';
 import 'package:ble_attendance_mobile/models/class_report.dart';
 import 'package:ble_attendance_mobile/models/export_file.dart';
 import 'package:ble_attendance_mobile/models/student_info.dart';
@@ -488,5 +494,271 @@ class FakeFileSharer implements FileSharer {
   @override
   Future<void> share(String filename, List<int> bytes) async {
     shared.add((filename: filename, bytes: bytes));
+  }
+}
+
+Course sampleCourse({
+  String id = 'k1',
+  String code = 'PRM393',
+  String name = 'Lập trình di động',
+  int? credits = 3,
+}) => Course(id: id, code: code, name: name, credits: credits);
+
+AuthUser sampleTeacher({
+  String id = 't1',
+  String teacherId = 'T001',
+  String name = 'Co Lan',
+}) => AuthUser(
+  id: id,
+  fullName: name,
+  role: AppRole.teacher,
+  studentId: null,
+  teacherId: teacherId,
+  mustChangePassword: true,
+);
+
+ImportReport sampleImportReport({
+  bool dryRun = true,
+  bool committed = false,
+  int created = 2,
+  int skipped = 1,
+  List<ImportRow>? rows,
+}) {
+  final list =
+      rows ??
+      [
+        const ImportRow(
+          row: 2,
+          status: ImportRowStatus.created,
+          message: 'Tạo tài khoản và thêm vào lớp',
+        ),
+        const ImportRow(
+          row: 3,
+          status: ImportRowStatus.created,
+          message: 'Thêm vào lớp',
+        ),
+        const ImportRow(
+          row: 4,
+          status: ImportRowStatus.skipped,
+          message: 'Đã ở trong lớp',
+        ),
+      ];
+  return ImportReport(
+    kind: 'students',
+    dryRun: dryRun,
+    committed: committed,
+    total: list.length,
+    created: list.where((r) => r.status == ImportRowStatus.created).length,
+    skipped: list.where((r) => r.status == ImportRowStatus.skipped).length,
+    errors: list.where((r) => r.status == ImportRowStatus.error).length,
+    rows: list,
+  );
+}
+
+class FakeAdminRepository implements AdminRepository {
+  Future<List<Course>> Function() onCourses = () async => [];
+  Future<Course> Function(String code, String name, int? credits)
+  onCreateCourse = (code, name, credits) async =>
+      sampleCourse(code: code, name: name, credits: credits);
+  Future<Course> Function(String id, String? name, int? credits)
+  onUpdateCourse = (id, name, credits) async => sampleCourse(id: id);
+  Future<void> Function(String id) onDeleteCourse = (_) async {};
+  Future<List<ClassInfo>> Function() onAllClasses = () async => [];
+  Future<ClassInfo> Function(Map<String, Object?> args) onCreateClass =
+      (_) async => sampleClass();
+  Future<ClassInfo> Function(String id, Map<String, Object?> args)
+  onUpdateClass = (_, _) async => sampleClass();
+  Future<void> Function(String id) onDeleteClass = (_) async {};
+  Future<ClassInfo> Function(String classId, String teacherId) onAssign =
+      (_, _) async => sampleClass();
+  Future<List<AuthUser>> Function() onTeachers = () async => [];
+  Future<AuthUser> Function(String teacherId, String fullName) onCreateTeacher =
+      (id, name) async => sampleTeacher(teacherId: id, name: name);
+  Future<void> Function(String userId) onResetPassword = (_) async {};
+  Future<ImportReport> Function(
+    String kind,
+    String? classId,
+    PickedFile file,
+    bool dryRun,
+  )
+  onImport = (_, _, _, dryRun) async =>
+      sampleImportReport(dryRun: dryRun, committed: !dryRun);
+  Future<ExportFile> Function(String kind) onTemplate = (kind) async =>
+      ExportFile(filename: '${kind}_template.csv', bytes: const [1]);
+
+  int coursesCalls = 0;
+  int classesCalls = 0;
+  int teachersCalls = 0;
+  final List<Map<String, Object?>> createdCourses = [];
+  final List<Map<String, Object?>> updatedCourses = [];
+  final List<String> deletedCourses = [];
+  final List<Map<String, Object?>> createdClasses = [];
+  final List<Map<String, Object?>> updatedClasses = [];
+  final List<String> deletedClasses = [];
+  final List<({String classId, String teacherId})> assigned = [];
+  final List<Map<String, Object?>> createdTeachers = [];
+  final List<String> resets = [];
+  final List<({String kind, String? classId, String file, bool dryRun})>
+  imports = [];
+  final List<String> templates = [];
+
+  @override
+  Future<List<Course>> courses() {
+    coursesCalls++;
+    return onCourses();
+  }
+
+  @override
+  Future<Course> createCourse({
+    required String code,
+    required String name,
+    int? credits,
+  }) {
+    createdCourses.add({'code': code, 'name': name, 'credits': credits});
+    return onCreateCourse(code, name, credits);
+  }
+
+  @override
+  Future<Course> updateCourse(String id, {String? name, int? credits}) {
+    updatedCourses.add({'id': id, 'name': name, 'credits': credits});
+    return onUpdateCourse(id, name, credits);
+  }
+
+  @override
+  Future<void> deleteCourse(String id) {
+    deletedCourses.add(id);
+    return onDeleteCourse(id);
+  }
+
+  @override
+  Future<List<ClassInfo>> allClasses() {
+    classesCalls++;
+    return onAllClasses();
+  }
+
+  @override
+  Future<ClassInfo> createClass({
+    required String courseId,
+    required String classCode,
+    required String semester,
+    String? teacherUserId,
+    int maxAbsencePercent = 20,
+    int rssiThreshold = -75,
+  }) {
+    final args = <String, Object?>{
+      'courseId': courseId,
+      'classCode': classCode,
+      'semester': semester,
+      'teacherUserId': teacherUserId,
+      'maxAbsencePercent': maxAbsencePercent,
+      'rssiThreshold': rssiThreshold,
+    };
+    createdClasses.add(args);
+    return onCreateClass(args);
+  }
+
+  @override
+  Future<ClassInfo> updateClass(
+    String id, {
+    String? classCode,
+    String? semester,
+    int? maxAbsencePercent,
+    int? rssiThreshold,
+  }) {
+    final args = <String, Object?>{
+      'classCode': classCode,
+      'semester': semester,
+      'maxAbsencePercent': maxAbsencePercent,
+      'rssiThreshold': rssiThreshold,
+    };
+    updatedClasses.add({'id': id, ...args});
+    return onUpdateClass(id, args);
+  }
+
+  @override
+  Future<void> deleteClass(String id) {
+    deletedClasses.add(id);
+    return onDeleteClass(id);
+  }
+
+  @override
+  Future<ClassInfo> assignTeacher(String classId, String teacherUserId) {
+    assigned.add((classId: classId, teacherId: teacherUserId));
+    return onAssign(classId, teacherUserId);
+  }
+
+  @override
+  Future<List<AuthUser>> teachers() {
+    teachersCalls++;
+    return onTeachers();
+  }
+
+  @override
+  Future<AuthUser> createTeacher({
+    required String teacherId,
+    required String fullName,
+  }) {
+    createdTeachers.add({'teacherId': teacherId, 'fullName': fullName});
+    return onCreateTeacher(teacherId, fullName);
+  }
+
+  @override
+  Future<void> resetPassword(String userId) {
+    resets.add(userId);
+    return onResetPassword(userId);
+  }
+
+  @override
+  Future<ImportReport> importStudents(
+    String classId,
+    PickedFile file, {
+    required bool dryRun,
+  }) {
+    imports.add((
+      kind: 'students',
+      classId: classId,
+      file: file.name,
+      dryRun: dryRun,
+    ));
+    return onImport('students', classId, file, dryRun);
+  }
+
+  @override
+  Future<ImportReport> importTeachers(PickedFile file, {required bool dryRun}) {
+    imports.add((
+      kind: 'teachers',
+      classId: null,
+      file: file.name,
+      dryRun: dryRun,
+    ));
+    return onImport('teachers', null, file, dryRun);
+  }
+
+  @override
+  Future<ImportReport> importClasses(PickedFile file, {required bool dryRun}) {
+    imports.add((
+      kind: 'classes',
+      classId: null,
+      file: file.name,
+      dryRun: dryRun,
+    ));
+    return onImport('classes', null, file, dryRun);
+  }
+
+  @override
+  Future<ExportFile> downloadTemplate(String kind) {
+    templates.add(kind);
+    return onTemplate(kind);
+  }
+}
+
+class FakeFileChooser implements FileChooser {
+  PickedFile? next = PickedFile(name: 'data.csv', bytes: const [1, 2, 3]);
+  int calls = 0;
+
+  @override
+  Future<PickedFile?> pick() async {
+    calls++;
+    return next;
   }
 }

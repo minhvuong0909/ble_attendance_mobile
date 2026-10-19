@@ -19,6 +19,8 @@ class Fakes {
   final attendance = FakeAttendanceRepository();
   final reports = FakeReportRepository();
   final sharer = FakeFileSharer();
+  final admin = FakeAdminRepository();
+  final chooser = FakeFileChooser();
 }
 
 /// Mở app với người dùng đã đăng nhập vai trò [role] và các repository giả, rồi (tuỳ chọn) chuyển tab.
@@ -44,6 +46,8 @@ Future<Fakes> openApp(
       attendanceRepositoryProvider.overrideWithValue(f.attendance),
       reportRepositoryProvider.overrideWithValue(f.reports),
       fileSharerProvider.overrideWithValue(f.sharer),
+      adminRepositoryProvider.overrideWithValue(f.admin),
+      fileChooserProvider.overrideWithValue(f.chooser),
     ],
   );
   if (tab != null) {

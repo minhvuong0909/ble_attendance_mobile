@@ -56,6 +56,26 @@ class ApiClient {
   Future<dynamic> post(String path, {Object? data}) =>
       _send(() => dio.post<dynamic>(path, data: data));
 
+  Future<dynamic> patch(String path, {Object? data}) =>
+      _send(() => dio.patch<dynamic>(path, data: data));
+
+  Future<dynamic> delete(String path) => _send(() => dio.delete<dynamic>(path));
+
+  /// Tải lên một tệp bằng multipart/form-data (trường `file`).
+  Future<dynamic> postFile(
+    String path, {
+    required String filename,
+    required List<int> bytes,
+    Map<String, dynamic>? query,
+  }) {
+    final form = FormData.fromMap({
+      'file': MultipartFile.fromBytes(bytes, filename: filename),
+    });
+    return _send(
+      () => dio.post<dynamic>(path, data: form, queryParameters: query),
+    );
+  }
+
   /// Tải một tệp nhị phân (ví dụ Excel). Lỗi của server (JSON) được chuyển thành [ApiException].
   Future<({List<int> bytes, String? contentDisposition})> download(
     String path,
