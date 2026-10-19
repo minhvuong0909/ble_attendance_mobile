@@ -10,6 +10,8 @@ import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
 import '../screens/auth/server_settings_screen.dart';
 import '../screens/auth/splash_screen.dart';
+import '../screens/admin/admin_class_detail_screen.dart';
+import '../screens/admin/class_form_screen.dart';
 import '../screens/shell/app_shell.dart';
 import '../screens/student/class_detail_screen.dart';
 import '../screens/student/leave_form_screen.dart';
@@ -94,6 +96,15 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/student/classes/:id',
         builder: (_, state) =>
             ClassDetailScreen(classId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/admin/classes/new',
+        builder: (_, _) => const ClassFormScreen(),
+      ),
+      GoRoute(
+        path: '/admin/classes/:id',
+        builder: (_, state) =>
+            AdminClassDetailScreen(classId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: '/teacher/sessions/:id',

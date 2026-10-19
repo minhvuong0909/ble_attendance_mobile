@@ -17,6 +17,7 @@ class StudentLeaveScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.transparent,
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: null,
         onPressed: () async {
           final sent = await context.push<bool>('/student/leave/new');
           if (sent == true) ref.invalidate(myLeaveProvider);

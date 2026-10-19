@@ -51,6 +51,7 @@ class AdminCoursesScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.transparent,
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: null,
         onPressed: () => _openDialog(context, ref),
         icon: const Icon(Icons.add),
         label: const Text('Thêm môn'),
