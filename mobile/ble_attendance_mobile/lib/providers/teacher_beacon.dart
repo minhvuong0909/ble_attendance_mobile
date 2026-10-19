@@ -7,6 +7,7 @@ import '../ble/ble_gateway.dart';
 import '../core/app_constants.dart';
 import '../data/detection_repository.dart';
 import '../models/session_info.dart';
+import 'auth_controller.dart';
 import 'core_providers.dart';
 import 'repositories.dart';
 
@@ -61,6 +62,9 @@ class TeacherBeaconController extends Notifier<TeacherBeaconState> {
   @override
   TeacherBeaconState build() {
     ref.onDispose(_cancel);
+    ref.listen(authControllerProvider, (_, next) {
+      if (next.status != AuthStatus.authenticated) stop();
+    });
     return const TeacherBeaconState();
   }
 

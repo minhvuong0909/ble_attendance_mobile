@@ -8,6 +8,8 @@ import '../../core/formatters.dart';
 import '../../models/session_info.dart';
 import '../../providers/repositories.dart';
 import '../../providers/session_provider.dart';
+import '../../providers/teacher_beacon.dart';
+import '../../widgets/ble_status_card.dart';
 import '../../providers/teacher_providers.dart';
 import '../../widgets/async_value_view.dart';
 import '../../widgets/export_button.dart';
@@ -30,6 +32,13 @@ class _TeacherLiveScreenState extends ConsumerState<TeacherLiveScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ref
+            .read(teacherBeaconProvider.notifier)
+            .sync(ref.read(activeSessionProvider).value);
+      }
+    });
     _timer = Timer.periodic(_pollInterval, (_) => _refresh());
   }
 
@@ -103,6 +112,12 @@ class _TeacherLiveScreenState extends ConsumerState<TeacherLiveScreen> {
   @override
   Widget build(BuildContext context) {
     final value = ref.watch(activeSessionProvider);
+    ref.listen(activeSessionProvider, (_, next) {
+      if (next.hasValue) {
+        ref.read(teacherBeaconProvider.notifier).sync(next.value);
+      }
+    });
+    final ble = ref.watch(teacherBeaconProvider);
     return AsyncValueView<SessionInfo?>(
       value: value,
       onRetry: () => ref.invalidate(activeSessionProvider),
@@ -122,6 +137,11 @@ class _TeacherLiveScreenState extends ConsumerState<TeacherLiveScreen> {
                 busy: _busy,
                 onOpen: () => _openFinalization(session),
                 onEnd: () => _end(session),
+                ble: TeacherBleCard(
+                  state: ble,
+                  onRetry: () =>
+                      ref.read(teacherBeaconProvider.notifier).retry(),
+                ),
               ),
               const SizedBox(height: 12),
               ExportButton(
@@ -173,12 +193,14 @@ class _SessionCard extends StatelessWidget {
     required this.busy,
     required this.onOpen,
     required this.onEnd,
+    required this.ble,
   });
 
   final SessionInfo session;
   final bool busy;
   final VoidCallback onOpen;
   final VoidCallback onEnd;
+  final Widget ble;
 
   @override
   Widget build(BuildContext context) {
@@ -207,11 +229,8 @@ class _SessionCard extends StatelessWidget {
             Text(session.courseName, style: theme.textTheme.titleLarge),
             Text('${session.courseCode} · ${session.classCode}'),
             Text('Bắt đầu lúc ${formatDateTime(session.startsAt)}'),
-            const SizedBox(height: 4),
-            Text(
-              'Phát/quét BLE sẽ có ở bản cập nhật BLE.',
-              style: theme.textTheme.bodySmall,
-            ),
+            const SizedBox(height: 12),
+            ble,
             const SizedBox(height: 12),
             if (session.finalizationOpen)
               const Align(

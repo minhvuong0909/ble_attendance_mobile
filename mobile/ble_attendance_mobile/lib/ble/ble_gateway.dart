@@ -51,7 +51,10 @@ class RealBleGateway implements BleGateway {
     final status = await _ble.statusStream
         .firstWhere((s) => s != BleStatus.unknown)
         .timeout(const Duration(seconds: 3), onTimeout: () => BleStatus.ready);
-    if (status == BleStatus.poweredOff) return BleReadiness.bluetoothOff;
+    if (status == BleStatus.poweredOff) {
+      await ensureBluetoothEnabled(); // hộp thoại bật Bluetooth của hệ thống
+      return BleReadiness.bluetoothOff;
+    }
     if (status == BleStatus.unauthorized) return BleReadiness.permissionDenied;
     if (status == BleStatus.unsupported) return BleReadiness.unsupported;
     return BleReadiness.ready;

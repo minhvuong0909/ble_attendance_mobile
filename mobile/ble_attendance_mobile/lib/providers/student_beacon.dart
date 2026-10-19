@@ -6,6 +6,7 @@ import '../ble/ble_gateway.dart';
 import '../ble/beacon_codec.dart';
 import '../core/app_constants.dart';
 import '../models/session_info.dart';
+import 'auth_controller.dart';
 import 'core_providers.dart';
 import 'repositories.dart';
 
@@ -56,6 +57,9 @@ class StudentBeaconController extends Notifier<StudentBeaconState> {
   @override
   StudentBeaconState build() {
     ref.onDispose(_cancel);
+    ref.listen(authControllerProvider, (_, next) {
+      if (next.status != AuthStatus.authenticated) stop();
+    });
     return const StudentBeaconState();
   }
 
