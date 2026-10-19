@@ -16,6 +16,9 @@ class Fakes {
   final leave = FakeLeaveRepository();
   final notifications = FakeNotificationRepository();
   final authenticator = FakeDeviceAuthenticator();
+  final attendance = FakeAttendanceRepository();
+  final reports = FakeReportRepository();
+  final sharer = FakeFileSharer();
 }
 
 /// Mở app với người dùng đã đăng nhập vai trò [role] và các repository giả, rồi (tuỳ chọn) chuyển tab.
@@ -38,6 +41,9 @@ Future<Fakes> openApp(
       leaveRepositoryProvider.overrideWithValue(f.leave),
       notificationRepositoryProvider.overrideWithValue(f.notifications),
       deviceAuthenticatorProvider.overrideWithValue(f.authenticator),
+      attendanceRepositoryProvider.overrideWithValue(f.attendance),
+      reportRepositoryProvider.overrideWithValue(f.reports),
+      fileSharerProvider.overrideWithValue(f.sharer),
     ],
   );
   if (tab != null) {

@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import '../../models/app_role.dart';
 import '../notifications/notifications_screen.dart';
 import '../student/student_classes_screen.dart';
+import '../teacher/teacher_classes_screen.dart';
+import '../teacher/teacher_leave_screen.dart';
+import '../teacher/teacher_live_screen.dart';
 import '../student/student_home_screen.dart';
 import '../student/student_leave_screen.dart';
 import 'placeholder_tab.dart';
@@ -12,6 +15,11 @@ import 'shell_tabs.dart';
 Widget pageFor(AppRole role, int index) {
   final tab = tabsFor(role)[index];
   if (tab.path.endsWith('/notifications')) return const NotificationsScreen();
+  if (role == AppRole.teacher) {
+    if (index == 0) return const TeacherClassesScreen();
+    if (index == 1) return const TeacherLiveScreen();
+    if (index == 2) return const TeacherLeaveScreen();
+  }
   if (role == AppRole.student) {
     switch (index) {
       case 0:

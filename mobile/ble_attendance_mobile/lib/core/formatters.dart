@@ -10,3 +10,18 @@ String toApiDate(DateTime value) => _apiDate.format(value);
 
 /// Server trả UTC có hậu tố Z; đổi sang giờ máy để hiển thị.
 DateTime parseApiTime(String value) => DateTime.parse(value).toLocal();
+
+/// 100.0 → "100%", 66.7 → "66.7%".
+String formatPercent(double value) {
+  final text = value == value.roundToDouble()
+      ? value.round().toString()
+      : value.toStringAsFixed(1);
+  return '$text%';
+}
+
+/// Số phút đến trễ (làm tròn xuống, không âm); null nếu chưa ghi nhận lúc đến.
+int? lateMinutes(DateTime startsAt, DateTime? firstSeenAt) {
+  if (firstSeenAt == null) return null;
+  final minutes = firstSeenAt.difference(startsAt).inMinutes;
+  return minutes < 0 ? 0 : minutes;
+}

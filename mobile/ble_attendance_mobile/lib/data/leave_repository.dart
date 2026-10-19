@@ -9,6 +9,17 @@ abstract class LeaveRepository {
     required DateTime date,
     required String reason,
   });
+
+  // Dành cho giảng viên.
+  Future<List<LeaveRequest>> classRequests(
+    String classId, {
+    LeaveStatus? status,
+  });
+  Future<LeaveRequest> review({
+    required int leaveId,
+    required String decision,
+    String? note,
+  });
 }
 
 class ApiLeaveRepository implements LeaveRepository {
@@ -34,6 +45,36 @@ class ApiLeaveRepository implements LeaveRepository {
     final json = await _api.post(
       '/leave-requests',
       data: {'class_id': classId, 'date': toApiDate(date), 'reason': reason},
+    );
+    return LeaveRequest.fromJson(json as Map<String, dynamic>);
+  }
+
+  @override
+  Future<List<LeaveRequest>> classRequests(
+    String classId, {
+    LeaveStatus? status,
+  }) async {
+    final json =
+        await _api.get(
+              '/classes/$classId/leave-requests',
+              query: {if (status != null) 'status': status.name},
+            )
+            as List<dynamic>;
+    return [
+      for (final item in json)
+        LeaveRequest.fromJson(item as Map<String, dynamic>),
+    ];
+  }
+
+  @override
+  Future<LeaveRequest> review({
+    required int leaveId,
+    required String decision,
+    String? note,
+  }) async {
+    final json = await _api.post(
+      '/leave-requests/$leaveId/review',
+      data: {'decision': decision, 'note': note},
     );
     return LeaveRequest.fromJson(json as Map<String, dynamic>);
   }
