@@ -50,7 +50,7 @@ flutter build apk --release --target-platform android-arm,android-arm64
 
 ```bash
 cd backend && .venv/bin/pytest -q                       # 226 test
-cd mobile/ble_attendance_mobile && flutter analyze && flutter test   # 318 test
+cd mobile/ble_attendance_mobile && flutter analyze && flutter test   # 320 test
 ```
 
 Thử BLE khi chỉ có một điện thoại: `backend/scripts/ble_teacher_sim.py` dùng Bluetooth laptop giả máy giảng viên (cần `pip install bleak`).
