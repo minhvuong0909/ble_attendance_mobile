@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../models/app_role.dart';
+import '../models/session_info.dart';
 import '../providers/auth_controller.dart';
 import '../screens/auth/change_password_screen.dart';
 import '../screens/auth/login_screen.dart';
@@ -12,6 +13,7 @@ import '../screens/auth/splash_screen.dart';
 import '../screens/shell/app_shell.dart';
 import '../screens/student/class_detail_screen.dart';
 import '../screens/student/leave_form_screen.dart';
+import '../screens/teacher/session_detail_screen.dart';
 import '../screens/teacher/teacher_class_detail_screen.dart';
 import '../screens/shell/tab_pages.dart';
 import '../screens/shell/shell_tabs.dart';
@@ -92,6 +94,17 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/student/classes/:id',
         builder: (_, state) =>
             ClassDetailScreen(classId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/teacher/sessions/:id',
+        builder: (_, state) {
+          final session = state.extra;
+          return session is SessionInfo
+              ? SessionDetailScreen(session: session)
+              : const Scaffold(
+                  body: Center(child: Text('Không tìm thấy buổi học')),
+                );
+        },
       ),
       GoRoute(
         path: '/teacher/classes/:id',

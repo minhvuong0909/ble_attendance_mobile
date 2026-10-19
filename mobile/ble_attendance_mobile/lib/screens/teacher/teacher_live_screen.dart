@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/api_exception.dart';
 import '../../core/formatters.dart';
-import '../../models/attendance_record.dart';
 import '../../models/session_info.dart';
 import '../../providers/repositories.dart';
 import '../../providers/session_provider.dart';
@@ -13,8 +12,7 @@ import '../../providers/teacher_providers.dart';
 import '../../widgets/async_value_view.dart';
 import '../../widgets/export_button.dart';
 import '../../widgets/status_chip.dart';
-import '../../widgets/warning_banner.dart';
-import 'override_dialog.dart';
+import 'session_attendance_view.dart';
 
 const _pollInterval = Duration(seconds: 10);
 
@@ -75,8 +73,12 @@ class _TeacherLiveScreenState extends ConsumerState<TeacherLiveScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Kết thúc buổi học?'),
-        content: const Text(
-          'Hệ thống sẽ chốt kết quả điểm danh cả lớp. Không thể hoàn tác.',
+        content: Text(
+          session.finalizationOpen
+              ? 'Hệ thống sẽ chốt kết quả điểm danh cả lớp. Không thể hoàn tác.'
+              : 'Bạn chưa mở chốt điểm danh nên sinh viên chưa xác nhận được: '
+                    'mọi sinh viên không có đơn xin phép sẽ bị tính vắng. '
+                    'Hãy mở chốt trước khi kết thúc, hoặc chỉnh tay kết quả sau đó.',
         ),
         actions: [
           TextButton(
@@ -96,30 +98,6 @@ class _TeacherLiveScreenState extends ConsumerState<TeacherLiveScreen> {
       ref.invalidate(activeSessionProvider);
       ref.invalidate(classSessionsProvider(session.classId));
     }, success: 'Đã kết thúc buổi học');
-  }
-
-  Future<void> _override(SessionInfo session, AttendanceRecord record) async {
-    final messenger = ScaffoldMessenger.of(context);
-    final saved = await showDialog<bool>(
-      context: context,
-      builder: (_) => OverrideDialog(
-        record: record,
-        onSubmit: (status, reason) => ref
-            .read(attendanceRepositoryProvider)
-            .overrideStatus(
-              sessionId: session.id,
-              studentUserId: record.studentUserId,
-              status: status,
-              reason: reason,
-            ),
-      ),
-    );
-    if (saved == true) {
-      ref.invalidate(sessionAttendanceProvider(session.id));
-      messenger.showSnackBar(
-        const SnackBar(content: Text('Đã cập nhật điểm danh')),
-      );
-    }
   }
 
   @override
@@ -153,10 +131,7 @@ class _TeacherLiveScreenState extends ConsumerState<TeacherLiveScreen> {
                     .exportSession(session.id),
               ),
               const SizedBox(height: 16),
-              _AttendanceSection(
-                session: session,
-                onTap: (r) => _override(session, r),
-              ),
+              SessionAttendanceView(session: session),
             ],
           ],
         ),
@@ -264,101 +239,6 @@ class _SessionCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _AttendanceSection extends ConsumerWidget {
-  const _AttendanceSection({required this.session, required this.onTap});
-
-  final SessionInfo session;
-  final void Function(AttendanceRecord record) onTap;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final value = ref.watch(sessionAttendanceProvider(session.id));
-    if (value.hasValue) {
-      final data = value.value!;
-      final theme = Theme.of(context);
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (value.hasError) ...[
-            const WarningBanner(
-              'Không cập nhật được, đang hiển thị dữ liệu gần nhất.',
-            ),
-            const SizedBox(height: 8),
-          ],
-          Text(
-            'Có mặt ${data.presentStudents} / ${data.totalStudents} sinh viên',
-            style: theme.textTheme.titleMedium,
-          ),
-          const SizedBox(height: 8),
-          if (data.records.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(24),
-              child: Center(child: Text('Lớp chưa có sinh viên nào')),
-            )
-          else
-            for (final r in data.records)
-              _RecordTile(session: session, record: r, onTap: () => onTap(r)),
-        ],
-      );
-    }
-    if (value.isLoading) {
-      return const Padding(
-        padding: EdgeInsets.all(24),
-        child: Center(child: CircularProgressIndicator()),
-      );
-    }
-    return Column(
-      children: [
-        Text(friendlyError(value.error ?? '')),
-        const SizedBox(height: 8),
-        FilledButton.tonal(
-          onPressed: () =>
-              ref.invalidate(sessionAttendanceProvider(session.id)),
-          child: const Text('Thử lại'),
-        ),
-      ],
-    );
-  }
-}
-
-class _RecordTile extends StatelessWidget {
-  const _RecordTile({
-    required this.session,
-    required this.record,
-    required this.onTap,
-  });
-
-  final SessionInfo session;
-  final AttendanceRecord record;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final late = lateMinutes(session.startsAt, record.firstSeenAt) ?? 0;
-    final parts = <String>[
-      'Hiện diện ${(record.presenceRatio * 100).round()}%',
-      '${record.detectionCount} lần phát hiện',
-      if (record.finalized) 'Đã chốt',
-      if (late > 0) 'Trễ $late phút',
-    ];
-    return Card(
-      child: ListTile(
-        onTap: onTap,
-        title: Text('${record.studentId ?? '-'} · ${record.studentName}'),
-        subtitle: Text(
-          [
-            parts.join(' · '),
-            if (record.overridden)
-              'Đã chỉnh tay: ${record.overrideReason ?? ''}',
-          ].join('\n'),
-        ),
-        isThreeLine: record.overridden,
-        trailing: attendanceChip(record.status),
       ),
     );
   }

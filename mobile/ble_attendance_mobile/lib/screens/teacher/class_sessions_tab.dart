@@ -9,7 +9,6 @@ import '../../providers/repositories.dart';
 import '../../providers/session_provider.dart';
 import '../../providers/teacher_providers.dart';
 import '../../widgets/async_value_view.dart';
-import '../../widgets/status_chip.dart';
 
 class ClassSessionsTab extends ConsumerStatefulWidget {
   const ClassSessionsTab({super.key, required this.classId});
@@ -86,22 +85,23 @@ class _SessionTile extends StatelessWidget {
     final ends = session.endsAt;
     final String subtitle;
     if (session.isActive || ends == null) {
-      subtitle = 'Chưa kết thúc';
+      subtitle = 'Đang diễn ra';
     } else {
       final minutes = ends.difference(session.startsAt).inMinutes;
       subtitle = 'Đã kết thúc · ${minutes < 1 ? '< 1' : minutes} phút';
     }
     return Card(
       child: ListTile(
+        leading: Icon(
+          session.isActive ? Icons.sensors : Icons.event_available,
+          color: session.isActive ? const Color(0xFF2E7D32) : null,
+        ),
         title: Text(formatDateTime(session.startsAt)),
         subtitle: Text(subtitle),
-        trailing: session.isActive
-            ? const StatusChip(
-                label: 'Đang diễn ra',
-                color: Color(0xFF2E7D32),
-                icon: Icons.sensors,
-              )
-            : null,
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => session.isActive
+            ? context.go('/teacher/live')
+            : context.push('/teacher/sessions/${session.id}', extra: session),
       ),
     );
   }

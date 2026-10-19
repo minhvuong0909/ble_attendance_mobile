@@ -29,25 +29,38 @@ class ClassReportTab extends ConsumerWidget {
       emptyIcon: Icons.groups_outlined,
       data: (report) {
         if (report.sessions.isEmpty) {
-          return const Center(child: Text('Lớp chưa có buổi học nào kết thúc'));
-        }
-        return Column(
-          children: [
-            _Header(report: report, classId: classId),
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: () =>
-                    ref.refresh(classReportProvider(classId).future),
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: _Table(report: report),
+          return RefreshIndicator(
+            onRefresh: () => ref.refresh(classReportProvider(classId).future),
+            child: LayoutBuilder(
+              builder: (context, constraints) => ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                    height: constraints.maxHeight,
+                    child: const Center(
+                      child: Text('Lớp chưa có buổi học nào kết thúc'),
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
-          ],
+          );
+        }
+        return RefreshIndicator(
+          onRefresh: () => ref.refresh(classReportProvider(classId).future),
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _Header(report: report, classId: classId),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: _Table(report: report),
+                ),
+              ],
+            ),
+          ),
         );
       },
     );
@@ -65,22 +78,24 @@ class _Header extends ConsumerWidget {
     final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: Row(
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 12,
+        runSpacing: 8,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Trung bình lớp: ${formatPercent(report.averageAttendancePercent)}',
-                  style: theme.textTheme.titleMedium,
-                ),
-                Text(
-                  '${report.students.length} sinh viên · ${report.sessions.length} buổi',
-                  style: theme.textTheme.bodySmall,
-                ),
-              ],
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Trung bình lớp: ${formatPercent(report.averageAttendancePercent)}',
+                style: theme.textTheme.titleMedium,
+              ),
+              Text(
+                '${report.students.length} sinh viên · ${report.sessions.length} buổi',
+                style: theme.textTheme.bodySmall,
+              ),
+            ],
           ),
           ExportButton(
             onExport: () =>
