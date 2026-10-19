@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   _urlCases();
+  _ipCases();
   test('requiredField rejects empty and blank values', () {
     expect(Validators.requiredField(null, 'Mã'), isNotNull);
     expect(Validators.requiredField('   ', 'Mã'), contains('Mã'));
@@ -62,5 +63,12 @@ void _urlCases() {
     expect(normalizeBaseUrl('localhost:8000'), 'http://localhost:8000');
     expect(normalizeBaseUrl('[::1]:8000'), 'http://[::1]:8000');
     expect(normalizeBaseUrl('app.onrender.com'), 'https://app.onrender.com');
+  });
+}
+
+void _ipCases() {
+  test('bare IPv4 uses http, out-of-range octets are treated as a domain', () {
+    expect(normalizeBaseUrl('192.168.1.5:8000'), 'http://192.168.1.5:8000');
+    expect(normalizeBaseUrl('999.1.1.1'), 'https://999.1.1.1');
   });
 }

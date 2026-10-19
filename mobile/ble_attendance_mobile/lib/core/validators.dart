@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'api_exception.dart';
 
 class Validators {
@@ -42,7 +40,7 @@ String normalizeBaseUrl(String input) {
     // Địa chỉ trần: IP và localhost dùng http (mạng LAN), tên miền công khai dùng https.
     final probe = Uri.tryParse('http://$raw');
     final host = probe?.host ?? '';
-    final local = host == 'localhost' || InternetAddress.tryParse(host) != null;
+    final local = host == 'localhost' || _isIpAddress(host);
     uri = Uri.tryParse('${local ? 'http' : 'https'}://$raw');
   }
   if (uri == null ||
@@ -54,4 +52,17 @@ String normalizeBaseUrl(String input) {
   final port = uri.hasPort ? ':${uri.port}' : '';
   final path = uri.path.replaceAll(RegExp(r'/+$'), '');
   return '${uri.scheme}://$host$port$path';
+}
+
+final _ipv4 = RegExp(r'^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$');
+
+/// Kiểm tra IP thuần Dart (không dùng dart:io để chạy được trên web).
+bool _isIpAddress(String host) {
+  final v4 = _ipv4.firstMatch(host);
+  if (v4 != null) {
+    return [
+      for (var i = 1; i <= 4; i++) int.parse(v4.group(i)!),
+    ].every((n) => n <= 255);
+  }
+  return host.contains(':') && RegExp(r'^[0-9A-Fa-f:.]+$').hasMatch(host);
 }
