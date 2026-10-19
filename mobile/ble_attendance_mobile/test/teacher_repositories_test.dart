@@ -71,6 +71,7 @@ ResponseBody _bytes(List<int> data, {String? disposition, int status = 200}) =>
     );
 
 void main() {
+  filenameSafetyTests();
   detectionTests();
   test('ClassRepository.classStudents', () async {
     final s = _setup(
@@ -290,4 +291,21 @@ void detectionTests() {
       ]);
     },
   );
+}
+
+void filenameSafetyTests() {
+  test('filenameFromDisposition never returns a path', () {
+    expect(
+      filenameFromDisposition('attachment; filename="../../etc/a.xlsx"', 'x'),
+      'a.xlsx',
+    );
+    expect(
+      filenameFromDisposition(r'attachment; filename="C:\tmp\b.xlsx"', 'x'),
+      'b.xlsx',
+    );
+    expect(
+      filenameFromDisposition('attachment; filename=".."', 'fb.xlsx'),
+      'fb.xlsx',
+    );
+  });
 }
