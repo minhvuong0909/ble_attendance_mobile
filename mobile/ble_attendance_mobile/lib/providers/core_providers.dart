@@ -13,3 +13,6 @@ final apiClientProvider = Provider<ApiClient>(
 final authRepositoryProvider = Provider<AuthRepository>(
   (ref) => ApiAuthRepository(ref.watch(apiClientProvider)),
 );
+
+/// Đồng hồ có thể thay trong test.
+final clockProvider = Provider<DateTime Function()>((ref) => DateTime.now);

@@ -6,6 +6,7 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 
 import '../core/app_constants.dart';
 import 'ble_permissions.dart';
+import 'foreground_service.dart';
 
 enum BleReadiness { ready, permissionDenied, bluetoothOff, unsupported }
 
@@ -21,6 +22,10 @@ abstract class BleGateway {
   Future<BleReadiness> ensureReady({required bool advertise});
   Future<void> startAdvertising(Uint8List payload);
   Future<void> stopAdvertising();
+
+  /// Giữ app sống ở nền (foreground service) trong lúc phát/quét.
+  Future<void> startKeepAlive(String text);
+  Future<void> stopKeepAlive();
 
   /// Luồng gói của app; kết thúc bằng lỗi nếu quét thất bại.
   Stream<BleSighting> scan();
@@ -76,6 +81,12 @@ class RealBleGateway implements BleGateway {
   }
 
   @override
+  Future<void> startKeepAlive(String text) => startForegroundService(text);
+
+  @override
+  Future<void> stopKeepAlive() => stopForegroundService();
+
+  @override
   Stream<BleSighting> scan() {
     return _ble
         .scanForDevices(
@@ -104,6 +115,8 @@ class FakeBleGateway implements BleGateway {
   final advertised = <Uint8List>[];
   int stops = 0;
   int scanStarts = 0;
+  int keepAliveStarts = 0;
+  int keepAliveStops = 0;
   StreamController<BleSighting>? _controller;
 
   void emit(Uint8List payload, int rssi) =>
@@ -118,6 +131,10 @@ class FakeBleGateway implements BleGateway {
       advertised.add(payload);
   @override
   Future<void> stopAdvertising() async => stops++;
+  @override
+  Future<void> startKeepAlive(String text) async => keepAliveStarts++;
+  @override
+  Future<void> stopKeepAlive() async => keepAliveStops++;
   @override
   Stream<BleSighting> scan() {
     scanStarts++;

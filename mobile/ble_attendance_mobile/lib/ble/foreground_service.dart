@@ -34,3 +34,10 @@ Future<void> startForegroundService(String text) async {
     notificationText: text,
   );
 }
+
+Future<void> stopForegroundService() async {
+  if (!Platform.isAndroid) return;
+  if (await FlutterForegroundTask.isRunningService) {
+    await FlutterForegroundTask.stopService();
+  }
+}
