@@ -8,6 +8,9 @@ import '../../providers/notifications_provider.dart';
 import 'shell_tabs.dart';
 import 'tab_pages.dart';
 
+/// Từ bề rộng này trở lên dùng thanh điều hướng bên trái thay cho thanh dưới.
+const double wideBreakpoint = 840;
+
 class AppShell extends ConsumerWidget {
   const AppShell({
     super.key,
@@ -26,27 +29,57 @@ class AppShell extends ConsumerWidget {
     ref.listen(unreadCountProvider, (previous, next) {
       if (next > (previous ?? 0)) refreshAllTabs(ref, role);
     });
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(tabs[index].label),
-        actions: const [ProfileMenu()],
-      ),
-      body: navigationShell,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: index,
-        onDestinationSelected: (i) {
-          refreshTab(ref, role, i);
-          navigationShell.goBranch(i, initialLocation: i == index);
-        },
-        destinations: [
-          for (final tab in tabs)
-            NavigationDestination(
-              icon: _TabIcon(tab: tab, selected: false),
-              selectedIcon: _TabIcon(tab: tab, selected: true),
-              label: tab.label,
-            ),
-        ],
-      ),
+    void select(int i) {
+      refreshTab(ref, role, i);
+      navigationShell.goBranch(i, initialLocation: i == index);
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final wide = constraints.maxWidth >= wideBreakpoint;
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(tabs[index].label),
+            actions: const [ProfileMenu()],
+          ),
+          body: wide
+              ? Row(
+                  children: [
+                    NavigationRail(
+                      extended: true,
+                      minExtendedWidth: 200,
+                      selectedIndex: index,
+                      onDestinationSelected: select,
+                      destinations: [
+                        for (final tab in tabs)
+                          NavigationRailDestination(
+                            icon: _TabIcon(tab: tab, selected: false),
+                            selectedIcon: _TabIcon(tab: tab, selected: true),
+                            label: Text(tab.label),
+                          ),
+                      ],
+                    ),
+                    const VerticalDivider(width: 1),
+                    Expanded(child: navigationShell),
+                  ],
+                )
+              : navigationShell,
+          bottomNavigationBar: wide
+              ? null
+              : NavigationBar(
+                  selectedIndex: index,
+                  onDestinationSelected: select,
+                  destinations: [
+                    for (final tab in tabs)
+                      NavigationDestination(
+                        icon: _TabIcon(tab: tab, selected: false),
+                        selectedIcon: _TabIcon(tab: tab, selected: true),
+                        label: tab.label,
+                      ),
+                  ],
+                ),
+        );
+      },
     );
   }
 }

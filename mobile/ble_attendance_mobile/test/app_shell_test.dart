@@ -67,6 +67,41 @@ void main() {
     });
   }
 
+  testWidgets('a wide window uses a side rail and keeps the tabs working', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1400, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await _pump(tester, _signedIn(AppRole.admin));
+    expect(find.byType(NavigationBar), findsNothing);
+    final rail = find.byType(NavigationRail);
+    expect(rail, findsOneWidget);
+    for (final label in labels[AppRole.admin]!) {
+      expect(
+        find.descendant(of: rail, matching: find.text(label)),
+        findsOneWidget,
+      );
+    }
+    await tester.tap(find.descendant(of: rail, matching: find.text('Lớp học')));
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(of: find.byType(AppBar), matching: find.text('Lớp học')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('content is limited to a readable width on huge windows', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(2400, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await _pump(tester, _signedIn(AppRole.admin));
+    final box = tester.getSize(find.byKey(const Key('app-frame')));
+    expect(box.width, lessThanOrEqualTo(1280));
+  });
+
   testWidgets('the profile menu shows the user and logs out', (tester) async {
     await _pump(tester, _signedIn(AppRole.student));
     await tester.tap(find.byKey(const Key('profile-menu')));

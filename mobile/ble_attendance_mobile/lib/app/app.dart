@@ -5,6 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'router.dart';
 import 'theme.dart';
 
+/// Bề rộng tối đa của nội dung trên màn hình lớn (web/desktop).
+const double maxContentWidth = 1280;
+
 class App extends ConsumerWidget {
   const App({super.key});
 
@@ -20,6 +23,17 @@ class App extends ConsumerWidget {
       supportedLocales: const [Locale('vi'), Locale('en')],
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
       routerConfig: ref.watch(routerProvider),
+      builder: (context, child) => ColoredBox(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            key: const Key('app-frame'),
+            constraints: const BoxConstraints(maxWidth: maxContentWidth),
+            child: child,
+          ),
+        ),
+      ),
     );
   }
 }
