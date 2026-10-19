@@ -180,3 +180,19 @@ def test_reset_password_restores_temp_password(client, admin, auth, make_user):
     login = client.post("/auth/login", json={"identifier": "25CE099", "password": "25CE099"})
     assert login.status_code == 200
     assert login.json()["must_change_password"] is True
+
+
+def test_update_class_rejects_duplicate_code_and_semester(client, admin, auth, make_class):
+    make_class(class_code="SE1901", semester="FA26")
+    other = make_class(class_code="SE1902", semester="FA26")
+    response = client.patch(
+        f"/admin/classes/{other.id}", json={"class_code": "se1901"}, headers=auth(admin)
+    )
+    assert response.status_code == 409
+    assert response.json()["code"] == "class_exists"
+    renamed = client.patch(
+        f"/admin/classes/{other.id}", json={"class_code": "SE1901", "semester": "SP27"}, headers=auth(admin)
+    )
+    assert renamed.status_code == 200
+    same = client.patch(f"/admin/classes/{other.id}", json={"class_code": "SE1901"}, headers=auth(admin))
+    assert same.status_code == 200

@@ -131,10 +131,20 @@ def list_classes(db: Session = Depends(get_db)) -> list[ClassOut]:
 @router.patch("/classes/{class_id}", response_model=ClassOut)
 def update_class(class_id: str, payload: ClassUpdate, db: Session = Depends(get_db)) -> ClassOut:
     cls = _get_class(db, class_id)
-    if payload.class_code is not None:
-        cls.class_code = payload.class_code.strip().upper()
-    if payload.semester is not None:
-        cls.semester = payload.semester.strip()
+    new_code = payload.class_code.strip().upper() if payload.class_code is not None else cls.class_code
+    new_semester = payload.semester.strip() if payload.semester is not None else cls.semester
+    duplicate = db.scalar(
+        select(ClassRoom.id).where(
+            ClassRoom.course_id == cls.course_id,
+            ClassRoom.class_code == new_code,
+            ClassRoom.semester == new_semester,
+            ClassRoom.id != cls.id,
+        )
+    )
+    if duplicate is not None:
+        raise ApiError(409, "class_exists", "Lớp này đã tồn tại trong học kỳ")
+    cls.class_code = new_code
+    cls.semester = new_semester
     if payload.max_absence_percent is not None:
         cls.max_absence_percent = payload.max_absence_percent
     if payload.rssi_threshold is not None:
