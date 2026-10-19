@@ -11,18 +11,19 @@
 | Flutter foundation | Riverpod + go_router, đăng nhập/đăng ký/đổi mật khẩu bắt buộc, cài đặt máy chủ, khung 3 vai trò | |
 | Flutter student (4A) | Lớp dữ liệu dùng chung, thông báo + badge, màn hình sinh viên | 161 test Flutter xanh |
 | Flutter teacher (4B) | Lớp + sinh viên + buổi học + báo cáo/Excel, buổi trực tiếp, chỉnh tay, duyệt xin phép | 213 test Flutter xanh |
+| BLE | Mã hóa gói + tag HMAC, `BleGateway`, bộ điều khiển GV/SV, thẻ trạng thái, foreground service | 317 test Flutter, 225 test backend |
 | Web | Cùng mã Flutter build ra web, backend phục vụ `/app/` | 289 test Flutter, 225 test backend |
 | Flutter admin (4C) | Môn học, lớp (tạo/cấu hình/gán GV/xóa), giảng viên, sinh viên, import có xem trước | 287 test Flutter xanh |
 
 ## ĐANG LÀM DỞ (đọc mục này trước)
 
-- Plan 4C (admin) **đã merge vào `main`** (287 test Flutter xanh). **Bản web đã xong** (`backend/scripts/build_web.sh`, phục vụ tại `/app/`; đã thử đăng nhập admin trên trình duyệt, chưa thử tải/chọn file thật). Tiếp theo: BLE.
+- Plan 4C (admin) **đã merge vào `main`** (287 test Flutter xanh). **Bản web đã xong** (`backend/scripts/build_web.sh`, phục vụ tại `/app/`; đã thử đăng nhập admin trên trình duyệt, chưa thử tải/chọn file thật). **BLE đã code xong và test bằng bản giả (317 test Flutter); CHƯA thử trên 2 điện thoại thật** (xem mục "Thử BLE").
 - Lỗi nhỏ hoãn lại của Plan 4C: form tạo lớp không báo khi tải danh sách giảng viên lỗi; xóa ô tín chỉ khi sửa môn không có tác dụng nhưng vẫn báo thành công; màn hình import mở thẳng không kèm `classId` báo lỗi chung; danh sách sinh viên ở chi tiết lớp không hiện lỗi khi làm mới thất bại; backend `PATCH /admin/classes/{id}` không kiểm tra trùng mã lớp/học kỳ (có thể 500).
 - Lỗi nhỏ hoãn lại của Plan 4B: tab Buổi trực tiếp vẫn poll `/sessions/active` khi không hiển thị; kéo làm mới ở tab trực tiếp trả về sớm; đóng hộp thoại chỉnh tay khi đang lưu làm mất thông báo; tên file Excel chưa lọc ký tự `/` và chưa xóa file tạm; `DataTable` báo cáo chậm với lớp rất lớn (100 SV x 40 buổi) và chưa cố định cột MSSV/Họ tên; chưa có biểu đồ `fl_chart`; timeout 12 s cũng áp cho tải Excel.
 
 ## Việc còn lại (theo thứ tự)
 
-1. **Plan BLE:** phát/quét BLE với tag HMAC (xem spec mục 5), chỉ báo gần/xa cho sinh viên, gửi lô detection từ máy GV, foreground service. Cần thử trên 2 điện thoại thật.
+1. **Thử BLE trên 2 điện thoại thật** và chỉnh theo kết quả (xem bên dưới).
 2. **Hoàn thiện:** release APK có ký, kịch bản demo, rà soát tài liệu, sửa các lỗi nhỏ đã hoãn.
 
 ## Quy trình đang dùng
@@ -46,3 +47,11 @@ Tài khoản demo (mật khẩu `Pass@123`): admin `A001`, giảng viên `T001`,
 - `docker compose down -v` đã chạy một lần theo yêu cầu để bỏ schema cũ; DB hiện do Alembic quản lý.
 - Hai thay đổi chưa commit của người dùng: `mobile/ble_attendance_mobile/android/gradle.properties` và `analysis_options.yaml` (Flutter tự thêm). Không đụng vào.
 - Lỗi nhỏ hoãn lại của từng plan nằm trong tin nhắn tổng kết của plan đó (chưa lưu thành file): ví dụ trạng thái "đã chốt" của sinh viên chỉ lưu trong widget; polling vẫn chạy khi app ở nền; màu chip chưa đủ tương phản ở dark mode.
+
+## Thử BLE (cần 2 điện thoại Android, emulator không có BLE)
+
+1. Cài cùng APK cho cả hai máy, trỏ về `http://<IP-máy-tính>:8000`. Máy A đăng nhập `T001`, máy B đăng nhập `25CE099` (đã vào lớp SE1901).
+2. Máy A: tab "Buổi trực tiếp" → bắt đầu buổi từ chi tiết lớp. Cấp quyền Bluetooth (Android 8-11 cần bật Vị trí). Thẻ BLE hiện "Đang phát và quét BLE".
+3. Máy B: tab Trang chủ, cấp quyền; thẻ hiện "Bạn đang ở trong phạm vi lớp học" khi gần máy A, "ở xa" khi RSSI thấp hơn ngưỡng lớp (mặc định -75).
+4. Máy A đếm "Đã thấy 1 sinh viên"; sau tối đa 30 giây "đã gửi" tăng. Mở chốt, B bấm "Xác nhận điểm danh", A kết thúc buổi: B phải là "Có mặt" nếu ở gần đủ lâu (ratio ≥ 0.6).
+5. Rủi ro cần kiểm tra: máy có hỗ trợ phát BLE không (Galaxy M10), gói quảng cáo có bị cắt không, quét có bị hệ thống dừng khi khóa màn hình, lệch đồng hồ giữa hai máy (tag chỉ chấp nhận lệch ±1 bucket = 30-60 giây).

@@ -7,7 +7,10 @@ import '../../core/api_exception.dart';
 import '../../core/formatters.dart';
 import '../../models/session_info.dart';
 import '../../providers/repositories.dart';
+import '../../providers/auth_controller.dart';
 import '../../providers/session_provider.dart';
+import '../../providers/student_beacon.dart';
+import '../../widgets/ble_status_card.dart';
 import '../../widgets/async_value_view.dart';
 import '../../widgets/error_banner.dart';
 import '../../widgets/warning_banner.dart';
@@ -27,9 +30,18 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
   String? _doneSessionId;
   String? _error;
 
+  void _syncBle(SessionInfo? session) {
+    final id = ref.read(authControllerProvider).user?.studentId;
+    if (id == null) return;
+    ref.read(studentBeaconProvider.notifier).sync(session, id);
+  }
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _syncBle(ref.read(activeSessionProvider).value);
+    });
     _timer = Timer.periodic(
       _refreshInterval,
       (_) => ref.invalidate(activeSessionProvider),
@@ -65,6 +77,10 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final value = ref.watch(activeSessionProvider);
+    ref.listen(activeSessionProvider, (_, next) {
+      if (next.hasValue) _syncBle(next.value);
+    });
+    final ble = ref.watch(studentBeaconProvider);
     return AsyncValueView<SessionInfo?>(
       value: value,
       onRetry: () => ref.invalidate(activeSessionProvider),
@@ -89,6 +105,11 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
                 done: _doneSessionId == session.id,
                 error: _error,
                 onFinalize: () => _finalize(session),
+                ble: StudentBleCard(
+                  state: ble,
+                  onRetry: () =>
+                      ref.read(studentBeaconProvider.notifier).retry(),
+                ),
               ),
           ],
         ),
@@ -129,6 +150,7 @@ class _SessionCard extends StatelessWidget {
     required this.done,
     required this.error,
     required this.onFinalize,
+    required this.ble,
   });
 
   final SessionInfo session;
@@ -136,6 +158,7 @@ class _SessionCard extends StatelessWidget {
   final bool done;
   final String? error;
   final VoidCallback onFinalize;
+  final Widget ble;
 
   @override
   Widget build(BuildContext context) {
@@ -164,6 +187,8 @@ class _SessionCard extends StatelessWidget {
             Text(session.courseName, style: theme.textTheme.titleLarge),
             Text('${session.courseCode} · ${session.classCode}'),
             Text('Bắt đầu lúc ${formatDateTime(session.startsAt)}'),
+            const SizedBox(height: 12),
+            ble,
             const SizedBox(height: 16),
             if (done)
               Row(

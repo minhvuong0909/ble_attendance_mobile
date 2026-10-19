@@ -4,6 +4,7 @@ import 'package:ble_attendance_mobile/data/class_repository.dart';
 import 'package:ble_attendance_mobile/data/device_authenticator.dart';
 import 'package:ble_attendance_mobile/data/file_chooser.dart';
 import 'package:ble_attendance_mobile/data/file_sharer.dart';
+import 'package:ble_attendance_mobile/data/detection_repository.dart';
 import 'package:ble_attendance_mobile/data/leave_repository.dart';
 import 'package:ble_attendance_mobile/data/notification_repository.dart';
 import 'package:ble_attendance_mobile/data/report_repository.dart';
@@ -760,5 +761,17 @@ class FakeFileChooser implements FileChooser {
   Future<PickedFile?> pick() async {
     calls++;
     return next;
+  }
+}
+
+class FakeDetectionRepository implements DetectionRepository {
+  Future<BatchResult> Function(List<DetectionEntry> entries) onBatch =
+      (entries) async => BatchResult(recorded: entries.length, rejected: 0);
+  final List<List<DetectionEntry>> batches = [];
+
+  @override
+  Future<BatchResult> postBatch(List<DetectionEntry> entries) {
+    batches.add(List.of(entries));
+    return onBatch(entries);
   }
 }

@@ -1,3 +1,4 @@
+import 'package:ble_attendance_mobile/ble/ble_gateway.dart';
 import 'package:ble_attendance_mobile/models/app_role.dart';
 import 'package:ble_attendance_mobile/providers/repositories.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,8 @@ class Fakes {
   final sharer = FakeFileSharer();
   final admin = FakeAdminRepository();
   final chooser = FakeFileChooser();
+  final detections = FakeDetectionRepository();
+  final ble = FakeBleGateway();
 }
 
 /// Mở app với người dùng đã đăng nhập vai trò [role] và các repository giả, rồi (tuỳ chọn) chuyển tab.
@@ -48,6 +51,8 @@ Future<Fakes> openApp(
       fileSharerProvider.overrideWithValue(f.sharer),
       adminRepositoryProvider.overrideWithValue(f.admin),
       fileChooserProvider.overrideWithValue(f.chooser),
+      detectionRepositoryProvider.overrideWithValue(f.detections),
+      bleGatewayProvider.overrideWithValue(f.ble),
     ],
   );
   if (tab != null) {

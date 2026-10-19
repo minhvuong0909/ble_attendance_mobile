@@ -15,4 +15,5 @@ class SessionOut(BaseModel):
     ends_at: UtcDateTime | None
     is_active: bool
     finalization_open: bool
+    rssi_threshold: int
     beacon_secret: str | None = None

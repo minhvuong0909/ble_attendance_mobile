@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../ble/ble_gateway.dart';
+import '../data/detection_repository.dart';
 import '../data/admin_repository.dart';
 import '../data/attendance_repository.dart';
 import '../data/class_repository.dart';
@@ -42,3 +44,7 @@ final fileChooserProvider = Provider<FileChooser>((ref) => FilePickerChooser());
 final deviceAuthenticatorProvider = Provider<DeviceAuthenticator>(
   (ref) => LocalAuthAuthenticator(),
 );
+final detectionRepositoryProvider = Provider<DetectionRepository>(
+  (ref) => ApiDetectionRepository(ref.watch(apiClientProvider)),
+);
+final bleGatewayProvider = Provider<BleGateway>((ref) => RealBleGateway());

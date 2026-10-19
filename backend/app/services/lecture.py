@@ -18,5 +18,6 @@ def session_to_out(db: Session, session: LectureSession, beacon_secret: str | No
         ends_at=session.ends_at,
         is_active=session.is_active,
         finalization_open=session.finalization_open,
+        rssi_threshold=cls.rssi_threshold,
         beacon_secret=beacon_secret,
     )

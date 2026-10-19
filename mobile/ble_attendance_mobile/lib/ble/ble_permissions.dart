@@ -1,5 +1,4 @@
-import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -47,7 +46,7 @@ Future<bool> ensureBleScanPermissions() async {
 }
 
 Future<void> ensureBluetoothEnabled() async {
-  if (!Platform.isAndroid) return;
+  if (!_isAndroid) return;
   try {
     const intent = AndroidIntent(
       action: 'android.bluetooth.adapter.action.REQUEST_ENABLE',
@@ -57,3 +56,6 @@ Future<void> ensureBluetoothEnabled() async {
     // Giao diện sẽ hiển thị trạng thái Bluetooth nếu thao tác thất bại.
   }
 }
+
+bool get _isAndroid =>
+    !kIsWeb && defaultTargetPlatform == TargetPlatform.android;

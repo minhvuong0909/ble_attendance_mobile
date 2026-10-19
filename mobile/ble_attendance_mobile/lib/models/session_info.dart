@@ -14,6 +14,7 @@ class SessionInfo {
     required this.isActive,
     required this.finalizationOpen,
     required this.beaconSecret,
+    this.rssiThreshold = -75,
   });
 
   factory SessionInfo.fromJson(Map<String, dynamic> json) => SessionInfo(
@@ -31,6 +32,7 @@ class SessionInfo {
     isActive: json['is_active'] as bool,
     finalizationOpen: json['finalization_open'] as bool,
     beaconSecret: json['beacon_secret'] as String?,
+    rssiThreshold: (json['rssi_threshold'] as int?) ?? -75,
   );
 
   final String id;
@@ -45,4 +47,5 @@ class SessionInfo {
   final bool isActive;
   final bool finalizationOpen;
   final String? beaconSecret;
+  final int rssiThreshold;
 }
