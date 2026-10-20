@@ -122,10 +122,14 @@ describe('sessions tab', () => {
         posts++
         return HttpResponse.json(session({ is_active: true, ends_at: null }), { status: 201 })
       }),
+      http.get(url('/sessions/active'), () => HttpResponse.json(session({ is_active: true, ends_at: null }))),
+      http.get(url('/sessions/s1/attendance'), () =>
+        HttpResponse.json({ session_id: 's1', class_id: 'c1', total_students: 0, present_students: 0, records: [] }),
+      ),
     )
     renderApp('/teacher/classes/c1?tab=sessions')
     await userEvent.dblClick(await screen.findByRole('button', { name: 'Bắt đầu buổi học' }))
-    expect(await screen.findByRole('heading', { name: 'Buổi trực tiếp' })).toBeInTheDocument()
+    expect(await screen.findByText('Mã buổi học:')).toBeInTheDocument()
     expect(posts).toBe(1)
   })
 
