@@ -6,6 +6,8 @@ import LoginPage from '@/auth/LoginPage'
 import RequireRole from '@/auth/RequireRole'
 import StudentNoticePage from '@/auth/StudentNoticePage'
 import NotFoundPage from '@/pages/NotFoundPage'
+import CoursesPage from '@/pages/admin/CoursesPage'
+import TeachersPage from '@/pages/admin/TeachersPage'
 import Placeholder from '@/pages/Placeholder'
 
 function Home() {
@@ -24,7 +26,8 @@ export function AppRoutes() {
       <Route path="/student" element={<StudentNoticePage />} />
       <Route path="/admin" element={<RequireRole role="admin" />}>
         <Route index element={<Navigate to="courses" replace />} />
-        <Route path="courses" element={<Placeholder title="Môn học" />} />
+        <Route path="courses" element={<CoursesPage />} />
+        <Route path="teachers" element={<TeachersPage />} />
       </Route>
       <Route path="/teacher" element={<RequireRole role="teacher" />}>
         <Route index element={<Navigate to="classes" replace />} />
