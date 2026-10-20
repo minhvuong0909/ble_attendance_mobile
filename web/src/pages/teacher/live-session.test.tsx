@@ -6,7 +6,7 @@ import { server } from '@/test/server'
 import { signInAs, teacherUser, url } from '@/test/handlers'
 import { renderApp } from '@/test/render'
 
-vi.mock('@/lib/constants', () => ({ POLL_MS: 40 }))
+vi.mock('@/lib/constants', () => ({ POLL_MS: 40, NOTIFICATION_POLL_MS: 60000 }))
 
 const session = (over: Record<string, unknown> = {}) => ({
   id: 's1',

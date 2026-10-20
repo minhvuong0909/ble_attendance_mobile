@@ -5,6 +5,7 @@ import type { Role } from '@/api/auth'
 import { useAuth } from '@/auth/AuthProvider'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import NotificationBell from './NotificationBell'
 import ProfileMenu from './ProfileMenu'
 
 interface NavItem {
@@ -62,6 +63,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             <Menu />
           </Button>
           <div className="ml-auto flex items-center gap-2">
+            <NotificationBell />
             <ProfileMenu />
           </div>
         </header>

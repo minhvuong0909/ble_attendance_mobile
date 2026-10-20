@@ -5,6 +5,7 @@ import { useAuth } from '@/auth/AuthProvider'
 import LoginPage from '@/auth/LoginPage'
 import RequireRole from '@/auth/RequireRole'
 import StudentNoticePage from '@/auth/StudentNoticePage'
+import NotificationsPage from '@/pages/NotificationsPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 import CoursesPage from '@/pages/admin/CoursesPage'
 import ClassesPage from '@/pages/admin/ClassesPage'
@@ -44,6 +45,9 @@ export function AppRoutes() {
         <Route path="classes/:classId" element={<TeacherClassDetailPage />} />
         <Route path="live" element={<LivePage />} />
         <Route path="sessions/:sessionId" element={<SessionResultPage />} />
+      </Route>
+      <Route element={<RequireRole />}>
+        <Route path="/notifications" element={<NotificationsPage />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
