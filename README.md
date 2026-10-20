@@ -4,7 +4,8 @@ Hệ thống điểm danh lớp học bằng Bluetooth Low Energy cho đồ án 
 
 ## Thành phần
 
-- `mobile/ble_attendance_mobile/`: ứng dụng Flutter (Android). Cùng mã còn build được ra **web** cho admin/giảng viên (import, xuất Excel).
+- `mobile/ble_attendance_mobile/`: ứng dụng Flutter (Android) cho sinh viên và giảng viên di động.
+- `web/`: ứng dụng web **React** (Vite + TypeScript + Tailwind + shadcn/ui) cho admin và giảng viên, nhất là import/xuất file trên laptop.
 - `backend/`: FastAPI + SQLAlchemy + Alembic, PostgreSQL chạy bằng Docker Compose.
 - `docs/superpowers/`: spec thiết kế, các plan, `STATUS.md` (trạng thái công việc).
 - `DEMO.md`: kịch bản demo. `ARCHITECTURE.md`: kiến trúc và quy tắc nghiệp vụ.
@@ -31,7 +32,7 @@ cp .env.example .env
 
 Swagger: `http://127.0.0.1:8000/docs`. Trên Windows dùng `.\.venv\Scripts\...` tương ứng.
 
-**Bản web** (giao diện desktop cho admin/giảng viên, import/xuất file trên laptop): `backend/scripts/build_web.sh`, rồi mở `http://<IP-máy>:8000/app/`.
+**Bản web (React):** `backend/scripts/build_web.sh` build `web/` vào `backend/web_dist`, backend phục vụ tại `http://<IP-máy>:8000/app/`. Phát triển: `cd web && npm install && npm run dev` (proxy API sang `localhost:8000`). Sau khi API đổi: `npm run gen:api` để sinh lại kiểu TypeScript.
 
 **Ứng dụng Android:**
 
@@ -51,6 +52,7 @@ flutter build apk --release --target-platform android-arm,android-arm64
 ```bash
 cd backend && .venv/bin/pytest -q                       # 226 test
 cd mobile/ble_attendance_mobile && flutter analyze && flutter test   # 320 test
+cd web && npm test && npx tsc -b --noEmit && npm run lint   # 95 test
 ```
 
 Thử BLE khi chỉ có một điện thoại: `backend/scripts/ble_teacher_sim.py` dùng Bluetooth laptop giả máy giảng viên (cần `pip install bleak`).

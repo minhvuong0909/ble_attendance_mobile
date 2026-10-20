@@ -1,32 +1,15 @@
-# React + TypeScript + Vite
+# Web admin và giảng viên (React)
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Vite + React + TypeScript + Tailwind + shadcn/ui (Base UI), TanStack Query, React Router, react-hook-form + zod. Giao diện tiếng Việt, dùng cho admin và giảng viên; sinh viên dùng app Android.
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev          # http://localhost:5173/app/ ; proxy API sang http://localhost:8000
+npm test             # Vitest + Testing Library + MSW
+npx tsc -b --noEmit  # kiểm tra kiểu
+npm run lint
+npm run gen:api      # sinh src/api/types.ts từ openapi.json của backend (cần backend/.venv)
+npm run build        # ra web/dist; backend/scripts/build_web.sh sao chép sang backend/web_dist
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Cấu trúc: `src/api` (client + hook theo miền), `src/auth` (đăng nhập, phân quyền), `src/components` (layout, bảng, hộp thoại, file), `src/pages/admin` và `src/pages/teacher`, `src/test` (MSW, helper). Ghi chú kiểm thử: jsdom không gửi được `FormData` qua `fetch` của Node, nên test import mock hai hàm gửi file (`previewImport`, `commitImport`); phần multipart được kiểm tra bằng cách chạy thật trên trình duyệt.
