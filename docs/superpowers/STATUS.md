@@ -17,7 +17,7 @@
 
 ## ĐANG LÀM DỞ (đọc mục này trước)
 
-- Plan 4C (admin) **đã merge vào `main`** (287 test Flutter xanh). **Bản web đã xong** (`backend/scripts/build_web.sh`, phục vụ tại `/app/`; đã thử đăng nhập admin trên trình duyệt, chưa thử tải/chọn file thật). **BLE đã code xong (317 test Flutter). Đã thử thật cách A (Galaxy M10 phát, laptop giả GV bằng `backend/scripts/ble_teacher_sim.py`): tag đổi mỗi bucket, server ghi nhận 100%, không bị từ chối. Chưa thử: điện thoại quét (vai GV) và chỉ báo gần/xa của SV (cần máy thứ hai hoặc cách B)** (xem mục "Thử BLE").
+- Plan 4C (admin) **đã merge vào `main`** (287 test Flutter xanh). **Web React** (`web/`) đã xong, chờ review nhánh. **BLE đã code xong (317 test Flutter). Đã thử thật cách A (Galaxy M10 phát, laptop giả GV bằng `backend/scripts/ble_teacher_sim.py`): tag đổi mỗi bucket, server ghi nhận 100%, không bị từ chối. Chưa thử: điện thoại quét (vai GV) và chỉ báo gần/xa của SV (cần máy thứ hai hoặc cách B)** (xem mục "Thử BLE").
 - Lỗi nhỏ hoãn lại của Plan 4C: form tạo lớp không báo khi tải danh sách giảng viên lỗi; xóa ô tín chỉ khi sửa môn không có tác dụng nhưng vẫn báo thành công; màn hình import mở thẳng không kèm `classId` báo lỗi chung; danh sách sinh viên ở chi tiết lớp không hiện lỗi khi làm mới thất bại; backend `PATCH /admin/classes/{id}` không kiểm tra trùng mã lớp/học kỳ (có thể 500).
 - Lỗi nhỏ hoãn lại của Plan 4B: tab Buổi trực tiếp vẫn poll `/sessions/active` khi không hiển thị; kéo làm mới ở tab trực tiếp trả về sớm; đóng hộp thoại chỉnh tay khi đang lưu làm mất thông báo; tên file Excel chưa lọc ký tự `/` và chưa xóa file tạm; `DataTable` báo cáo chậm với lớp rất lớn (100 SV x 40 buổi) và chưa cố định cột MSSV/Họ tên; chưa có biểu đồ `fl_chart`; timeout 12 s cũng áp cho tải Excel.
 
@@ -25,9 +25,9 @@
 
 APK release ký bằng khóa riêng (`android/key.properties` + `app/upload-keystore.jks`, gitignore; **sao lưu hai file này**, mất thì không cập nhật được app đã cài), README/ARCHITECTURE/DEMO viết lại, sửa PATCH lớp trùng mã (backend) và tên file tải về không chứa đường dẫn. 226 test backend, 318 test Flutter.
 
-## Bản web hoàn chỉnh (admin + giảng viên)
+## Web React (admin + giảng viên) — nhánh `feature/react-web`
 
-Giao diện desktop (thanh điều hướng trái từ 840 px, nội dung tối đa 1280 px). Đã thử thật trên trình duyệt: tải file mẫu, import CSV có dòng lỗi (chặn xác nhận) và file đúng (nhập thành công). Chưa thử trên trình duyệt: hộp thoại chọn file của hệ điều hành, import .xlsx, xuất Excel của giảng viên (dùng chung đường tải xuống với file mẫu). Trên web tab Buổi trực tiếp vẫn hiện thẻ 'không hỗ trợ BLE'. Dữ liệu demo có thêm giảng viên T901, T902 từ lần thử import.
+Spec `specs/2026-10-20-react-web-design.md`, plan `plans/2026-10-20-react-web.md`. `web/` (Vite + React + TS + Tailwind + shadcn/ui) thay hẳn bản Flutter web; backend phục vụ tại `/app/` (fallback SPA). 95 test web, 228 test backend. Đã chạy thật trên trình duyệt: đăng nhập admin/giảng viên, tải file mẫu, import CSV có dòng lỗi (chặn) và file đúng (nhập thành công, multipart thật), báo cáo và xuất Excel, bắt đầu buổi, mở chốt, chỉnh tay, kết thúc, xuất Excel buổi, tải lại ở đường dẫn sâu. Chưa thử: hộp thoại chọn file của hệ điều hành, import `.xlsx`. Mã Flutter dành cho web (kho token localStorage, `file_sharer_web`) không còn dùng nhưng để nguyên. Dữ liệu demo có thêm giảng viên T901, T902, T911, T912 từ lúc thử.
 
 ## Việc còn lại (theo thứ tự)
 
