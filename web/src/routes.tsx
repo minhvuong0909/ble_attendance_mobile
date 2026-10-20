@@ -9,6 +9,7 @@ import NotFoundPage from '@/pages/NotFoundPage'
 import CoursesPage from '@/pages/admin/CoursesPage'
 import ClassesPage from '@/pages/admin/ClassesPage'
 import AdminClassDetailPage from '@/pages/admin/ClassDetailPage'
+import ImportPage from '@/pages/admin/ImportPage'
 import TeachersPage from '@/pages/admin/TeachersPage'
 import Placeholder from '@/pages/Placeholder'
 
@@ -31,6 +32,7 @@ export function AppRoutes() {
         <Route path="courses" element={<CoursesPage />} />
         <Route path="classes" element={<ClassesPage />} />
         <Route path="classes/:classId" element={<AdminClassDetailPage />} />
+        <Route path="import" element={<ImportPage />} />
         <Route path="teachers" element={<TeachersPage />} />
       </Route>
       <Route path="/teacher" element={<RequireRole role="teacher" />}>
