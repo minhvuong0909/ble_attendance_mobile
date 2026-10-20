@@ -21,7 +21,7 @@ function courseApi(initial: Course[]) {
     http.post(url('/admin/courses'), async ({ request }) => {
       const body = (await request.json()) as Omit<Course, 'id'>
       log.posts.push(body)
-      const row = { id: `c${rows.length + 1}`, credits: null, ...body }
+      const row: Course = { ...body, id: `c${rows.length + 1}` }
       rows.push(row)
       return HttpResponse.json(row, { status: 201 })
     }),

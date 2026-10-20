@@ -41,3 +41,43 @@ export function useCreateTeacher() {
 
 export const useResetPassword = () =>
   useMutation({ mutationFn: (userId: string) => apiFetch<{ message: string }>(`/admin/users/${userId}/reset-password`, { method: 'POST' }) })
+
+export type ClassItem = components['schemas']['ClassOut']
+export type ClassInput = components['schemas']['ClassCreate']
+export type ClassUpdate = components['schemas']['ClassUpdate']
+
+export const useAdminClasses = () =>
+  useQuery({ queryKey: ['admin-classes'], queryFn: () => apiFetch<ClassItem[]>('/admin/classes') })
+
+export function useCreateClass() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: ClassInput) => apiFetch<ClassItem>('/admin/classes', { method: 'POST', json: data }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-classes'] }),
+  })
+}
+
+export function useUpdateClass(classId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: ClassUpdate) => apiFetch<ClassItem>(`/admin/classes/${classId}`, { method: 'PATCH', json: data }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-classes'] }),
+  })
+}
+
+export function useAssignTeacher(classId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (teacherUserId: string) =>
+      apiFetch<ClassItem>(`/admin/classes/${classId}/assign-teacher`, { method: 'POST', json: { teacher_user_id: teacherUserId } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-classes'] }),
+  })
+}
+
+export function useDeleteClass(classId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: () => apiFetch<void>(`/admin/classes/${classId}`, { method: 'DELETE' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-classes'] }),
+  })
+}
