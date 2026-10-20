@@ -5,13 +5,15 @@ Thiết kế đầy đủ và lý do chọn: `docs/superpowers/specs/2026-10-18-
 ## Tổng quan
 
 ```text
-Flutter (Android / web) ──HTTPS+JWT──> FastAPI ──> PostgreSQL
+Flutter (Android)  ┐
+Web React (/app/) ┴─HTTPS+JWT──> FastAPI ──> PostgreSQL
    │  ▲                                    ▲
    │  └── BLE: gói quảng cáo ──────────────┘ (máy giảng viên gửi lô detection)
 ```
 
 - **Backend**: routers (`auth, admin, classes, sessions, detections, attendance, reports, leave, notifications, me, imports`) gọi services (`presence, beacon, attendance, stats, reports, leave, importer, notifier`). Lỗi trả `{detail, code}`; thời gian lưu UTC và trả kèm `Z`.
-- **Flutter**: Riverpod + go_router; repository (`abstract` + `Api*`) để test bằng bản giả; `BleGateway` bọc phần cứng BLE; `StudentBeaconController` và `TeacherBeaconController` điều khiển phát/quét; web và Android dùng chung mã, chỉ khác kho token (localStorage/secure storage) và cách xuất file (tải xuống/share sheet).
+- **Flutter**: Riverpod + go_router; repository (`abstract` + `Api*`) để test bằng bản giả; `BleGateway` bọc phần cứng BLE; `StudentBeaconController` và `TeacherBeaconController` điều khiển phát/quét; app Android cho sinh viên và giảng viên di động.
+- **Web React** (`web/`): SPA cho admin và giảng viên (môn/lớp/giảng viên, import có xem trước, báo cáo, xuất Excel, buổi trực tiếp, chỉnh tay, xin phép, thông báo). Kiểu API sinh từ `openapi.json`; TanStack Query quản lý dữ liệu; backend phục vụ bản build tại `/app/` (cùng origin, có fallback `index.html` cho đường dẫn sâu). Token lưu `localStorage` (chấp nhận cho bản demo).
 
 ## Mô hình dữ liệu
 

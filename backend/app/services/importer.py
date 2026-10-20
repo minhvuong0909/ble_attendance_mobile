@@ -200,10 +200,15 @@ def classes_runner() -> Runner:
 def run_import(db: Session, kind: str, runner: Runner, table: Table, dry_run: bool) -> ImportReportOut:
     """Chạy thử trước; chỉ ghi thật khi không có dòng lỗi nào."""
     rows = runner(db, table, False)
+    by_number = dict(table.rows)
+    for r in rows:
+        r.data = dict(by_number.get(r.row, {}))  # dữ liệu gốc của dòng, để xem trước đối chiếu
     errors = sum(1 for r in rows if r.status == "error")
     committed = False
     if not dry_run and errors == 0:
         rows = runner(db, table, True)
+        for r in rows:
+            r.data = dict(by_number.get(r.row, {}))
         db.commit()
         committed = True
     return ImportReportOut(

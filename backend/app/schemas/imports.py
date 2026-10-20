@@ -7,6 +7,7 @@ class ImportRowOut(BaseModel):
     row: int
     status: Literal["created", "skipped", "error"]
     message: str
+    data: dict[str, str] = {}
 
 
 class ImportReportOut(BaseModel):

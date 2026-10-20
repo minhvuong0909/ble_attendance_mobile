@@ -1,10 +1,12 @@
 # Kịch bản demo (khoảng 10 phút)
 
-Chuẩn bị trước: backend chạy (`uvicorn ... --host 0.0.0.0`), đã `seed_demo.py` (in mã tham gia lớp SE1901), bản web build sẵn (`backend/scripts/build_web.sh`), APK cài trên điện thoại sinh viên (và điện thoại giảng viên nếu có), điện thoại và laptop cùng Wi-Fi, Bluetooth + Vị trí bật. Mật khẩu mọi tài khoản demo: `Pass@123`.
+Chuẩn bị trước: backend chạy (`uvicorn ... --host 0.0.0.0`), đã `seed_demo.py` (in mã tham gia lớp SE1901), bản web React build sẵn (`backend/scripts/build_web.sh`), APK cài trên điện thoại sinh viên (và điện thoại giảng viên nếu có), điện thoại và laptop cùng Wi-Fi, Bluetooth + Vị trí bật. Mật khẩu mọi tài khoản demo: `Pass@123`.
 
 Nếu chỉ có **một điện thoại**: điện thoại làm sinh viên, laptop chạy `backend/scripts/ble_teacher_sim.py` thay cho máy giảng viên (bước 4); các bước giảng viên khác làm trên bản web.
 
 ## 1. Admin chuẩn bị dữ liệu (web, 2 phút)
+
+Mở `http://<IP-máy>:8000/app/`, đăng nhập `A001`.
 
 1. Mở `http://<IP-máy>:8000/app/`, đăng nhập `A001`.
 2. Tab **Môn học**: tạo một môn mới. Tab **Giảng viên**: tạo `T002` và nhấn mạnh mật khẩu tạm bằng mã đăng nhập.

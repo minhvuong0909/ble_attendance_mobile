@@ -217,3 +217,20 @@ def test_templates(client, auth, admin, kind, header):
 
 def test_unknown_template_is_404(client, auth, admin):
     assert client.get("/admin/imports/templates/nope", headers=auth(admin)).status_code == 404
+
+
+def test_every_row_echoes_the_file_data_so_the_preview_can_show_it(client, auth, admin):
+    csv = "teacher_id,full_name\nT901,Trần Văn B\nT902,Lê Thị C\n"
+    body = client.post(
+        "/admin/imports/teachers", params={"dry_run": True}, files=csv_file(csv), headers=auth(admin)
+    ).json()
+    assert [r["data"] for r in body["rows"]] == [
+        {"teacher_id": "T901", "full_name": "Trần Văn B"},
+        {"teacher_id": "T902", "full_name": "Lê Thị C"},
+    ]
+    classes = "course_code,course_name,class_code,semester,teacher_id\nPRM393,Lập trình,SE1901,FA26,T001\n"
+    body = client.post(
+        "/admin/imports/classes", params={"dry_run": True}, files=csv_file(classes), headers=auth(admin)
+    ).json()
+    assert body["rows"][0]["data"]["class_code"] == "SE1901"
+    assert body["rows"][0]["data"]["course_name"] == "Lập trình"
