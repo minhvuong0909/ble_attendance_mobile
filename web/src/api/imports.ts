@@ -6,10 +6,41 @@ export type ImportKind = 'classes' | 'teachers' | 'students'
 
 export const MAX_IMPORT_BYTES = 2_000_000
 
-export const IMPORT_KINDS: Record<ImportKind, { label: string; columns: string }> = {
-  classes: { label: 'Môn và lớp', columns: 'course_code, course_name, class_code, semester, teacher_id' },
-  teachers: { label: 'Giảng viên', columns: 'teacher_id, full_name' },
-  students: { label: 'Sinh viên của một lớp', columns: 'student_id, full_name' },
+export interface ImportKindInfo {
+  label: string
+  columns: string
+  /** Cột dữ liệu hiện trong bảng xem trước: [tên cột trong file, tiêu đề]. */
+  preview: [string, string][]
+}
+
+export const IMPORT_KINDS: Record<ImportKind, ImportKindInfo> = {
+  classes: {
+    label: 'Môn và lớp',
+    columns: 'course_code, course_name, class_code, semester, teacher_id',
+    preview: [
+      ['course_code', 'Mã môn'],
+      ['course_name', 'Tên môn'],
+      ['class_code', 'Mã lớp'],
+      ['semester', 'Học kỳ'],
+      ['teacher_id', 'Mã GV'],
+    ],
+  },
+  teachers: {
+    label: 'Giảng viên',
+    columns: 'teacher_id, full_name',
+    preview: [
+      ['teacher_id', 'Mã GV'],
+      ['full_name', 'Họ và tên'],
+    ],
+  },
+  students: {
+    label: 'Sinh viên của một lớp',
+    columns: 'student_id, full_name',
+    preview: [
+      ['student_id', 'MSSV'],
+      ['full_name', 'Họ và tên'],
+    ],
+  },
 }
 
 export function validateImportFile(file: File): string | null {

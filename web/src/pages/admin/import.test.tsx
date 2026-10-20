@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { describe, expect, it, vi } from 'vitest'
@@ -24,8 +24,8 @@ const report = (over: Record<string, unknown> = {}) => ({
   skipped: 0,
   errors: 0,
   rows: [
-    { row: 2, status: 'created', message: 'Tạo tài khoản giảng viên' },
-    { row: 3, status: 'created', message: 'Tạo tài khoản giảng viên' },
+    { row: 2, status: 'created', message: 'Tạo tài khoản giảng viên', data: { teacher_id: 'T901', full_name: 'Trần Văn B' } },
+    { row: 3, status: 'created', message: 'Tạo tài khoản giảng viên', data: { teacher_id: 'T902', full_name: 'Lê Thị C' } },
   ],
   ...over,
 })
@@ -121,6 +121,30 @@ describe('import page', () => {
     await userEvent.dblClick(screen.getByRole('button', { name: 'Xác nhận nhập' }))
     expect(await screen.findByText('Đã nhập 2 dòng')).toBeInTheDocument()
     expect(calls.filter((c) => !c.dry)).toHaveLength(1)
+  })
+
+  it('shows each row\'s file data (teacher, class) next to the result so it can be checked', async () => {
+    signInAs(adminUser)
+    importApi((_dry, kind) =>
+      kind === 'teachers'
+        ? report()
+        : report({
+            kind: 'classes',
+            rows: [{ row: 2, status: 'created', message: 'Tạo lớp mới và môn học mới', data: { course_code: 'PRN232', course_name: '.NET', class_code: 'NET01', semester: 'FA26', teacher_id: 'T002' } }],
+          }),
+    )
+    const first = renderApp('/admin/import?kind=teachers')
+    await screen.findByText(/teacher_id/)
+    await pick(csv())
+    const row = (await screen.findByText('T901')).closest('tr')!
+    expect(within(row).getByText('Trần Văn B')).toBeInTheDocument()
+    expect(screen.getByRole('columnheader', { name: 'Họ và tên' })).toBeInTheDocument()
+    first.unmount()
+    renderApp('/admin/import?kind=classes')
+    await screen.findByText(/course_code/)
+    await pick(csv('lop.csv', 'x'))
+    const cls = (await screen.findByText('NET01')).closest('tr')!
+    for (const value of ['PRN232', '.NET', 'FA26', 'T002']) expect(within(cls).getByText(value)).toBeInTheDocument()
   })
 
   it('blocks confirmation when the preview has errors', async () => {

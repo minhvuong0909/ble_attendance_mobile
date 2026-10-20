@@ -1003,6 +1003,13 @@ export interface components {
             status: "created" | "skipped" | "error";
             /** Message */
             message: string;
+            /**
+             * Data
+             * @default {}
+             */
+            data: {
+                [key: string]: string;
+            };
         };
         /** JoinClassIn */
         JoinClassIn: {

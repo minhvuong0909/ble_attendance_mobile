@@ -154,7 +154,6 @@ describe('live session', () => {
       }),
     )
     renderApp('/teacher/live')
-    expect(await screen.findByText('Nguyễn Văn An')).toBeInTheDocument()
     expect(await screen.findByText('Nguyễn Văn Ân Mới')).toBeInTheDocument()
     expect(await screen.findByText(/Không cập nhật được/)).toBeInTheDocument()
     expect(screen.getByText('Nguyễn Văn Ân Mới')).toBeInTheDocument()

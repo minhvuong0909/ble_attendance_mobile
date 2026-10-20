@@ -19,6 +19,7 @@ import NativeSelect from '@/components/NativeSelect'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { saveBlob } from '@/lib/download'
 
 const message = (e: unknown) => (e instanceof ApiError ? e.message : 'Đã xảy ra lỗi không mong muốn')
@@ -174,15 +175,34 @@ export default function ImportPage() {
             <span>Bỏ qua: {report.skipped}</span>
             <span>Lỗi: {report.errors}</span>
           </div>
-          <ul className="divide-y rounded-md border">
-            {report.rows.map((r) => (
-              <li key={r.row} className="flex items-center justify-between gap-3 p-2 text-sm">
-                <span className="w-16 shrink-0 text-muted-foreground">Dòng {r.row}</span>
-                <span className="flex-1">{r.message}</span>
-                <Badge variant={r.status === 'error' ? 'destructive' : r.status === 'created' ? 'default' : 'secondary'}>{STATUS_LABEL[r.status]}</Badge>
-              </li>
-            ))}
-          </ul>
+          <div className="overflow-x-auto rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Dòng</TableHead>
+                  {IMPORT_KINDS[kind].preview.map(([, title]) => (
+                    <TableHead key={title}>{title}</TableHead>
+                  ))}
+                  <TableHead>Kết quả</TableHead>
+                  <TableHead className="text-right">Trạng thái</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {report.rows.map((r) => (
+                  <TableRow key={r.row} className={r.status === 'error' ? 'bg-destructive/5' : undefined}>
+                    <TableCell className="text-muted-foreground">Dòng {r.row}</TableCell>
+                    {IMPORT_KINDS[kind].preview.map(([column, title]) => (
+                      <TableCell key={title}>{r.data?.[column] ?? ''}</TableCell>
+                    ))}
+                    <TableCell>{r.message}</TableCell>
+                    <TableCell className="text-right">
+                      <Badge variant={r.status === 'error' ? 'destructive' : r.status === 'created' ? 'default' : 'secondary'}>{STATUS_LABEL[r.status]}</Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
           {report.errors > 0 && <p className="text-sm text-muted-foreground">Sửa các dòng lỗi trong file rồi chọn lại file để tiếp tục.</p>}
           <Button className="w-full" disabled={!canConfirm} onClick={() => void confirm()}>
             Xác nhận nhập
