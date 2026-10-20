@@ -11,6 +11,8 @@ import ClassesPage from '@/pages/admin/ClassesPage'
 import AdminClassDetailPage from '@/pages/admin/ClassDetailPage'
 import ImportPage from '@/pages/admin/ImportPage'
 import TeachersPage from '@/pages/admin/TeachersPage'
+import MyClassesPage from '@/pages/teacher/MyClassesPage'
+import TeacherClassDetailPage from '@/pages/teacher/ClassDetailPage'
 import Placeholder from '@/pages/Placeholder'
 
 function Home() {
@@ -37,7 +39,10 @@ export function AppRoutes() {
       </Route>
       <Route path="/teacher" element={<RequireRole role="teacher" />}>
         <Route index element={<Navigate to="classes" replace />} />
-        <Route path="classes" element={<Placeholder title="Lớp của tôi" />} />
+        <Route path="classes" element={<MyClassesPage />} />
+        <Route path="classes/:classId" element={<TeacherClassDetailPage />} />
+        <Route path="live" element={<Placeholder title="Buổi trực tiếp" />} />
+        <Route path="sessions/:sessionId" element={<Placeholder title="Kết quả buổi học" />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
