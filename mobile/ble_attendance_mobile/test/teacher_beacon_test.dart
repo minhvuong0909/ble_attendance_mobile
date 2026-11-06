@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ble_attendance_mobile/ble/ble_gateway.dart';
 import 'package:ble_attendance_mobile/ble/beacon_codec.dart';
 import 'package:ble_attendance_mobile/core/api_exception.dart';
@@ -45,6 +47,27 @@ void main() {
     expect(s.ble.keepAliveStarts, 1);
     await s.controller.stop();
   });
+
+  testWidgets(
+    'syncing again while the permission prompt is open does not restart or stop the plugin',
+    (tester) async {
+      final s = _Setup();
+      addTearDown(s.container.dispose);
+      final gate = Completer<void>();
+      s.ble.readyGate = gate;
+      final first = s.controller.sync(sampleSession());
+      await tester.pump();
+      // Polling của buổi học gọi sync lại trong lúc hộp thoại quyền còn mở.
+      await s.controller.sync(sampleSession());
+      await s.controller.sync(sampleSession());
+      expect(s.ble.ensureReadyCalls, 1);
+      expect(s.ble.stops, 0); // gọi plugin khi chưa có quyền làm app sập
+      gate.complete();
+      await first;
+      expect(decodeTeacher(s.ble.advertised.single), 'abcd1234');
+      await s.controller.stop();
+    },
+  );
 
   testWidgets('sightings are deduplicated per student within 5 seconds', (
     tester,

@@ -54,6 +54,7 @@ class TeacherBeaconController extends Notifier<TeacherBeaconState> {
   DateTime? _lastFlush;
   bool _flushing = false;
   bool _advertising = false;
+  String? _startingSessionId; // đang chờ ensureReady (xin quyền) cho buổi này
   int _generation = 0;
 
   BleGateway get _ble => ref.read(bleGatewayProvider);
@@ -74,7 +75,9 @@ class TeacherBeaconController extends Notifier<TeacherBeaconState> {
       return;
     }
     if (_session?.id == session.id &&
-        (_timer != null || state.problem != null)) {
+        (_timer != null ||
+            state.problem != null ||
+            _startingSessionId == session.id)) {
       return;
     }
     await _start(session);
@@ -91,7 +94,13 @@ class TeacherBeaconController extends Notifier<TeacherBeaconState> {
     _session = session;
     _lastFlush = _now();
     state = TeacherBeaconState(sessionId: session.id);
-    final readiness = await _ble.ensureReady(advertise: true);
+    _startingSessionId = session.id;
+    final BleReadiness readiness;
+    try {
+      readiness = await _ble.ensureReady(advertise: true);
+    } finally {
+      if (generation == _generation) _startingSessionId = null;
+    }
     if (generation != _generation) return;
     if (readiness != BleReadiness.ready) {
       state = TeacherBeaconState(sessionId: session.id, problem: readiness);
@@ -228,10 +237,17 @@ class TeacherBeaconController extends Notifier<TeacherBeaconState> {
   Future<void> _teardown() async {
     _generation++;
     _cancel();
-    if (_advertising || _session != null) {
-      _advertising = false;
+    // Chỉ dừng phát khi đã thật sự phát: gọi plugin khi chưa có quyền sẽ kích hoạt
+    // vòng xin quyền đệ quy trong flutter_ble_peripheral và làm app sập.
+    final wasAdvertising = _advertising;
+    _advertising = false;
+    if (wasAdvertising) {
       try {
         await _ble.stopAdvertising();
+      } catch (_) {}
+    }
+    if (_session != null) {
+      try {
         await _ble.stopKeepAlive();
       } catch (_) {}
     }

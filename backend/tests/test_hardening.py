@@ -90,3 +90,34 @@ def test_finalize_session_query_count_does_not_grow_with_class_size(client, db, 
     small = run(3)
     large = run(20)
     assert large <= small + 2  # số SELECT không tăng theo số sinh viên
+
+
+def test_class_list_select_count_constant(client, db, make_user, make_class, enroll, auth):
+    admin = make_user(UserRole.admin, "A900")
+    teacher = make_user(UserRole.teacher, "T900")
+    student = make_user(UserRole.student, "25CE900")
+
+    def selects() -> int:
+        counter = {"n": 0}
+
+        def count_query(_conn, _cursor, statement, *_args):
+            if statement.lstrip().upper().startswith("SELECT"):
+                counter["n"] += 1
+
+        event.listen(db.get_bind(), "before_cursor_execute", count_query)
+        try:
+            response = client.get("/admin/classes", headers=auth(admin))
+            assert response.status_code == 200
+        finally:
+            event.remove(db.get_bind(), "before_cursor_execute", count_query)
+        return counter["n"]
+
+    for i in range(2):
+        enroll(make_class(teacher, course_code=f"C{i}0", class_code=f"L{i}"), student)
+    few = selects()
+    for i in range(2, 8):
+        enroll(make_class(teacher, course_code=f"C{i}0", class_code=f"L{i}"), student)
+    many = selects()
+    assert many == few
+    rows = client.get("/admin/classes", headers=auth(admin)).json()
+    assert len(rows) == 8 and all(r["student_count"] == 1 for r in rows)

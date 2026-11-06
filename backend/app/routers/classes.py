@@ -7,7 +7,7 @@ from app.core.errors import ApiError
 from app.core.security import get_current_user, require_roles
 from app.models import ClassRoom, Course, Enrollment, User, UserRole
 from app.schemas.classes import ClassOut, JoinClassIn, StudentOut
-from app.services.academic import class_to_out
+from app.services.academic import class_to_out, classes_to_out, with_class_relations
 from app.services.access import get_class_or_404, is_enrolled, require_class_access
 
 router = APIRouter(prefix="/classes", tags=["classes"])
@@ -24,7 +24,7 @@ def my_classes(db: Session = Depends(get_db), user: User = Depends(get_current_u
         )
     stmt = stmt.order_by(Course.code, ClassRoom.class_code)
     show_code = user.role != UserRole.student
-    return [class_to_out(db, cls, include_join_code=show_code) for cls in db.scalars(stmt)]
+    return classes_to_out(db, list(db.scalars(with_class_relations(stmt))), include_join_code=show_code)
 
 
 @router.post("/join", response_model=ClassOut)
