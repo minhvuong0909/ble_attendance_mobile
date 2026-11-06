@@ -55,18 +55,18 @@ export default function AppLayout({ children }: { children: ReactNode }) {
               to={to}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-2 rounded-md px-2 py-2 text-sm hover:bg-accent',
-                  isActive && 'bg-accent font-medium',
+                  'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground',
+                  isActive && 'bg-accent font-semibold text-accent-foreground',
                 )
               }
             >
-              <Icon className="size-4" /> {label}
+              <Icon className="size-[18px]" /> {label}
             </NavLink>
           ))}
         </nav>
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between border-b px-4 py-2">
+        <header className="sticky top-0 z-10 flex items-center justify-between border-b bg-background/80 px-4 py-2 backdrop-blur">
           <Button variant="ghost" size="icon" className="md:hidden" aria-label="Mở menu" onClick={() => setOpen((v) => !v)}>
             <Menu />
           </Button>

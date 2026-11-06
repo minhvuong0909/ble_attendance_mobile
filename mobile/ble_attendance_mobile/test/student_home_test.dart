@@ -23,7 +23,7 @@ void main() {
   ) async {
     await openApp(tester);
     expect(
-      find.text('Hiện không có buổi học nào đang diễn ra'),
+      find.text('Chưa có buổi học nào đang diễn ra'),
       findsOneWidget,
     );
     expect(_button, findsNothing);
@@ -35,7 +35,7 @@ void main() {
     await _open(tester, finalizationOpen: false);
     expect(find.text('Lập trình di động'), findsOneWidget);
     expect(find.textContaining('SE1901'), findsWidgets);
-    expect(find.text('Đang diễn ra'), findsOneWidget);
+    expect(find.text('Buổi học đang diễn ra'), findsOneWidget);
   });
 
   testWidgets('the button is disabled until the teacher opens finalization', (
@@ -134,7 +134,7 @@ void main() {
     fakes.sessions.onActive = () async => SessionHolder.session;
     await openApp(tester, fakes: fakes);
     expect(
-      find.text('Hiện không có buổi học nào đang diễn ra'),
+      find.text('Chưa có buổi học nào đang diễn ra'),
       findsOneWidget,
     );
 
