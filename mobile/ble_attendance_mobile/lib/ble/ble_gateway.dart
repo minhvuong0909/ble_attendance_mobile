@@ -146,6 +146,7 @@ class FakeBleGateway implements BleGateway {
     await readyGate?.future;
     return readiness;
   }
+
   @override
   Future<void> startAdvertising(Uint8List payload) async =>
       advertised.add(payload);

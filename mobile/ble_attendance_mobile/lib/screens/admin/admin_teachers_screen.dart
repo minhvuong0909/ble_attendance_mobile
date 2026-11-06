@@ -6,6 +6,7 @@ import '../../models/auth_user.dart';
 import '../../providers/admin_providers.dart';
 import '../../providers/repositories.dart';
 import '../../widgets/async_value_view.dart';
+import '../../widgets/search_field.dart';
 import 'import_entry_button.dart';
 import '../../widgets/error_banner.dart';
 import 'temp_password_notice.dart';
@@ -20,6 +21,7 @@ class AdminTeachersScreen extends ConsumerStatefulWidget {
 
 class _AdminTeachersScreenState extends ConsumerState<AdminTeachersScreen> {
   bool _busy = false;
+  String _query = '';
 
   Future<void> _add() async {
     final created = await showDialog<AuthUser>(
@@ -96,6 +98,10 @@ class _AdminTeachersScreenState extends ConsumerState<AdminTeachersScreen> {
             label: 'Nhập từ file',
             path: '/admin/import/teachers',
           ),
+          SearchField(
+            hint: 'Tìm theo tên hoặc mã giảng viên',
+            onChanged: (v) => setState(() => _query = v),
+          ),
           Expanded(
             child: AsyncValueView<List<AuthUser>>(
               value: value,
@@ -104,35 +110,40 @@ class _AdminTeachersScreenState extends ConsumerState<AdminTeachersScreen> {
               isEmpty: (items) => items.isEmpty,
               emptyMessage: 'Chưa có giảng viên nào',
               emptyIcon: Icons.badge_outlined,
-              data: (items) => RefreshIndicator(
-                onRefresh: () => ref.refresh(adminTeachersProvider.future),
-                child: ListView.separated(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
-                  itemCount: items.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 8),
-                  itemBuilder: (context, index) {
-                    final t = items[index];
-                    return Card(
-                      child: ListTile(
-                        leading: const Icon(Icons.badge_outlined),
-                        title: Text(t.fullName),
-                        subtitle: Text(t.loginId),
-                        trailing: PopupMenuButton<String>(
-                          tooltip: 'Tùy chọn',
-                          onSelected: (_) => _reset(t),
-                          itemBuilder: (_) => const [
-                            PopupMenuItem(
-                              value: 'reset',
-                              child: Text('Đặt lại mật khẩu'),
-                            ),
-                          ],
+              data: (all) {
+                final items = all
+                    .where((t) => matchesQuery(_query, [t.fullName, t.loginId]))
+                    .toList();
+                return RefreshIndicator(
+                  onRefresh: () => ref.refresh(adminTeachersProvider.future),
+                  child: ListView.separated(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
+                    itemCount: items.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 8),
+                    itemBuilder: (context, index) {
+                      final t = items[index];
+                      return Card(
+                        child: ListTile(
+                          leading: const Icon(Icons.badge_outlined),
+                          title: Text(t.fullName),
+                          subtitle: Text(t.loginId),
+                          trailing: PopupMenuButton<String>(
+                            tooltip: 'Tùy chọn',
+                            onSelected: (_) => _reset(t),
+                            itemBuilder: (_) => const [
+                              PopupMenuItem(
+                                value: 'reset',
+                                child: Text('Đặt lại mật khẩu'),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-              ),
+                      );
+                    },
+                  ),
+                );
+              },
             ),
           ),
         ],

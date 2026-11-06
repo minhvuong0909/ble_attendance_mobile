@@ -13,7 +13,10 @@ ThemeData _build(Brightness brightness) {
     colorScheme: scheme,
     scaffoldBackgroundColor: dark
         ? scheme.surface
-        : Color.alphaBlend(scheme.primary.withValues(alpha: 0.03), scheme.surface),
+        : Color.alphaBlend(
+            scheme.primary.withValues(alpha: 0.03),
+            scheme.surface,
+          ),
     appBarTheme: AppBarTheme(
       centerTitle: false,
       scrolledUnderElevation: 0,
@@ -92,14 +95,14 @@ ThemeData _build(Brightness brightness) {
       backgroundColor: scheme.surface,
       surfaceTintColor: Colors.transparent,
       indicatorColor: scheme.primaryContainer,
-      labelTextStyle: WidgetStateProperty.resolveWith(
-        (states) => TextStyle(
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        final selected = states.contains(WidgetState.selected);
+        return TextStyle(
           fontSize: 12,
-          fontWeight: states.contains(WidgetState.selected)
-              ? FontWeight.w700
-              : FontWeight.w500,
-        ),
-      ),
+          fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+          color: selected ? scheme.onSurface : scheme.onSurfaceVariant,
+        );
+      }),
     ),
     dialogTheme: DialogThemeData(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),

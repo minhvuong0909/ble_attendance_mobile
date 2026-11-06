@@ -246,9 +246,25 @@ class _SessionCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            Text(session.courseName, style: theme.textTheme.titleLarge),
-            Text('${session.courseCode} · ${session.classCode}'),
-            Text('Bắt đầu lúc ${formatDateTime(session.startsAt)}'),
+            Text(
+              session.courseName,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              '${session.courseCode} · ${session.classCode}',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            Text(
+              'Bắt đầu lúc ${formatDateTime(session.startsAt)}',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
             const SizedBox(height: 12),
             ble,
             const SizedBox(height: 16),
@@ -266,10 +282,26 @@ class _SessionCard extends StatelessWidget {
                 ],
               )
             else ...[
-              Text(
-                session.finalizationOpen
-                    ? 'Giảng viên đã mở chốt. Hãy xác nhận khi bạn đang ở trong lớp.'
-                    : 'Giảng viên chưa mở chốt điểm danh',
+              Row(
+                children: [
+                  Icon(
+                    session.finalizationOpen
+                        ? Icons.notifications_active_outlined
+                        : Icons.hourglass_empty,
+                    size: 20,
+                    color: session.finalizationOpen
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.outline,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      session.finalizationOpen
+                          ? 'Giảng viên đã mở chốt. Hãy xác nhận khi bạn đang ở trong lớp.'
+                          : 'Chờ giảng viên mở chốt điểm danh',
+                    ),
+                  ),
+                ],
               ),
               if (error != null) ...[
                 const SizedBox(height: 12),

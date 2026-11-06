@@ -7,6 +7,7 @@ import RequireRole from '@/auth/RequireRole'
 import StudentNoticePage from '@/auth/StudentNoticePage'
 import NotificationsPage from '@/pages/NotificationsPage'
 import NotFoundPage from '@/pages/NotFoundPage'
+import OverviewPage from '@/pages/admin/OverviewPage'
 import CoursesPage from '@/pages/admin/CoursesPage'
 import ClassesPage from '@/pages/admin/ClassesPage'
 import AdminClassDetailPage from '@/pages/admin/ClassDetailPage'
@@ -32,7 +33,7 @@ export function AppRoutes() {
       <Route path="/change-password" element={<ChangePasswordPage />} />
       <Route path="/student" element={<StudentNoticePage />} />
       <Route path="/admin" element={<RequireRole role="admin" />}>
-        <Route index element={<Navigate to="courses" replace />} />
+        <Route index element={<OverviewPage />} />
         <Route path="courses" element={<CoursesPage />} />
         <Route path="classes" element={<ClassesPage />} />
         <Route path="classes/:classId" element={<AdminClassDetailPage />} />

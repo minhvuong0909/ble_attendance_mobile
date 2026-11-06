@@ -18,7 +18,7 @@ describe('login and routing', () => {
     loginAs(adminUser)
     renderApp('/login')
     await login('A001')
-    expect(await screen.findByRole('heading', { name: 'Môn học' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Tổng quan' })).toBeInTheDocument()
   })
 
   it('teacher lands on their classes', async () => {
@@ -67,7 +67,7 @@ describe('login and routing', () => {
   it('a role cannot use the other role area', async () => {
     signInAs(adminUser)
     renderApp('/teacher/classes')
-    expect(await screen.findByRole('heading', { name: 'Môn học' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Tổng quan' })).toBeInTheDocument()
   })
 
   it('students only see the Android app notice', async () => {

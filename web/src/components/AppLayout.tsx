@@ -1,4 +1,4 @@
-import { BookOpen, Building2, GraduationCap, Menu, Radio, Upload, Users, type LucideIcon } from 'lucide-react'
+import { BookOpen, Building2, LayoutDashboard, GraduationCap, Menu, Radio, Upload, Users, type LucideIcon } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 import type { Role } from '@/api/auth'
@@ -12,11 +12,13 @@ interface NavItem {
   to: string
   label: string
   icon: LucideIcon
+  end?: boolean
 }
 
 export const navFor = (role: Role): NavItem[] =>
   role === 'admin'
     ? [
+        { to: '/admin', label: 'Tổng quan', icon: LayoutDashboard, end: true },
         { to: '/admin/courses', label: 'Môn học', icon: BookOpen },
         { to: '/admin/classes', label: 'Lớp học', icon: Building2 },
         { to: '/admin/teachers', label: 'Giảng viên', icon: Users },
@@ -49,10 +51,11 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           </div>
         </div>
         <nav className="space-y-1" onClick={() => setOpen(false)}>
-          {items.map(({ to, label, icon: Icon }) => (
+          {items.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
               to={to}
+              end={end}
               className={({ isActive }) =>
                 cn(
                   'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground',
