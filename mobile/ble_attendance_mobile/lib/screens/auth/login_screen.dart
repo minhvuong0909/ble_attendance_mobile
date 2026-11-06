@@ -22,6 +22,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _obscure = true;
   String? _error;
 
+  void _clearError() {
+    if (_error != null) setState(() => _error = null);
+  }
+
   @override
   void dispose() {
     _idCtrl.dispose();
@@ -71,12 +75,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Icon(
-                    Icons.sensors,
-                    size: 64,
-                    color: theme.colorScheme.primary,
+                  Center(
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      width: 84,
+                      height: 84,
+                      semanticLabel: 'Logo Điểm danh BLE',
+                    ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 16),
                   Text(
                     'Đăng nhập để điểm danh',
                     textAlign: TextAlign.center,
@@ -88,6 +95,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     controller: _idCtrl,
                     textCapitalization: TextCapitalization.characters,
                     textInputAction: TextInputAction.next,
+                    onChanged: (_) => _clearError(),
                     decoration: const InputDecoration(
                       labelText: 'Mã đăng nhập',
                       helperText: 'MSSV hoặc mã giảng viên, ví dụ 25CE099',
@@ -101,6 +109,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     key: const Key('login-password'),
                     controller: _passwordCtrl,
                     obscureText: _obscure,
+                    onChanged: (_) => _clearError(),
                     onFieldSubmitted: (_) => _busy ? null : _submit(),
                     decoration: InputDecoration(
                       labelText: 'Mật khẩu',

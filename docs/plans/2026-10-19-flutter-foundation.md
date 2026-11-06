@@ -1,6 +1,5 @@
 # Flutter Foundation Implementation Plan (Plan 3/5)
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans (the human chose inline/native execution). Every task is TDD: write the listed tests, watch them fail, then implement.
 
 **Goal:** Dựng lại nền tảng ứng dụng Flutter (Android): cấu trúc thư mục, Riverpod, go_router, lớp API mới khớp backend mới, đăng nhập/đăng ký/đổi mật khẩu bắt buộc/cài đặt máy chủ bằng tiếng Việt, và khung điều hướng cho 3 vai trò (admin, giảng viên, sinh viên) với các tab giữ chỗ.
 
@@ -8,7 +7,7 @@
 
 **Tech Stack:** Flutter 3.47 / Dart 3.13, `flutter_riverpod`, `go_router`, `intl`, `dio`, `flutter_secure_storage` (đã có).
 
-**Spec:** `docs/superpowers/specs/2026-10-18-ble-attendance-expansion-design.md` (mục 7)
+**Spec:** `docs/specs/2026-10-18-ble-attendance-expansion-design.md` (mục 7)
 
 **Ghi chú định dạng (Ruling):** plan gọn như Plan 2 (hành vi + danh sách test, mã viết khi thực thi theo TDD), vì quy ước đã chốt và người dùng muốn làm tiếp ngay.
 

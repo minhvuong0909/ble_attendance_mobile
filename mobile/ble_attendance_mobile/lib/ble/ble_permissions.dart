@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-// Mã xin quyền Bluetooth/Nearby devices dùng lại cho luồng BLE (Plan 5).
+// Mã xin quyền Bluetooth/Nearby devices dùng lại cho luồng BLE.
 
 /// Xin các quyền rồi đọc lại trạng thái thật: kết quả của `request()` có thể trả về trước khi
 /// người dùng bấm Cho phép (hộp thoại hệ thống đóng muộn), khiến app báo thiếu quyền oan.

@@ -27,6 +27,8 @@ export const navFor = (role: Role): NavItem[] =>
         { to: '/teacher/live', label: 'Buổi trực tiếp', icon: Radio },
       ]
 
+const ROLE_LABEL: Record<Role, string> = { admin: 'Quản trị viên', teacher: 'Giảng viên', student: 'Sinh viên' }
+
 export default function AppLayout({ children }: { children: ReactNode }) {
   const { user } = useAuth()
   const [open, setOpen] = useState(false)
@@ -39,7 +41,13 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           open && 'max-md:translate-x-0',
         )}
       >
-        <div className="mb-4 px-2 text-lg font-semibold">Điểm danh BLE</div>
+        <div className="mb-5 flex items-center gap-2.5 px-2 pt-1">
+          <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="" className="size-9 rounded-lg" />
+          <div className="leading-tight">
+            <div className="text-base font-semibold">Điểm danh BLE</div>
+            <div className="text-xs text-muted-foreground">{ROLE_LABEL[user!.role]}</div>
+          </div>
+        </div>
         <nav className="space-y-1" onClick={() => setOpen(false)}>
           {items.map(({ to, label, icon: Icon }) => (
             <NavLink

@@ -1,6 +1,5 @@
 # Flutter Teacher Screens Implementation Plan (Plan 4B)
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans (inline/native). Every task is TDD: write the listed tests, watch them fail, then implement.
 
 **Goal:** Hoàn thành các màn hình **giảng viên** theo spec mục 7.3: lớp được phân công (sinh viên, lịch sử buổi, báo cáo cả kỳ + xuất Excel), tab **Buổi trực tiếp** (mở chốt, kết thúc buổi, danh sách điểm danh theo thời gian thực, chỉnh tay có lý do, xuất Excel buổi), và duyệt **đơn xin phép**.
 
@@ -8,7 +7,7 @@
 
 **Tech Stack:** Flutter 3.47, flutter_riverpod 3, go_router 18, dio, intl, share_plus, path_provider.
 
-**Spec:** `docs/superpowers/specs/2026-10-18-ble-attendance-expansion-design.md` (mục 4.2, 4.4, 6.2, 7.3). **Backend:** đã merge vào `main`.
+**Spec:** `docs/specs/2026-10-18-ble-attendance-expansion-design.md` (mục 4.2, 4.4, 6.2, 7.3). **Backend:** đã merge vào `main`.
 
 **Phạm vi:** *không* làm BLE (phát/quét, gửi lô detection) — thuộc plan BLE. Màn hình "Buổi trực tiếp" vì vậy chỉ điều khiển buổi học và hiển thị dữ liệu server; danh sách điểm danh sẽ có số liệu khi plan BLE hoàn tất. Plan viết gọn (hành vi + test) như các plan trước.
 
@@ -109,7 +108,7 @@ test/helpers/fakes.dart (mở rộng)
 ### Task 6: Hoàn thiện
 
 - [ ] `dart format`, `flutter analyze` sạch, `flutter test` xanh.
-- [ ] README mobile cập nhật; `docs/superpowers/STATUS.md` cập nhật.
+- [ ] README mobile cập nhật; `docs/STATUS.md` cập nhật.
 - [ ] `flutter build apk --debug` thành công.
 - [ ] Review toàn nhánh bằng reviewer độc lập; sửa lỗi Critical/Important theo TDD.
 - [ ] Merge `--no-ff` vào `main` (chỉ trên máy).

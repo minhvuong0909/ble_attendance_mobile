@@ -1,6 +1,6 @@
 # Kiến trúc và quy tắc nghiệp vụ
 
-Thiết kế đầy đủ và lý do chọn: `docs/superpowers/specs/2026-10-18-ble-attendance-expansion-design.md`.
+Thiết kế đầy đủ và lý do chọn: `docs/specs/2026-10-18-ble-attendance-expansion-design.md`.
 
 ## Tổng quan
 

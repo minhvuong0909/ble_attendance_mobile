@@ -1,6 +1,5 @@
 # Flutter Admin Screens Implementation Plan (Plan 4C)
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans (inline/native). Every task is TDD: write the listed tests, watch them fail, then implement.
 
 **Goal:** Hoàn thành các màn hình **admin** theo spec mục 2 và 7.3: quản lý môn học, lớp (tạo, sửa cấu hình, gán giảng viên, xóa), giảng viên (tạo, đặt lại mật khẩu), danh sách sinh viên theo lớp, và luồng **import CSV/Excel có xem trước** cho lớp/môn, giảng viên và sinh viên vào lớp.
 
@@ -8,7 +7,7 @@
 
 **Tech Stack:** Flutter 3.47, flutter_riverpod 3, go_router 18, dio, file_picker, share_plus (đã có).
 
-**Spec:** `docs/superpowers/specs/2026-10-18-ble-attendance-expansion-design.md` (mục 2, 6.3, 7.3). **Backend:** đã merge vào `main` (`/admin/...`, import, `GET /classes/{id}/students`).
+**Spec:** `docs/specs/2026-10-18-ble-attendance-expansion-design.md` (mục 2, 6.3, 7.3). **Backend:** đã merge vào `main` (`/admin/...`, import, `GET /classes/{id}/students`).
 
 **Phạm vi:** không làm BLE. Plan viết gọn (hành vi + test) như các plan trước.
 
@@ -99,7 +98,7 @@ test/helpers/fakes.dart (mở rộng)
 ### Task 7: Hoàn thiện
 
 - [ ] `dart format`, `flutter analyze` sạch, `flutter test` xanh.
-- [ ] README mobile + `docs/superpowers/STATUS.md` cập nhật.
+- [ ] README mobile + `docs/STATUS.md` cập nhật.
 - [ ] `flutter build apk --debug` thành công.
 - [ ] Review toàn nhánh bằng reviewer độc lập; sửa lỗi Critical/Important theo TDD.
 - [ ] Merge `--no-ff` vào `main` (chỉ trên máy).
