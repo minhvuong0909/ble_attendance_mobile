@@ -1,6 +1,10 @@
 from pathlib import Path
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+DEFAULT_SECRETS = {"change-this-in-production", "change-this-beacon-key", "replace-this-secret", "replace-this-beacon-key"}
 
 
 class Settings(BaseSettings):
@@ -27,6 +31,18 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore",
     )
+
+    @model_validator(mode="after")
+    def require_real_secrets_outside_dev(self) -> "Settings":
+        if self.app_env.lower() != "dev":
+            weak = [
+                name
+                for name, value in (("JWT_SECRET", self.jwt_secret), ("BEACON_SERVER_KEY", self.beacon_server_key))
+                if value in DEFAULT_SECRETS or len(value) < 16
+            ]
+            if weak:
+                raise ValueError(f"APP_ENV={self.app_env}: phải đặt giá trị mạnh (>= 16 ký tự) cho {', '.join(weak)}")
+        return self
 
     @property
     def database_url(self) -> str:

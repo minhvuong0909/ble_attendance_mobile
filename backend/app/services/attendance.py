@@ -16,7 +16,7 @@ from app.models import (
 from app.schemas.attendance import AttendanceRecordOut
 from app.services.notifier import notify, notify_many
 from app.services.presence import PRESENT_THRESHOLD, Sample, first_seen_at, presence_ratio
-from app.services.stats import class_stats
+from app.services.stats import stats_from_statuses
 
 RECENT_DETECTION_SECONDS = 90
 
@@ -39,25 +39,30 @@ def enrolled_students(db: Session, class_id: str) -> list[User]:
     return list(db.scalars(stmt))
 
 
-def student_samples(db: Session, session_id: str, student_user_id: str) -> list[Sample]:
+def session_samples(db: Session, session_id: str) -> dict[str, list[Sample]]:
+    """Toàn bộ mẫu của buổi học, gom theo sinh viên bằng một truy vấn."""
+    grouped: dict[str, list[Sample]] = {}
     rows = db.execute(
-        select(Detection.detected_at, Detection.rssi).where(
-            Detection.session_id == session_id, Detection.student_user_id == student_user_id
-        )
-    ).all()
-    return [(moment, rssi) for moment, rssi in rows]
-
-
-def has_approved_leave(db: Session, class_id: str, student_user_id: str, session: LectureSession) -> bool:
-    found = db.scalar(
-        select(LeaveRequest.id).where(
-            LeaveRequest.class_id == class_id,
-            LeaveRequest.student_user_id == student_user_id,
-            LeaveRequest.status == LeaveStatus.approved,
-            LeaveRequest.date == local_date(session.starts_at),
+        select(Detection.student_user_id, Detection.detected_at, Detection.rssi).where(
+            Detection.session_id == session_id
         )
     )
-    return found is not None
+    for student_user_id, moment, rssi in rows:
+        grouped.setdefault(student_user_id, []).append((moment, rssi))
+    return grouped
+
+
+def approved_leave_user_ids(db: Session, class_id: str, session: LectureSession) -> set[str]:
+    """Sinh viên có đơn đã duyệt cho ngày (địa phương) của buổi học."""
+    return set(
+        db.scalars(
+            select(LeaveRequest.student_user_id).where(
+                LeaveRequest.class_id == class_id,
+                LeaveRequest.status == LeaveStatus.approved,
+                LeaveRequest.date == local_date(session.starts_at),
+            )
+        )
+    )
 
 
 def get_or_create_row(db: Session, session_id: str, student_user_id: str) -> Attendance:
@@ -77,27 +82,51 @@ def finalize_session(db: Session, session: LectureSession) -> None:
     """Tính kết quả cuối buổi cho toàn bộ sinh viên của lớp. Người gọi chịu trách nhiệm commit."""
     cls = db.get(ClassRoom, session.class_id)
     end = session.ends_at or utcnow()
+    all_samples = session_samples(db, session.id)
+    excused_ids = approved_leave_user_ids(db, cls.id, session)
+    rows = {
+        row.student_user_id: row
+        for row in db.scalars(select(Attendance).where(Attendance.session_id == session.id))
+    }
     for student in enrolled_students(db, cls.id):
-        samples = student_samples(db, session.id, student.id)
-        row = get_or_create_row(db, session.id, student.id)
+        samples = all_samples.get(student.id, [])
+        row = rows.get(student.id)
+        if row is None:
+            row = Attendance(session_id=session.id, student_user_id=student.id)
+            db.add(row)
         row.presence_ratio = presence_ratio(session.starts_at, end, samples, cls.rssi_threshold)
         row.first_seen_at = first_seen_at(samples, session.starts_at, end, cls.rssi_threshold)
         if row.overridden_by is None:
-            excused = has_approved_leave(db, cls.id, student.id, session)
-            row.status = resolve_status(row.presence_ratio, row.finalized, excused)
+            row.status = resolve_status(row.presence_ratio, row.finalized, student.id in excused_ids)
     db.flush()
 
 
 def notify_absence_warnings(db: Session, session: LectureSession) -> None:
     """Cảnh báo SV vắng buổi này và đã vượt mức vắng tối đa của lớp."""
     cls = db.get(ClassRoom, session.class_id)
-    absent_ids = db.scalars(
-        select(Attendance.student_user_id).where(
-            Attendance.session_id == session.id, Attendance.status == AttendanceStatus.absent
+    absent_ids = list(
+        db.scalars(
+            select(Attendance.student_user_id).where(
+                Attendance.session_id == session.id, Attendance.status == AttendanceStatus.absent
+            )
         )
     )
+    if not absent_ids:
+        return
+    history: dict[str, list[AttendanceStatus]] = {}
+    rows = db.execute(
+        select(Attendance.student_user_id, Attendance.status)
+        .join(LectureSession, LectureSession.id == Attendance.session_id)
+        .where(
+            LectureSession.class_id == cls.id,
+            LectureSession.is_active.is_(False),
+            Attendance.student_user_id.in_(absent_ids),
+        )
+    )
+    for student_user_id, status in rows:
+        history.setdefault(student_user_id, []).append(status)
     for student_user_id in absent_ids:
-        stats = class_stats(db, cls, student_user_id)
+        stats = stats_from_statuses(history.get(student_user_id, []), cls.max_absence_percent)
         if stats.warning:
             notify(
                 db,
@@ -167,9 +196,11 @@ def build_records(db: Session, session: LectureSession) -> list[AttendanceRecord
         row.student_user_id: row
         for row in db.scalars(select(Attendance).where(Attendance.session_id == session.id))
     }
+    all_samples = session_samples(db, session.id)
+    excused_ids = approved_leave_user_ids(db, cls.id, session)
     records: list[AttendanceRecordOut] = []
     for student in enrolled_students(db, cls.id):
-        samples = student_samples(db, session.id, student.id)
+        samples = all_samples.get(student.id, [])
         row = rows.get(student.id)
         settled = row is not None and not session.is_active
 
@@ -182,8 +213,7 @@ def build_records(db: Session, session: LectureSession) -> list[AttendanceRecord
         if row is not None and (row.overridden_by is not None or settled):
             status = row.status
         else:
-            excused = has_approved_leave(db, cls.id, student.id, session)
-            status = resolve_status(ratio, bool(row and row.finalized), excused)
+            status = resolve_status(ratio, bool(row and row.finalized), student.id in excused_ids)
 
         records.append(
             AttendanceRecordOut(

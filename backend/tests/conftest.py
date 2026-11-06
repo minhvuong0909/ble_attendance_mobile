@@ -101,3 +101,12 @@ def enroll(db):
         db.commit()
 
     return _enroll
+
+
+@pytest.fixture(autouse=True)
+def _reset_login_limits():
+    from app.core import ratelimit
+
+    ratelimit.login_by_identifier.reset()
+    ratelimit.login_by_ip.reset()
+    yield
