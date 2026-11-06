@@ -104,7 +104,7 @@ describe('live session', () => {
     expect(screen.getByText('abcd1234')).toBeInTheDocument()
     expect(await screen.findByText('Nguyễn Văn An')).toBeInTheDocument()
     const row = screen.getByText('Lê Thị Bình').closest('tr')!
-    expect(within(row).getByText('Vắng')).toBeInTheDocument()
+    expect(within(row).getByText('Chưa xác nhận')).toBeInTheDocument()
     expect(screen.getByText('Có mặt: 1/2')).toBeInTheDocument()
   })
 
