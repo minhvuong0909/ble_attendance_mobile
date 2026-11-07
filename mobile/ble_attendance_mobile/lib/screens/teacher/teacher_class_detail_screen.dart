@@ -5,6 +5,7 @@ import '../../providers/leave_provider.dart';
 import 'class_report_tab.dart';
 import 'class_sessions_tab.dart';
 import 'class_students_tab.dart';
+import 'rssi_dialog.dart';
 
 class TeacherClassDetailScreen extends ConsumerWidget {
   const TeacherClassDetailScreen({super.key, required this.classId});
@@ -23,6 +24,26 @@ class TeacherClassDetailScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(info?.title ?? 'Chi tiết lớp'),
+          actions: [
+            if (info != null)
+              IconButton(
+                tooltip: 'Ngưỡng RSSI',
+                icon: const Icon(Icons.tune),
+                onPressed: () async {
+                  final messenger = ScaffoldMessenger.of(context);
+                  final saved = await showRssiDialog(
+                    context,
+                    classId: classId,
+                    current: info.rssiThreshold,
+                  );
+                  if (saved == true) {
+                    messenger.showSnackBar(
+                      const SnackBar(content: Text('Đã lưu ngưỡng RSSI')),
+                    );
+                  }
+                },
+              ),
+          ],
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Sinh viên'),

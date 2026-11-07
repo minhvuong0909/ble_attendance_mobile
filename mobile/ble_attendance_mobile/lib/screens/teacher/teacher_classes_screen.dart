@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -39,54 +38,38 @@ class _ClassCard extends StatelessWidget {
 
   final ClassInfo info;
 
-  Future<void> _copy(BuildContext context, String code) async {
-    final messenger = ScaffoldMessenger.of(context);
-    await Clipboard.setData(ClipboardData(text: code));
-    messenger.showSnackBar(const SnackBar(content: Text('Đã sao chép mã lớp')));
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final code = info.joinCode;
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () => context.push('/teacher/classes/${info.id}'),
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              Text(info.courseName, style: theme.textTheme.titleMedium),
-              Text('${info.title} · ${info.semester}'),
-              const SizedBox(height: 4),
-              Text(
-                '${info.studentCount} sinh viên',
-                style: theme.textTheme.bodySmall,
-              ),
-              if (code != null) ...[
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Mã lớp: $code',
-                        style: theme.textTheme.labelLarge,
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: 'Sao chép mã lớp',
-                      icon: const Icon(Icons.copy),
-                      onPressed: () => _copy(context, code),
-                    ),
-                  ],
-                ),
-              ],
+              Expanded(child: _details(theme)),
+              const Icon(Icons.chevron_right),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _details(ThemeData theme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(info.courseName, style: theme.textTheme.titleMedium),
+        Text('${info.title} · ${info.semester}'),
+        const SizedBox(height: 4),
+        Text(
+          '${info.studentCount} sinh viên',
+          style: theme.textTheme.bodySmall,
+        ),
+      ],
     );
   }
 }

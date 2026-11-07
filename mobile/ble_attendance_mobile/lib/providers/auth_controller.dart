@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/api_exception.dart';
+import '../core/device_id.dart';
 import '../core/validators.dart';
 import '../models/auth_user.dart';
 import 'core_providers.dart';
@@ -60,7 +61,11 @@ class AuthController extends Notifier<AuthState> {
   Future<void> login(String id, String password) async {
     final store = ref.read(tokenStoreProvider);
     final repo = ref.read(authRepositoryProvider);
-    final result = await repo.login(normalizeId(id), password);
+    final result = await repo.login(
+      normalizeId(id),
+      password,
+      deviceId: await _deviceId(),
+    );
     await store.saveToken(result.accessToken);
     try {
       final user = await repo.me();
@@ -69,6 +74,32 @@ class AuthController extends Notifier<AuthState> {
       await store.clearToken();
       rethrow;
     }
+  }
+
+  /// Mã thiết bị của máy này; sinh và lưu ở lần dùng đầu tiên.
+  Future<String> _deviceId() async {
+    final store = ref.read(tokenStoreProvider);
+    final saved = await store.readDeviceId();
+    if (saved != null && saved.isNotEmpty) return saved;
+    final created = newDeviceId();
+    await store.saveDeviceId(created);
+    return created;
+  }
+
+  /// Gửi đơn xin chuyển tài khoản sang máy này (admin duyệt).
+  Future<void> requestDeviceChange({
+    required String id,
+    required String password,
+    required String reason,
+  }) async {
+    await ref
+        .read(authRepositoryProvider)
+        .requestDeviceChange(
+          identifier: normalizeId(id),
+          password: password,
+          deviceId: await _deviceId(),
+          reason: reason.trim(),
+        );
   }
 
   Future<void> register({

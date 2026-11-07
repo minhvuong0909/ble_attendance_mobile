@@ -83,19 +83,13 @@ Map<String, dynamic> _body(RequestOptions r) =>
     jsonDecode(jsonEncode(r.data)) as Map<String, dynamic>;
 
 void main() {
-  test('ClassRepository.myClasses and join', () async {
+  test('ClassRepository.myClasses', () async {
     final s = _setup((_) async => jsonBody([_classJson]));
     final repo = ApiClassRepository(s.client);
     final classes = await repo.myClasses();
     expect(classes.single.title, 'PRM393 · SE1901');
     expect(s.adapter.requests.single.method, 'GET');
     expect(s.adapter.requests.single.path, '/classes/mine');
-
-    final joined = _setup((_) async => jsonBody(_classJson));
-    final result = await ApiClassRepository(joined.client).join('ABC123');
-    expect(result.id, 'c1');
-    expect(joined.adapter.requests.single.path, '/classes/join');
-    expect(_body(joined.adapter.requests.single), {'join_code': 'ABC123'});
   });
 
   test('SessionRepository.activeSession returns the session or null', () async {

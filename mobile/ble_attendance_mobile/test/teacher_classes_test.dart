@@ -4,7 +4,6 @@ import 'package:ble_attendance_mobile/core/api_exception.dart';
 import 'package:ble_attendance_mobile/models/app_role.dart';
 import 'package:ble_attendance_mobile/models/session_info.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'helpers/fakes.dart';
@@ -46,39 +45,14 @@ Future<Fakes> _openDetail(WidgetTester tester, Fakes fakes) async {
 }
 
 void main() {
-  testWidgets('lists assigned classes with student count and join code', (
+  testWidgets('lists assigned classes with student count and no join code', (
     tester,
   ) async {
     await openApp(tester, fakes: _fakesWithClass(), role: AppRole.teacher);
     expect(find.text('Lập trình di động'), findsOneWidget);
     expect(find.text('PRM393 · SE1901 · FA26'), findsOneWidget);
     expect(find.text('2 sinh viên'), findsOneWidget);
-    expect(find.text('Mã lớp: ABC123'), findsOneWidget);
-  });
-
-  testWidgets('copies the join code to the clipboard', (tester) async {
-    String? copied;
-    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-      SystemChannels.platform,
-      (call) async {
-        if (call.method == 'Clipboard.setData') {
-          copied = (call.arguments as Map)['text'] as String;
-        }
-        return null;
-      },
-    );
-    addTearDown(
-      () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-        SystemChannels.platform,
-        null,
-      ),
-    );
-
-    await openApp(tester, fakes: _fakesWithClass(), role: AppRole.teacher);
-    await tester.tap(find.byTooltip('Sao chép mã lớp'));
-    await tester.pumpAndSettle();
-    expect(copied, 'ABC123');
-    expect(find.text('Đã sao chép mã lớp'), findsOneWidget);
+    expect(find.textContaining('Mã lớp:'), findsNothing);
   });
 
   testWidgets('empty state', (tester) async {

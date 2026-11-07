@@ -26,12 +26,39 @@ class FakeAuthRepository implements AuthRepository {
   Future<void> Function(String oldPassword, String newPassword)
   onChangePassword = (oldPassword, newPassword) async {};
 
+  Future<void> Function(
+    String identifier,
+    String password,
+    String deviceId,
+    String reason,
+  )
+  onRequestDeviceChange = (identifier, password, deviceId, reason) async {};
+
   final List<String> loginIds = [];
+  final List<String?> loginDeviceIds = [];
+  final List<({String identifier, String deviceId, String reason})>
+  deviceChangeRequests = [];
 
   @override
-  Future<LoginResult> login(String id, String password) {
+  Future<LoginResult> login(String id, String password, {String? deviceId}) {
     loginIds.add(id);
+    loginDeviceIds.add(deviceId);
     return onLogin(id, password);
+  }
+
+  @override
+  Future<void> requestDeviceChange({
+    required String identifier,
+    required String password,
+    required String deviceId,
+    required String reason,
+  }) async {
+    deviceChangeRequests.add((
+      identifier: identifier,
+      deviceId: deviceId,
+      reason: reason,
+    ));
+    await onRequestDeviceChange(identifier, password, deviceId, reason);
   }
 
   @override

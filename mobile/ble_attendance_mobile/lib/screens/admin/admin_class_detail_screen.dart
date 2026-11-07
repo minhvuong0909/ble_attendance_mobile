@@ -185,7 +185,6 @@ class _DetailState extends ConsumerState<_Detail> {
                 Text(info.courseName, style: theme.textTheme.titleLarge),
                 Text('${info.title} · ${info.semester}'),
                 const SizedBox(height: 8),
-                if (info.joinCode != null) Text('Mã lớp: ${info.joinCode}'),
                 Text('Giảng viên: ${info.teacherName ?? 'Chưa phân công'}'),
                 const SizedBox(height: 8),
                 OutlinedButton.icon(

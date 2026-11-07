@@ -83,14 +83,14 @@ Future<void> _submitCreate(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('lists all classes with teacher, student count and join code', (
+  testWidgets('lists all classes with teacher and student count', (
     tester,
   ) async {
     await _open(tester);
     expect(find.text('PRM393 · SE1901 · FA26'), findsOneWidget);
     expect(find.text('GV: Co Lan'), findsOneWidget);
     expect(find.text('3 sinh viên'), findsOneWidget);
-    expect(find.text('Mã lớp: ABC123'), findsOneWidget);
+    expect(find.textContaining('Mã lớp:'), findsNothing);
     expect(find.text('Chưa phân công giảng viên'), findsOneWidget);
   });
 
@@ -247,7 +247,7 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       await openDetail(tester);
-      expect(find.text('Mã lớp: ABC123'), findsOneWidget);
+      expect(find.textContaining('Mã lớp:'), findsNothing);
       expect(find.text('Giảng viên: Co Lan'), findsOneWidget);
       expect(find.text('25CE099 · Nguyen Van A'), findsOneWidget);
       expect(find.text('25CE100 · Tran Thi B'), findsOneWidget);

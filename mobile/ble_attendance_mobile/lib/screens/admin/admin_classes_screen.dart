@@ -91,11 +91,6 @@ class _ClassCard extends StatelessWidget {
                 '${info.studentCount} sinh viên',
                 style: theme.textTheme.bodySmall,
               ),
-              if (info.joinCode != null)
-                Text(
-                  'Mã lớp: ${info.joinCode}',
-                  style: theme.textTheme.bodySmall,
-                ),
             ],
           ),
         ),
