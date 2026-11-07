@@ -17,16 +17,24 @@ Web React (/app/) ┴─HTTPS+JWT──> FastAPI ──> PostgreSQL
 
 ## Mô hình dữ liệu
 
-`users` (role admin/teacher/student) · `courses` · `classes` (thuộc môn, có giảng viên, `join_code`, `rssi_threshold`, `max_absence_percent`) · `enrollments` · `sessions` (buổi học, `token`, `finalization_open`) · `detections` (mẫu RSSI đã xác minh) · `attendance` (kết quả, `finalized`, override) · `leave_requests` · `notifications`.
+`users` (role admin/teacher/student) · `courses` · `classes` (thuộc môn, có giảng viên, `rssi_threshold`, `max_absence_percent`) · `enrollments` · `sessions` (buổi học, `token`, `finalization_open`) · `detections` (mẫu RSSI đã xác minh) · `attendance` (kết quả, `finalized`, override) · `leave_requests` · `notifications`.
 
 ## Luồng điểm danh
 
-1. Admin tạo môn/lớp, import danh sách, gán giảng viên; sinh viên tham gia lớp.
+1. Admin tạo môn/lớp, import danh sách, gán giảng viên; admin xếp sinh viên vào lớp (nhập danh sách); sinh viên không tự tham gia.
 2. Giảng viên bắt đầu buổi: server tạo buổi với mã 8 ký tự (`beacon_code`).
 3. Điện thoại giảng viên phát `beacon_code`, quét gói sinh viên; điện thoại sinh viên phát `student_id` + tag, quét gói giảng viên để biết gần/xa.
 4. Máy giảng viên gửi lô `{student_id, bucket, tag, rssi, observed_at}` mỗi 30 giây.
 5. Giảng viên mở chốt; sinh viên xác thực vân tay/khóa màn hình rồi gọi chốt (cần detection hợp lệ trong 90 giây gần nhất).
 6. Giảng viên kết thúc buổi: server tính kết quả cả lớp trong một transaction.
+
+## Ngưỡng RSSI theo lớp
+
+Mỗi lớp có `rssi_threshold` riêng (mặc định -75, khoảng -100..-30). Admin chỉnh khi tạo/sửa lớp; giảng viên của lớp chỉnh bằng `PATCH /classes/{id}/rssi` (web: ô "Ngưỡng RSSI" ở chi tiết lớp; app: biểu tượng chỉnh ở màn hình lớp). Ngưỡng dùng khi tính ô hợp lệ, khi sinh viên chốt (`not_in_range`) và cho chỉ báo gần/xa trên máy sinh viên (đọc từ buổi học lúc bắt đầu, nên chỉ áp dụng cho buổi bắt đầu sau khi lưu).
+
+## Ràng buộc thiết bị (sinh viên)
+
+`users.device_id` được gắn ở lần đăng nhập đầu của sinh viên (app gửi `device_id` ở `/auth/login`, bắt buộc với sinh viên). Máy khác đăng nhập vào tài khoản đó bị `403 device_mismatch`. Đổi máy: sinh viên gửi `POST /auth/device-change-requests` (xác thực bằng mã + mật khẩu), admin duyệt hoặc từ chối ở `/admin/device-requests`; duyệt thì `device_id` chuyển sang máy mới và sinh viên nhận thông báo. Mỗi sinh viên chỉ có một đơn đang chờ (gửi lại sẽ thay đơn cũ). Giảng viên và admin không bị ràng buộc.
 
 ## Chống giả mạo
 

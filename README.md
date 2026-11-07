@@ -15,8 +15,8 @@ Hệ thống điểm danh lớp học bằng Bluetooth Low Energy cho đồ án 
 | Vai trò | Làm được |
 |---|---|
 | Admin | Tạo môn, lớp, giảng viên; gán giảng viên cho lớp; import danh sách (CSV/XLSX có xem trước); đặt lại mật khẩu |
-| Giảng viên | Xem lớp được gán; bắt đầu/kết thúc buổi, mở chốt; chỉnh tay điểm danh; báo cáo và xuất Excel; duyệt đơn xin phép |
-| Sinh viên | Tham gia lớp bằng mã; điểm danh bằng BLE; xem thống kê chuyên cần; xin phép nghỉ; nhận thông báo |
+| Giảng viên | Xem lớp được gán; chỉnh ngưỡng RSSI của lớp theo kích thước phòng (web và app); bắt đầu/kết thúc buổi, mở chốt; chỉnh tay điểm danh; báo cáo và xuất Excel; duyệt đơn xin phép |
+| Sinh viên | Được admin xếp lớp (không tự tham gia); điểm danh bằng BLE; xem thống kê chuyên cần; xin phép nghỉ; nhận thông báo |
 
 ## Chạy nhanh (Linux/macOS)
 
@@ -57,14 +57,19 @@ cd web && npm test && npx tsc -b --noEmit && npm run lint   # 95 test
 
 Thử BLE khi chỉ có một điện thoại: `backend/scripts/ble_teacher_sim.py` dùng Bluetooth laptop giả máy giảng viên (cần `pip install bleak`).
 
-## Tài khoản demo (mật khẩu `Pass@123`)
+## Tài khoản demo (mật khẩu `123456`)
 
-Admin `A001` · Giảng viên `T001` · Sinh viên `25CE099`, `25CE100`, `D26CE045`. Tài khoản do admin tạo có mật khẩu tạm bằng mã đăng nhập và bắt buộc đổi ở lần đăng nhập đầu.
+Admin `admin` · Giảng viên `gv1`, `gv2`, `gv3` · Sinh viên `sv1`, `sv2`, `sv3` (gõ chữ thường được, hệ thống tự viết hoa). Tài khoản do admin tạo có mật khẩu tạm bằng mã đăng nhập và bắt buộc đổi ở lần đăng nhập đầu.
+
+**Một tài khoản sinh viên chỉ dùng được trên một máy.** Máy được gắn ở lần đăng nhập đầu (mã thiết bị sinh ngẫu nhiên trong app). Đăng nhập từ máy khác bị từ chối (`device_mismatch`); sinh viên gửi đơn đổi thiết bị ngay ở màn hình đăng nhập, admin duyệt ở mục **Đổi thiết bị** trên web. Khi demo bằng một điện thoại cho nhiều tài khoản sinh viên thì vẫn được, vì ràng buộc chỉ theo từng tài khoản. Gỡ app hoặc xóa dữ liệu app làm mất mã thiết bị, phải xin đổi lại.
+
+Dữ liệu seed mẫu (theo thời khóa biểu): môn PRM393, PRN232, MLN131, EXE201 và 4 lớp: PRM393 SE1901 (gv1, đã xếp sẵn sv1, sv2, sv3), PRN232 SE1918 (gv2), MLN131 Half2_EL1902 (gv3), EXE201 SE1919 (gv2). Ba lớp sau để trống: sinh viên **không tự tham gia lớp**, admin xếp lớp bằng cách nhập danh sách (xem `docs/demo-import/`). Chạy lại seed không tạo trùng.
 
 ## Giới hạn đã biết
 
 - Chỉ hỗ trợ Android cho điểm danh BLE. Android 11 trở xuống cần bật Vị trí để quét BLE.
 - RSSI chỉ ước lượng độ gần. Vân tay/khóa màn hình là xác nhận phía client.
 - Bắt gói rồi phát lại chỉ dùng được trong 30–60 giây; giảng viên dùng client giả vẫn gửi được detection sai (có nhật ký chỉnh tay).
+- Ràng buộc máy không ngăn sinh viên đưa hẳn máy của mình cho bạn cầm hộ, và không chống được máy đã root giả mã thiết bị.
 - Chưa thử đầy đủ trên hai điện thoại thật: mới thử điện thoại phát + laptop quét.
 - Trước khi triển khai thật: đổi `JWT_SECRET`, `BEACON_SERVER_KEY`, dùng HTTPS, thêm rate limit.
