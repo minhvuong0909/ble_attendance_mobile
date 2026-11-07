@@ -104,7 +104,7 @@ def notify_absence_warnings(db: Session, session: LectureSession) -> None:
                 student_user_id,
                 "absence_warning",
                 "Cảnh báo vắng học",
-                f"Bạn đã vắng {stats.absent_percent}% số buổi môn {cls.course.code} ({cls.class_code}), "
+                f"Bạn đã vắng {stats.absent_percent:.0f}% số buổi môn {cls.course.code} ({cls.class_code}), "
                 f"vượt mức cho phép {cls.max_absence_percent}%.",
                 ref_id=cls.id,
             )

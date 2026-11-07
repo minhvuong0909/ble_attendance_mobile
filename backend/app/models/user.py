@@ -26,6 +26,8 @@ class User(Base):
     role: Mapped[UserRole] = mapped_column(SqlEnum(UserRole, native_enum=False, length=16), nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     must_change_password: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    # Chỉ dùng cho sinh viên: máy được gắn với tài khoản (gắn ở lần đăng nhập đầu).
+    device_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
 
     @property

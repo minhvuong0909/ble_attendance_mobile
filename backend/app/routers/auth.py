@@ -2,12 +2,15 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
+from app.core.clock import utcnow
 from app.core.database import get_db
 from app.core.errors import ApiError
 from app.core.security import create_access_token, get_current_user, hash_password, verify_password
 from app.core.validators import is_valid_student_id, normalize_id
-from app.models import User, UserRole
+from app.models import DeviceChangeRequest, DeviceRequestStatus, User, UserRole
+from app.schemas.device import DeviceChangeIn, DeviceRequestOut
 from app.services.accounts import login_id_taken
+from app.services.devices import check_device, request_to_out
 from app.schemas.auth import (
     ChangePasswordRequest,
     LoginRequest,
@@ -44,10 +47,41 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse
     user = db.scalar(select(User).where(or_(User.student_id == identifier, User.teacher_id == identifier)))
     if user is None or not verify_password(payload.password, user.password_hash):
         raise ApiError(401, "invalid_credentials", "Sai mã đăng nhập hoặc mật khẩu")
+    if user.role == UserRole.student:
+        check_device(db, user, payload.device_id)
     return TokenResponse(
         access_token=create_access_token(user.id),
         must_change_password=user.must_change_password,
     )
+
+
+@router.post("/device-change-requests", response_model=DeviceRequestOut, status_code=201)
+def create_device_change_request(payload: DeviceChangeIn, db: Session = Depends(get_db)) -> dict:
+    """Sinh viên gửi đơn đổi máy từ máy mới. Chưa đăng nhập được nên xác thực bằng mật khẩu."""
+    identifier = normalize_id(payload.identifier)
+    user = db.scalar(select(User).where(User.student_id == identifier))
+    if user is None or not verify_password(payload.password, user.password_hash):
+        raise ApiError(401, "invalid_credentials", "Sai mã đăng nhập hoặc mật khẩu")
+    if user.device_id is None:
+        raise ApiError(409, "device_not_bound", "Tài khoản chưa gắn thiết bị, cứ đăng nhập bình thường")
+    if user.device_id == payload.device_id:
+        raise ApiError(409, "same_device", "Đây đã là thiết bị của tài khoản")
+    row = db.scalar(
+        select(DeviceChangeRequest).where(
+            DeviceChangeRequest.student_user_id == user.id,
+            DeviceChangeRequest.status == DeviceRequestStatus.pending,
+        )
+    )
+    if row is None:
+        row = DeviceChangeRequest(student_user_id=user.id, new_device_id=payload.device_id, reason=payload.reason)
+        db.add(row)
+    else:
+        row.new_device_id = payload.device_id
+        row.reason = payload.reason
+        row.created_at = utcnow()
+    db.commit()
+    db.refresh(row)
+    return request_to_out(row, user)
 
 
 @router.get("/me", response_model=UserOut)

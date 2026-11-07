@@ -177,7 +177,7 @@ def test_reset_password_restores_temp_password(client, admin, auth, make_user):
     student = make_user(UserRole.student, "25CE099", password="Changed@1")
     response = client.post(f"/admin/users/{student.id}/reset-password", headers=auth(admin))
     assert response.status_code == 200
-    login = client.post("/auth/login", json={"identifier": "25CE099", "password": "25CE099"})
+    login = client.post("/auth/login", json={"identifier": "25CE099", "password": "25CE099", "device_id": "dev-test-1"})
     assert login.status_code == 200
     assert login.json()["must_change_password"] is True
 

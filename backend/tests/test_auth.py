@@ -65,7 +65,7 @@ def test_login_success_returns_token_and_flag(client, make_user):
 
 def test_login_accepts_lowercase_and_spaces(client, make_user):
     make_user(UserRole.student, "25CE099")
-    response = client.post("/auth/login", json={"identifier": " 25ce099 ", "password": "Pass@123"})
+    response = client.post("/auth/login", json={"identifier": " 25ce099 ", "password": "Pass@123", "device_id": "dev-test-1"})
     assert response.status_code == 200
 
 
