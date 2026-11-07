@@ -1,14 +1,13 @@
 # Backend Extras Implementation Plan (Plan 2/5)
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans (the human chose inline/native execution). Steps use checkbox syntax. Every task is TDD: write the tests listed, watch them fail, then implement.
 
 **Goal:** Hoàn thiện phần còn lại của backend theo spec: thông báo in-app, thống kê chuyên cần cho SV, báo cáo/Excel cho GV, xin phép vắng, import CSV/Excel cho Admin.
 
-**Architecture:** Tiếp nối Plan 1 (`docs/superpowers/plans/2026-10-18-backend-core.md`, đã merge): router mỏng, logic trong `app/services/`, lỗi `ApiError {detail, code}`, thời gian naive UTC, JSON trả `UtcDateTime` (hậu tố `Z`). Bảng `leave_requests`, `notifications` đã có trong migration `0001`, nên **không cần migration mới**.
+**Architecture:** Tiếp nối Plan 1 (`docs/plans/2026-10-18-backend-core.md`, đã merge): router mỏng, logic trong `app/services/`, lỗi `ApiError {detail, code}`, thời gian naive UTC, JSON trả `UtcDateTime` (hậu tố `Z`). Bảng `leave_requests`, `notifications` đã có trong migration `0001`, nên **không cần migration mới**.
 
 **Tech Stack:** FastAPI, SQLAlchemy 2, openpyxl (đã có), `python-multipart` (mới, cho upload file), pytest.
 
-**Spec:** `docs/superpowers/specs/2026-10-18-ble-attendance-expansion-design.md` (mục 4.5, 6.2, 6.3, 6.4)
+**Spec:** `docs/specs/2026-10-18-ble-attendance-expansion-design.md` (mục 4.5, 6.2, 6.3, 6.4)
 
 **Ghi chú về định dạng plan (Ruling):** plan này gọn hơn Plan 1 — mỗi task nêu file, interface, hành vi và danh sách test cần có; mã test và mã cài đặt được viết trong lúc thực thi theo TDD. Lý do: người dùng yêu cầu làm tiếp ngay, spec đã được duyệt, và Plan 1 đã chốt mọi quy ước. Chi phí nếu sai: phải sửa lại khi thực thi (đã ghi vào ledger).
 

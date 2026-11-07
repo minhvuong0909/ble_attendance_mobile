@@ -28,7 +28,9 @@ def create_access_token(subject: str) -> str:
     return jwt.encode({"sub": subject, "exp": expiry}, settings.jwt_secret, algorithm=settings.jwt_algorithm)
 
 
-def get_current_user(token: str | None = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
+def get_current_user_allow_pending(
+    token: str | None = Depends(oauth2_scheme), db: Session = Depends(get_db)
+) -> User:
     bearer = {"WWW-Authenticate": "Bearer"}
     if not token:
         raise ApiError(401, "not_authenticated", "Bạn chưa đăng nhập", headers=bearer)
@@ -39,6 +41,13 @@ def get_current_user(token: str | None = Depends(oauth2_scheme), db: Session = D
     user = db.get(User, payload.get("sub"))
     if user is None:
         raise ApiError(401, "invalid_token", "Phiên đăng nhập không hợp lệ hoặc đã hết hạn", headers=bearer)
+    return user
+
+
+def get_current_user(user: User = Depends(get_current_user_allow_pending)) -> User:
+    """Người dùng đã đăng nhập và không còn bị buộc đổi mật khẩu (chặn ở backend, không chỉ ở client)."""
+    if user.must_change_password:
+        raise ApiError(403, "password_change_required", "Bạn cần đổi mật khẩu trước khi tiếp tục")
     return user
 
 

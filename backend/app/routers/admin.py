@@ -18,7 +18,7 @@ from app.schemas.admin import (
 )
 from app.schemas.auth import UserOut
 from app.schemas.classes import ClassOut
-from app.services.academic import class_to_out, new_join_code
+from app.services.academic import class_to_out, classes_to_out, new_join_code, with_class_relations
 from app.services.accounts import login_id_taken
 
 router = APIRouter(
@@ -125,7 +125,7 @@ def list_classes(db: Session = Depends(get_db)) -> list[ClassOut]:
         .join(Course, ClassRoom.course_id == Course.id)
         .order_by(Course.code, ClassRoom.class_code)
     )
-    return [class_to_out(db, cls) for cls in db.scalars(stmt)]
+    return classes_to_out(db, list(db.scalars(with_class_relations(stmt))))
 
 
 @router.patch("/classes/{class_id}", response_model=ClassOut)

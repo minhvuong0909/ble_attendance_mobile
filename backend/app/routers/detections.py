@@ -29,6 +29,8 @@ def submit_batch(
 ) -> DetectionBatchOut:
     now = utcnow()
     sessions: dict[str, LectureSession | None] = {}
+    students: dict[str, User | None] = {}
+    enrolled: dict[tuple[str, str], bool] = {}
     recorded = 0
     rejected = 0
 
@@ -50,10 +52,18 @@ def submit_batch(
             continue
 
         student_id = normalize_id(entry.student_identifier)
-        student = db.scalar(
-            select(User).where(User.student_id == student_id, User.role == UserRole.student)
-        )
-        if student is None or not is_enrolled(db, session.class_id, student.id):
+        if student_id not in students:
+            students[student_id] = db.scalar(
+                select(User).where(User.student_id == student_id, User.role == UserRole.student)
+            )
+        student = students[student_id]
+        if student is None:
+            rejected += 1
+            continue
+        pair = (session.class_id, student.id)
+        if pair not in enrolled:
+            enrolled[pair] = is_enrolled(db, session.class_id, student.id)
+        if not enrolled[pair]:
             rejected += 1
             continue
 

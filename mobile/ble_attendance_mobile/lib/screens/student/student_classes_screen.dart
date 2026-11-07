@@ -62,7 +62,9 @@ class _ClassCard extends StatelessWidget {
                   children: [
                     SizedBox.expand(
                       child: CircularProgressIndicator(
-                        value: (stats.attendancePercent / 100).clamp(0, 1),
+                        value: stats.totalSessions == 0
+                            ? 0
+                            : (stats.attendancePercent / 100).clamp(0, 1),
                         strokeWidth: 5,
                         color: color,
                         backgroundColor: color.withValues(alpha: 0.15),
@@ -72,7 +74,9 @@ class _ClassCard extends StatelessWidget {
                       padding: const EdgeInsets.all(8),
                       child: FittedBox(
                         child: Text(
-                          '${stats.attendancePercent.round()}%',
+                          stats.totalSessions == 0
+                              ? '—'
+                              : '${stats.attendancePercent.round()}%',
                           style: theme.textTheme.labelLarge,
                         ),
                       ),
@@ -88,7 +92,9 @@ class _ClassCard extends StatelessWidget {
                     Text(stats.courseName, style: theme.textTheme.titleMedium),
                     Text('${stats.title} · ${stats.semester}'),
                     Text(
-                      '${stats.totalSessions} buổi đã học',
+                      stats.totalSessions == 0
+                          ? 'Chưa có buổi học nào'
+                          : '${stats.totalSessions} buổi đã học',
                       style: theme.textTheme.bodySmall,
                     ),
                     if (stats.warning) ...[

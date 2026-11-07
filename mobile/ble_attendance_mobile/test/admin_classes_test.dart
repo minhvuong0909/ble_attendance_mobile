@@ -90,7 +90,7 @@ void main() {
     expect(find.text('PRM393 · SE1901 · FA26'), findsOneWidget);
     expect(find.text('GV: Co Lan'), findsOneWidget);
     expect(find.text('3 sinh viên'), findsOneWidget);
-    expect(find.textContaining('Mã lớp:'), findsNothing);
+    expect(find.text('Mã lớp ABC123'), findsNothing);
     expect(find.text('Chưa phân công giảng viên'), findsOneWidget);
   });
 

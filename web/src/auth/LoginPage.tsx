@@ -41,17 +41,20 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-screen items-center justify-center p-4">
       <form onSubmit={submit} className="w-full max-w-sm space-y-4 rounded-lg border bg-card p-6 shadow-sm">
-        <div className="space-y-1">
-          <h1 className="text-xl font-semibold">Điểm danh BLE</h1>
-          <p className="text-sm text-muted-foreground">Đăng nhập dành cho admin và giảng viên</p>
+        <div className="flex items-center gap-3">
+          <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="" className="size-12 rounded-xl" />
+          <div className="space-y-0.5">
+            <h1 className="text-xl font-semibold leading-tight">Điểm danh BLE</h1>
+            <p className="text-sm text-muted-foreground">Dành cho quản trị viên và giảng viên</p>
+          </div>
         </div>
         <div className="space-y-2">
           <Label htmlFor="identifier">Mã đăng nhập</Label>
-          <Input id="identifier" autoComplete="username" value={identifier} onChange={(e) => setIdentifier(e.target.value)} />
+          <Input id="identifier" autoComplete="username" value={identifier} onChange={(e) => { setIdentifier(e.target.value); setError(null) }} />
         </div>
         <div className="space-y-2">
           <Label htmlFor="password">Mật khẩu</Label>
-          <Input id="password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <Input id="password" type="password" autoComplete="current-password" value={password} onChange={(e) => { setPassword(e.target.value); setError(null) }} />
         </div>
         {error && (
           <p role="alert" className="text-sm text-destructive">

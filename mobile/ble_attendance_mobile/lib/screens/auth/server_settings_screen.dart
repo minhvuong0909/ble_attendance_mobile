@@ -6,7 +6,7 @@ import '../../core/api_exception.dart';
 import '../../providers/core_providers.dart';
 import '../../widgets/error_banner.dart';
 
-/// Cấu hình cho chức năng "đánh thức máy chủ" (máy chủ Render miễn phí ngủ khi không dùng).
+/// Cấu hình cho chức năng "đánh thức máy chủ" (máy chủ có thể ở chế độ ngủ khi lâu không dùng).
 class WakeConfig {
   const WakeConfig({required this.interval, required this.attempts});
 
@@ -137,7 +137,7 @@ class _ServerSettingsScreenState extends ConsumerState<ServerSettingsScreen> {
                 const SizedBox(height: 8),
                 OutlinedButton(
                   onPressed: _busy ? null : _wake,
-                  child: const Text('Đánh thức máy chủ (Render)'),
+                  child: const Text('Đánh thức máy chủ'),
                 ),
                 const SizedBox(height: 8),
                 FilledButton(

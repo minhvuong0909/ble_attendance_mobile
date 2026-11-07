@@ -50,9 +50,13 @@ class RealBleGateway implements BleGateway {
     if (advertise && !await _peripheral.isSupported) {
       return BleReadiness.unsupported;
     }
-    final status = await _ble.statusStream
-        .firstWhere((s) => s != BleStatus.unknown)
-        .timeout(const Duration(seconds: 3), onTimeout: () => BleStatus.ready);
+    var status = await _readStatus();
+    if (status == BleStatus.unauthorized) {
+      // Quyền vừa được cấp nhưng plugin quét còn giữ trạng thái cũ: đọc lại sau một nhịp
+      // thay vì bắt người dùng bấm "Thử lại".
+      await Future<void>.delayed(const Duration(milliseconds: 700));
+      status = await _readStatus();
+    }
     if (status == BleStatus.poweredOff) {
       await ensureBluetoothEnabled(); // hộp thoại bật Bluetooth của hệ thống
       return BleReadiness.bluetoothOff;
@@ -61,6 +65,10 @@ class RealBleGateway implements BleGateway {
     if (status == BleStatus.unsupported) return BleReadiness.unsupported;
     return BleReadiness.ready;
   }
+
+  Future<BleStatus> _readStatus() => _ble.statusStream
+      .firstWhere((s) => s != BleStatus.unknown)
+      .timeout(const Duration(seconds: 3), onTimeout: () => BleStatus.ready);
 
   @override
   Future<void> startAdvertising(Uint8List payload) async {
@@ -117,6 +125,10 @@ class RealBleGateway implements BleGateway {
 /// Bản giả dùng trong test.
 class FakeBleGateway implements BleGateway {
   BleReadiness readiness = BleReadiness.ready;
+
+  /// Đặt một Completer để mô phỏng hộp thoại xin quyền đang chờ người dùng.
+  Completer<void>? readyGate;
+  int ensureReadyCalls = 0;
   final advertised = <Uint8List>[];
   int stops = 0;
   int scanStarts = 0;
@@ -129,8 +141,12 @@ class FakeBleGateway implements BleGateway {
   void failScan() => _controller?.addError(StateError('scan failed'));
 
   @override
-  Future<BleReadiness> ensureReady({required bool advertise}) async =>
-      readiness;
+  Future<BleReadiness> ensureReady({required bool advertise}) async {
+    ensureReadyCalls++;
+    await readyGate?.future;
+    return readiness;
+  }
+
   @override
   Future<void> startAdvertising(Uint8List payload) async =>
       advertised.add(payload);

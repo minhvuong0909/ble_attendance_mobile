@@ -5,13 +5,21 @@ import 'package:go_router/go_router.dart';
 import '../../models/class_info.dart';
 import '../../providers/admin_providers.dart';
 import '../../widgets/async_value_view.dart';
+import '../../widgets/search_field.dart';
 import 'import_entry_button.dart';
 
-class AdminClassesScreen extends ConsumerWidget {
+class AdminClassesScreen extends ConsumerStatefulWidget {
   const AdminClassesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AdminClassesScreen> createState() => _AdminClassesScreenState();
+}
+
+class _AdminClassesScreenState extends ConsumerState<AdminClassesScreen> {
+  String _query = '';
+
+  @override
+  Widget build(BuildContext context) {
     final value = ref.watch(adminClassesProvider);
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -30,6 +38,10 @@ class AdminClassesScreen extends ConsumerWidget {
             label: 'Nhập môn/lớp từ file',
             path: '/admin/import/classes',
           ),
+          SearchField(
+            hint: 'Tìm theo môn, lớp, giảng viên, mã lớp',
+            onChanged: (v) => setState(() => _query = v),
+          ),
           Expanded(
             child: AsyncValueView<List<ClassInfo>>(
               value: value,
@@ -38,17 +50,41 @@ class AdminClassesScreen extends ConsumerWidget {
               isEmpty: (items) => items.isEmpty,
               emptyMessage: 'Chưa có lớp nào',
               emptyIcon: Icons.class_outlined,
-              data: (items) => RefreshIndicator(
-                onRefresh: () => ref.refresh(adminClassesProvider.future),
-                child: ListView.separated(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
-                  itemCount: items.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 8),
-                  itemBuilder: (context, index) =>
-                      _ClassCard(info: items[index]),
-                ),
-              ),
+              data: (all) {
+                final items = all
+                    .where(
+                      (c) => matchesQuery(_query, [
+                        c.courseName,
+                        c.title,
+                        c.semester,
+                        c.teacherName,
+                      ]),
+                    )
+                    .toList();
+                return RefreshIndicator(
+                  onRefresh: () => ref.refresh(adminClassesProvider.future),
+                  child: items.isEmpty
+                      ? ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: const [
+                            Padding(
+                              padding: EdgeInsets.all(48),
+                              child: Center(
+                                child: Text('Không có lớp nào khớp từ khóa'),
+                              ),
+                            ),
+                          ],
+                        )
+                      : ListView.separated(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 88),
+                          itemCount: items.length,
+                          separatorBuilder: (_, _) => const SizedBox(height: 0),
+                          itemBuilder: (context, index) =>
+                              _ClassCard(info: items[index]),
+                        ),
+                );
+              },
             ),
           ),
         ],
@@ -87,9 +123,17 @@ class _ClassCard extends StatelessWidget {
                       )
                     : null,
               ),
-              Text(
-                '${info.studentCount} sinh viên',
-                style: theme.textTheme.bodySmall,
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: [
+                  Chip(
+                    avatar: const Icon(Icons.groups_outlined, size: 16),
+                    label: Text('${info.studentCount} sinh viên'),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ],
               ),
             ],
           ),

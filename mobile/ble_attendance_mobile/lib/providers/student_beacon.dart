@@ -50,6 +50,7 @@ class StudentBeaconController extends Notifier<StudentBeaconState> {
   Proximity? _candidate;
   DateTime? _candidateSince;
   int _generation = 0;
+  String? _startingSessionId; // đang chờ ensureReady (xin quyền) cho buổi này
 
   BleGateway get _ble => ref.read(bleGatewayProvider);
   DateTime _now() => ref.read(clockProvider)();
@@ -72,7 +73,9 @@ class StudentBeaconController extends Notifier<StudentBeaconState> {
       return;
     }
     if (_session?.id == session.id &&
-        (_timer != null || state.problem != null)) {
+        (_timer != null ||
+            state.problem != null ||
+            _startingSessionId == session.id)) {
       return;
     }
     await _start(session, studentId);
@@ -90,7 +93,13 @@ class StudentBeaconController extends Notifier<StudentBeaconState> {
     _session = session;
     _studentId = studentId;
     state = StudentBeaconState(sessionId: session.id);
-    final readiness = await _ble.ensureReady(advertise: true);
+    _startingSessionId = session.id;
+    final BleReadiness readiness;
+    try {
+      readiness = await _ble.ensureReady(advertise: true);
+    } finally {
+      if (generation == _generation) _startingSessionId = null;
+    }
     if (generation != _generation) return;
     if (readiness != BleReadiness.ready) {
       state = StudentBeaconState(sessionId: session.id, problem: readiness);

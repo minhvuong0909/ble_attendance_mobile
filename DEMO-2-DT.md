@@ -4,7 +4,7 @@
 
 **Khác bản 1 điện thoại:** không cần script `ble_teacher_sim.py`. Điện thoại giảng viên **vừa phát vừa quét** thật, nên thẻ BLE trên máy sinh viên chạy đúng ("trong phạm vi / ở xa lớp học"). App giảng viên gửi lô detection mỗi **30 giây** (script chỉ 10 giây).
 
-> **Chưa kiểm chứng:** phần "điện thoại giảng viên quét sinh viên" và thẻ gần/xa trên máy sinh viên **chưa được thử trên hai máy thật** (đây là mục tồn đọng trong `docs/superpowers/STATUS.md`). Hãy tập trước ít nhất một lần cả buổi học ở mục 8, và giữ phương án dự phòng ở mục E.
+> **Chưa kiểm chứng:** phần "điện thoại giảng viên quét sinh viên" và thẻ gần/xa trên máy sinh viên **chưa được thử trên hai máy thật** (đây là mục tồn đọng trong `docs/STATUS.md`). Hãy tập trước ít nhất một lần cả buổi học ở mục 8, và giữ phương án dự phòng ở mục E.
 
 ## A. Chuẩn bị (30 phút trước giờ demo)
 

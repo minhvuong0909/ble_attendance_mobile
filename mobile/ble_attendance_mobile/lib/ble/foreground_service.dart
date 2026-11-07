@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
-// Dịch vụ nền Android giữ cho BLE quét/phát không bị hệ thống dừng (Plan 5).
+// Dịch vụ nền Android giữ cho BLE quét/phát không bị hệ thống dừng.
 
 void initForegroundTask() {
   if (!_isAndroid) return;

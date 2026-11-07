@@ -1,11 +1,17 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from app.core.clock import utcnow
 from app.core.database import get_db
 from app.core.errors import ApiError
-from app.core.security import create_access_token, get_current_user, hash_password, verify_password
+from app.core import ratelimit
+from app.core.security import (
+    create_access_token,
+    get_current_user_allow_pending,
+    hash_password,
+    verify_password,
+)
 from app.core.validators import is_valid_student_id, normalize_id
 from app.models import DeviceChangeRequest, DeviceRequestStatus, User, UserRole
 from app.schemas.device import DeviceChangeIn, DeviceRequestOut
@@ -42,13 +48,21 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)) -> User:
 
 
 @router.post("/login", response_model=TokenResponse)
-def login(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
+def login(payload: LoginRequest, request: Request, db: Session = Depends(get_db)) -> TokenResponse:
     identifier = normalize_id(payload.identifier)
+    ip = request.client.host if request.client else "unknown"
+    if ratelimit.login_by_identifier.blocked(identifier) or ratelimit.login_by_ip.blocked(ip):
+        raise ApiError(
+            429, "too_many_attempts", "Đăng nhập sai quá nhiều lần, hãy thử lại sau ít phút", headers={"Retry-After": "300"}
+        )
     user = db.scalar(select(User).where(or_(User.student_id == identifier, User.teacher_id == identifier)))
     if user is None or not verify_password(payload.password, user.password_hash):
+        ratelimit.login_by_identifier.record(identifier)
+        ratelimit.login_by_ip.record(ip)
         raise ApiError(401, "invalid_credentials", "Sai mã đăng nhập hoặc mật khẩu")
     if user.role == UserRole.student:
         check_device(db, user, payload.device_id)
+    ratelimit.login_by_identifier.reset(identifier)
     return TokenResponse(
         access_token=create_access_token(user.id),
         must_change_password=user.must_change_password,
@@ -85,7 +99,7 @@ def create_device_change_request(payload: DeviceChangeIn, db: Session = Depends(
 
 
 @router.get("/me", response_model=UserOut)
-def me(user: User = Depends(get_current_user)) -> User:
+def me(user: User = Depends(get_current_user_allow_pending)) -> User:
     return user
 
 
@@ -93,7 +107,7 @@ def me(user: User = Depends(get_current_user)) -> User:
 def change_password(
     payload: ChangePasswordRequest,
     db: Session = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(get_current_user_allow_pending),
 ) -> dict[str, str]:
     if not verify_password(payload.old_password, user.password_hash):
         raise ApiError(400, "invalid_password", "Mật khẩu hiện tại không đúng")

@@ -90,6 +90,8 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16),
           children: [
+            _Greeting(name: ref.watch(authControllerProvider).user?.fullName),
+            const SizedBox(height: 16),
             if (value.hasError) ...[
               const WarningBanner(
                 'Không cập nhật được, đang hiển thị dữ liệu gần nhất.',
@@ -118,26 +120,86 @@ class _StudentHomeScreenState extends ConsumerState<StudentHomeScreen> {
   }
 }
 
+class _Greeting extends StatelessWidget {
+  const _Greeting({required this.name});
+
+  final String? name;
+
+  static String _salutation(int hour) {
+    if (hour < 5 || hour >= 18) return 'Chào buổi tối';
+    if (hour < 11) return 'Chào buổi sáng';
+    if (hour < 14) return 'Chào buổi trưa';
+    if (hour < 18) return 'Chào buổi chiều';
+    return 'Chào buổi tối';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final first = (name ?? '').trim().split(' ').last;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          first.isEmpty
+              ? _salutation(DateTime.now().hour)
+              : '${_salutation(DateTime.now().hour)}, $first',
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.3,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          'Bạn chỉ cần mở ứng dụng trong giờ học, phần còn lại để chúng tôi lo.',
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _NoSession extends StatelessWidget {
   const _NoSession();
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(top: 80),
-      child: Column(
-        children: [
-          Icon(Icons.event_busy, size: 56, color: theme.colorScheme.outline),
-          const SizedBox(height: 12),
-          Text(
-            'Hiện không có buổi học nào đang diễn ra',
-            textAlign: TextAlign.center,
-            style: theme.textTheme.titleMedium,
-          ),
-          const SizedBox(height: 4),
-          Text('Kéo xuống để làm mới', style: theme.textTheme.bodySmall),
-        ],
+    return Card(
+      color: theme.colorScheme.primaryContainer.withValues(alpha: 0.4),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+        child: Column(
+          children: [
+            CircleAvatar(
+              radius: 32,
+              backgroundColor: theme.colorScheme.primaryContainer,
+              child: Icon(
+                Icons.free_breakfast_outlined,
+                size: 32,
+                color: theme.colorScheme.onPrimaryContainer,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Chưa có buổi học nào đang diễn ra',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Khi giảng viên bắt đầu buổi học, thông tin sẽ hiện ở đây. Kéo xuống để làm mới.',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -175,7 +237,7 @@ class _SessionCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Đang diễn ra',
+                    'Buổi học đang diễn ra',
                     style: theme.textTheme.labelLarge?.copyWith(
                       color: theme.colorScheme.primary,
                     ),
@@ -184,9 +246,25 @@ class _SessionCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            Text(session.courseName, style: theme.textTheme.titleLarge),
-            Text('${session.courseCode} · ${session.classCode}'),
-            Text('Bắt đầu lúc ${formatDateTime(session.startsAt)}'),
+            Text(
+              session.courseName,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              '${session.courseCode} · ${session.classCode}',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            Text(
+              'Bắt đầu lúc ${formatDateTime(session.startsAt)}',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
             const SizedBox(height: 12),
             ble,
             const SizedBox(height: 16),
@@ -204,10 +282,26 @@ class _SessionCard extends StatelessWidget {
                 ],
               )
             else ...[
-              Text(
-                session.finalizationOpen
-                    ? 'Giảng viên đã mở chốt. Hãy xác nhận khi bạn đang ở trong lớp.'
-                    : 'Giảng viên chưa mở chốt điểm danh',
+              Row(
+                children: [
+                  Icon(
+                    session.finalizationOpen
+                        ? Icons.notifications_active_outlined
+                        : Icons.hourglass_empty,
+                    size: 20,
+                    color: session.finalizationOpen
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.outline,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      session.finalizationOpen
+                          ? 'Giảng viên đã mở chốt. Hãy xác nhận khi bạn đang ở trong lớp.'
+                          : 'Chờ giảng viên mở chốt điểm danh',
+                    ),
+                  ),
+                ],
               ),
               if (error != null) ...[
                 const SizedBox(height: 12),

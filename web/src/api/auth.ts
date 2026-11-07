@@ -16,4 +16,4 @@ export const changePasswordRequest = (oldPassword: string, newPassword: string) 
   })
 
 export const homePathFor = (role: Role): string =>
-  role === 'admin' ? '/admin/courses' : role === 'teacher' ? '/teacher/classes' : '/student'
+  role === 'admin' ? '/admin' : role === 'teacher' ? '/teacher/classes' : '/student'

@@ -137,8 +137,8 @@ void main() {
         return jsonBody({'status': 'ok'});
       },
     );
-    await tester.ensureVisible(find.text('Đánh thức máy chủ (Render)'));
-    await tester.tap(find.text('Đánh thức máy chủ (Render)'));
+    await tester.ensureVisible(find.text('Đánh thức máy chủ'));
+    await tester.tap(find.text('Đánh thức máy chủ'));
     for (var i = 0; i < 6; i++) {
       await tester.pump(const Duration(milliseconds: 20));
     }
@@ -155,8 +155,8 @@ void main() {
         type: DioExceptionType.connectionError,
       ),
     );
-    await tester.ensureVisible(find.text('Đánh thức máy chủ (Render)'));
-    await tester.tap(find.text('Đánh thức máy chủ (Render)'));
+    await tester.ensureVisible(find.text('Đánh thức máy chủ'));
+    await tester.tap(find.text('Đánh thức máy chủ'));
     for (var i = 0; i < 10; i++) {
       await tester.pump(const Duration(milliseconds: 20));
     }

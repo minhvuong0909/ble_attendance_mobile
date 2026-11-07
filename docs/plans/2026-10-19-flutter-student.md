@@ -1,6 +1,5 @@
 # Flutter Student & Shared Data Layer Implementation Plan (Plan 4A)
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans (inline/native). Every task is TDD: write the listed tests, watch them fail, then implement.
 
 **Goal:** Xây lớp dữ liệu dùng chung (models, repositories, providers, widget trạng thái tải/lỗi/rỗng) và hoàn thành các màn hình **sinh viên** + tab **thông báo** (kèm badge) theo spec mục 7.3.
 
@@ -8,7 +7,7 @@
 
 **Tech Stack:** Flutter 3.47, flutter_riverpod 3, go_router 18, dio, local_auth, intl, flutter_localizations.
 
-**Spec:** `docs/superpowers/specs/2026-10-18-ble-attendance-expansion-design.md` (mục 4.3, 4.4, 4.5, 6.2, 7.3). **Backend:** đã merge vào `main` (API ở `backend/README.md`).
+**Spec:** `docs/specs/2026-10-18-ble-attendance-expansion-design.md` (mục 4.3, 4.4, 4.5, 6.2, 7.3). **Backend:** đã merge vào `main` (API ở `backend/README.md`).
 
 **Ghi chú định dạng (Ruling):** plan gọn (hành vi + test), mã viết khi thực thi theo TDD, như Plan 2/3. **Phạm vi:** plan này *không* làm BLE (trạng thái gần/xa, phát/quét) — thuộc plan BLE sau. Màn hình chủ sinh viên vì vậy chưa có chỉ báo khoảng cách; chốt điểm danh vẫn gọi API và server tự kiểm tra `not_in_range`.
 

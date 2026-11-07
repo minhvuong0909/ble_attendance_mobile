@@ -7,7 +7,7 @@ Hệ thống điểm danh lớp học bằng Bluetooth Low Energy cho đồ án 
 - `mobile/ble_attendance_mobile/`: ứng dụng Flutter (Android) cho sinh viên và giảng viên di động.
 - `web/`: ứng dụng web **React** (Vite + TypeScript + Tailwind + shadcn/ui) cho admin và giảng viên, nhất là import/xuất file trên laptop.
 - `backend/`: FastAPI + SQLAlchemy + Alembic, PostgreSQL chạy bằng Docker Compose.
-- `docs/superpowers/`: spec thiết kế, các plan, `STATUS.md` (trạng thái công việc).
+- `docs/`: spec thiết kế, các plan, `STATUS.md` (trạng thái công việc).
 - `DEMO.md`: kịch bản demo. `ARCHITECTURE.md`: kiến trúc và quy tắc nghiệp vụ.
 
 ## Vai trò

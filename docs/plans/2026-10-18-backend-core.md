@@ -1,6 +1,5 @@
 # Backend Core Implementation Plan (Plan 1/5)
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Dựng lại backend FastAPI theo cấu trúc mới (core/models/routers/services, Alembic, pytest) và hoàn thành lõi điểm danh: 3 vai trò, học vụ (môn/lớp/GV), buổi học theo lớp, xác minh beacon HMAC, công thức presence mới, chốt điểm danh, override.
 
@@ -8,7 +7,7 @@
 
 **Tech Stack:** Python 3.12, FastAPI 0.115, SQLAlchemy 2.0, Alembic, Pydantic 2, python-jose, passlib (pbkdf2_sha256), pytest, httpx.
 
-**Spec:** `docs/superpowers/specs/2026-10-18-ble-attendance-expansion-design.md` (mục 2, 3, 4, 5, 6)
+**Spec:** `docs/specs/2026-10-18-ble-attendance-expansion-design.md` (mục 2, 3, 4, 5, 6)
 
 **Các plan còn lại (sẽ viết sau khi Plan 1 xong):** Plan 2 backend phần 2 (import, báo cáo, thống kê SV, xin phép, thông báo) · Plan 3 Flutter nền tảng (cấu trúc, Riverpod, go_router, auth, khung 3 role) · Plan 4 Flutter tính năng (Admin, GV, SV) · Plan 5 BLE có tag, hoàn thiện, release APK.
 

@@ -1,7 +1,7 @@
 import secrets
 
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.models import ClassRoom, Enrollment
 from app.schemas.classes import ClassOut
@@ -14,8 +14,32 @@ def new_join_code(db: Session) -> str:
             return code
 
 
-def class_to_out(db: Session, cls: ClassRoom, include_join_code: bool = True) -> ClassOut:
-    count = db.scalar(select(func.count(Enrollment.id)).where(Enrollment.class_id == cls.id)) or 0
+def with_class_relations(stmt):
+    """Nạp sẵn môn học và giảng viên để danh sách lớp không phát sinh truy vấn cho từng dòng."""
+    return stmt.options(selectinload(ClassRoom.course), selectinload(ClassRoom.teacher))
+
+
+def classes_to_out(db: Session, classes: list[ClassRoom], include_join_code: bool = True) -> list[ClassOut]:
+    """Danh sách lớp với số sinh viên lấy bằng một truy vấn gộp."""
+    ids = [cls.id for cls in classes]
+    counts: dict[str, int] = {}
+    if ids:
+        counts = dict(
+            db.execute(
+                select(Enrollment.class_id, func.count(Enrollment.id))
+                .where(Enrollment.class_id.in_(ids))
+                .group_by(Enrollment.class_id)
+            ).all()
+        )
+    return [class_to_out(db, cls, include_join_code, counts.get(cls.id, 0)) for cls in classes]
+
+
+def class_to_out(
+    db: Session, cls: ClassRoom, include_join_code: bool = True, student_count: int | None = None
+) -> ClassOut:
+    count = student_count
+    if count is None:
+        count = db.scalar(select(func.count(Enrollment.id)).where(Enrollment.class_id == cls.id)) or 0
     return ClassOut(
         id=cls.id,
         course_id=cls.course_id,

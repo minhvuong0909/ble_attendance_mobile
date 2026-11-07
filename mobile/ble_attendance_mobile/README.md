@@ -46,5 +46,5 @@ flutter test
 - Đã có: màn hình sinh viên (buổi học đang diễn ra + chốt điểm danh bằng vân tay/khóa màn hình, lớp của tôi, thống kê chuyên cần, xin phép) và thông báo.
 - Đã có thêm: màn hình giảng viên (lớp, bắt đầu/kết thúc buổi, mở chốt, chỉnh tay điểm danh, báo cáo + xuất Excel, duyệt đơn xin phép).
 - Đã có thêm: màn hình admin (môn học, lớp, giảng viên, sinh viên, import danh sách có xem trước).
-- Đã có BLE: sinh viên phát tag HMAC và thấy gần/xa lớp; giảng viên quét và gửi lô detection mỗi 30 giây (xem `docs/superpowers/STATUS.md` mục Thử BLE).
+- Đã có BLE: sinh viên phát tag HMAC và thấy gần/xa lớp; giảng viên quét và gửi lô detection mỗi 30 giây (xem `docs/STATUS.md` mục Thử BLE).
 - Build web: `backend/scripts/build_web.sh`. Android ≤ 11 cần bật Vị trí để quét BLE.

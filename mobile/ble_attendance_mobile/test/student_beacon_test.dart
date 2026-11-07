@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ble_attendance_mobile/ble/ble_gateway.dart';
 import 'package:ble_attendance_mobile/ble/beacon_codec.dart';
 import 'package:ble_attendance_mobile/providers/core_providers.dart';
@@ -29,6 +31,26 @@ class _Setup {
 final _teacher = encodeTeacher('abcd1234');
 
 void main() {
+  testWidgets(
+    'syncing again while the permission prompt is open asks only once',
+    (tester) async {
+      final s = _Setup();
+      addTearDown(s.container.dispose);
+      final gate = Completer<void>();
+      s.ble.readyGate = gate;
+      final first = s.controller.sync(sampleSession(), '25CE099');
+      await tester.pump();
+      await s.controller.sync(sampleSession(), '25CE099');
+      await s.controller.sync(sampleSession(), '25CE099');
+      expect(s.ble.ensureReadyCalls, 1);
+      expect(s.ble.stops, 0);
+      gate.complete();
+      await first;
+      expect(s.state.active, isTrue);
+      await s.controller.stop();
+    },
+  );
+
   testWidgets('advertises the HMAC tag of the current bucket', (tester) async {
     final s = _Setup();
     addTearDown(s.container.dispose);

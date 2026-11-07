@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/api_exception.dart';
 import '../../core/formatters.dart';
 import '../../models/attendance_record.dart';
+import '../../models/attendance_status.dart';
 import '../../models/session_info.dart';
 import '../../providers/repositories.dart';
 import '../../providers/teacher_providers.dart';
@@ -114,6 +115,12 @@ class _RecordTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final late = lateMinutes(session.startsAt, record.firstSeenAt) ?? 0;
+    // Buổi đang diễn ra: chưa chốt/chưa chỉnh tay thì chưa thể kết luận "Vắng".
+    final pending =
+        session.isActive &&
+        record.status == AttendanceStatus.absent &&
+        !record.finalized &&
+        !record.overridden;
     final parts = <String>[
       'Hiện diện ${(record.presenceRatio * 100).round()}%',
       '${record.detectionCount} lần phát hiện',
@@ -132,7 +139,13 @@ class _RecordTile extends StatelessWidget {
           ].join('\n'),
         ),
         isThreeLine: record.overridden,
-        trailing: attendanceChip(record.status),
+        trailing: pending
+            ? const StatusChip(
+                label: 'Chưa xác nhận',
+                color: Colors.blueGrey,
+                icon: Icons.hourglass_empty,
+              )
+            : attendanceChip(record.status),
       ),
     );
   }

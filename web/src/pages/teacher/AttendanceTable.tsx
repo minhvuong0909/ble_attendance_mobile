@@ -30,7 +30,12 @@ export default function AttendanceTable({ sessionId, live }: { sessionId: string
                 { header: 'Họ và tên', cell: (r) => r.student_name },
                 {
                   header: 'Trạng thái',
-                  cell: (r) => <Badge variant={r.status === 'present' ? 'default' : r.status === 'excused' ? 'secondary' : 'destructive'}>{STATUS_LABEL[r.status]}</Badge>,
+                  cell: (r) =>
+                    live && r.status === 'absent' && !r.finalized && !r.overridden ? (
+                      <Badge variant="outline">Chưa xác nhận</Badge>
+                    ) : (
+                      <Badge variant={r.status === 'present' ? 'default' : r.status === 'excused' ? 'secondary' : 'destructive'}>{STATUS_LABEL[r.status]}</Badge>
+                    ),
                 },
                 { header: 'Hiện diện', cell: (r) => formatPercent(r.presence_ratio) },
                 { header: 'Giờ đến', cell: (r) => formatDateTime(r.first_seen_at) },
