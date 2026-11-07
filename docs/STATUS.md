@@ -15,6 +15,16 @@
 | Web | Cùng mã Flutter build ra web, backend phục vụ `/app/` | 289 test Flutter, 225 test backend |
 | Flutter admin (4C) | Môn học, lớp (tạo/cấu hình/gán GV/xóa), giảng viên, sinh viên, import có xem trước | 287 test Flutter xanh |
 
+## Bổ sung nhánh `feature/device-binding` (07/11/2026)
+
+- **Mỗi tài khoản sinh viên một thiết bị:** mã thiết bị gắn ở lần đăng nhập đầu; đơn đổi thiết bị do admin duyệt (migration `0002`, `/auth/device-change-requests`, `/admin/device-requests`, trang web "Đổi thiết bị", hộp thoại trong app).
+- **Ngưỡng RSSI theo lớp do giảng viên chỉnh:** `PATCH /classes/{id}/rssi`, web và app.
+- **Sinh viên không tự tham gia lớp:** bỏ `POST /classes/join` và mọi chỗ hiển thị mã lớp; admin xếp lớp bằng nhập danh sách. Cột `join_code` vẫn còn trong DB và API nhưng không dùng.
+- Seed gọn (admin, gv1-gv3, sv1-sv3, mật khẩu `123456`; 4 môn, 4 lớp), file nhập mẫu `docs/demo-import/`, kịch bản demo `DEMO.md` (1 điện thoại) và `DEMO-2-DT.md` (2 điện thoại), ghi chú UI `docs/UIUX-NOTES.md`.
+- Kết quả sau khi gộp `main`: 270 test backend, 340 test Flutter (`flutter analyze` sạch), web 103/106 (3 test cũ vẫn lỗi trên máy Windows này: thông báo x2, bắt đầu buổi).
+- **Chưa kiểm chứng trên hai máy thật:** điện thoại giảng viên quét sinh viên và thẻ gần/xa trên máy sinh viên.
+- Việc còn lại: cảnh báo buổi học mở quá lâu (điểm 7 trong `UIUX-NOTES.md`); ô cuối chưa đủ 30 giây vẫn tính vào mẫu số độ hiện diện.
+
 ## ĐANG LÀM DỞ (đọc mục này trước)
 
 - Plan 4C (admin) **đã merge vào `main`** (287 test Flutter xanh). **Web React** (`web/`) đã xong, chờ review nhánh. **BLE đã code xong (317 test Flutter). Đã thử thật cách A (Galaxy M10 phát, laptop giả GV bằng `backend/scripts/ble_teacher_sim.py`): tag đổi mỗi bucket, server ghi nhận 100%, không bị từ chối. Chưa thử: điện thoại quét (vai GV) và chỉ báo gần/xa của SV (cần máy thứ hai hoặc cách B)** (xem mục "Thử BLE").

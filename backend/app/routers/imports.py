@@ -19,7 +19,7 @@ router = APIRouter(
 TEMPLATES = {
     "students": "student_id,full_name\n25CE099,Nguyen Van A\n",
     "teachers": "teacher_id,full_name\nT002,Tran Van B\n",
-    "classes": "course_code,course_name,class_code,semester,teacher_id\nPRM393,Lap trinh di dong,SE1901,FA26,T001\n",
+    "classes": "course_code,course_name,class_code,semester,teacher_id\nPRM393,Lap trinh di dong,SE1901,FA26,GV1\n",
 }
 
 

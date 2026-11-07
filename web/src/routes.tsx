@@ -13,6 +13,7 @@ import ClassesPage from '@/pages/admin/ClassesPage'
 import AdminClassDetailPage from '@/pages/admin/ClassDetailPage'
 import ImportPage from '@/pages/admin/ImportPage'
 import TeachersPage from '@/pages/admin/TeachersPage'
+import DeviceRequestsPage from '@/pages/admin/DeviceRequestsPage'
 import MyClassesPage from '@/pages/teacher/MyClassesPage'
 import TeacherClassDetailPage from '@/pages/teacher/ClassDetailPage'
 import LivePage from '@/pages/teacher/LivePage'
@@ -39,6 +40,7 @@ export function AppRoutes() {
         <Route path="classes/:classId" element={<AdminClassDetailPage />} />
         <Route path="import" element={<ImportPage />} />
         <Route path="teachers" element={<TeachersPage />} />
+        <Route path="device-requests" element={<DeviceRequestsPage />} />
       </Route>
       <Route path="/teacher" element={<RequireRole role="teacher" />}>
         <Route index element={<Navigate to="classes" replace />} />

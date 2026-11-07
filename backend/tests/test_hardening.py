@@ -33,7 +33,7 @@ def test_successful_login_clears_failures(client, make_user):
     make_user(UserRole.student, "25CE002")
     for _ in range(4):
         client.post("/auth/login", json={"identifier": "25CE002", "password": "bad"})
-    assert client.post("/auth/login", json={"identifier": "25CE002", "password": "Pass@123"}).status_code == 200
+    assert client.post("/auth/login", json={"identifier": "25CE002", "password": "Pass@123", "device_id": "dev-test-1"}).status_code == 200
     for _ in range(4):
         assert client.post("/auth/login", json={"identifier": "25CE002", "password": "bad"}).status_code == 401
 

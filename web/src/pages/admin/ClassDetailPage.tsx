@@ -202,9 +202,6 @@ function ClassDetail({ cls }: { cls: ClassItem }) {
           <p className="text-sm text-muted-foreground">
             {cls.course_name} · {cls.semester} · {cls.student_count} sinh viên
           </p>
-          <p className="mt-1 text-sm">
-            Mã tham gia: <code className="rounded bg-muted px-1">{cls.join_code}</code>
-          </p>
         </div>
         <Button variant="destructive" onClick={() => setConfirming(true)}>
           <Trash2 /> Xóa lớp

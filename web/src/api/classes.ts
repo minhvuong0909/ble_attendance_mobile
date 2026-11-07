@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { components } from './types'
 import { apiDownload, apiFetch } from './client'
 
@@ -21,3 +21,15 @@ export const useClassReport = (classId: string) =>
 
 export const downloadClassReport = (classId: string) =>
   apiDownload(`/classes/${classId}/report/export`, 'bao_cao_lop.xlsx')
+
+export function useUpdateRssi(classId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (rssi_threshold: number) =>
+      apiFetch<ClassItem>(`/classes/${classId}/rssi`, { method: 'PATCH', json: { rssi_threshold } }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['class', classId] })
+      void qc.invalidateQueries({ queryKey: ['my-classes'] })
+    },
+  })
+}

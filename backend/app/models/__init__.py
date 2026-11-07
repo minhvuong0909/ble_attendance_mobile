@@ -1,5 +1,6 @@
 from app.models.academic import ClassRoom, Course, Enrollment
 from app.models.attendance import Attendance, AttendanceStatus
+from app.models.device import DeviceChangeRequest, DeviceRequestStatus
 from app.models.lecture import Detection, LectureSession
 from app.models.leave import LeaveRequest, LeaveStatus
 from app.models.notification import Notification
@@ -11,6 +12,8 @@ __all__ = [
     "ClassRoom",
     "Course",
     "Detection",
+    "DeviceChangeRequest",
+    "DeviceRequestStatus",
     "Enrollment",
     "LeaveRequest",
     "LeaveStatus",

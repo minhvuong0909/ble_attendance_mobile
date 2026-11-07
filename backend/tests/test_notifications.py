@@ -161,5 +161,6 @@ def test_ending_session_warns_only_students_over_the_absence_limit(client, auth,
     assert len(warnings) == 1
     assert warnings[0].ref_id == cls.id
     assert "PRM393" in warnings[0].body
+    assert "vắng 80% số buổi" in warnings[0].body  # số nguyên, không phải "80.0%"
     assert notifications_of(db, always_present, "absence_warning") == []
     assert notifications_of(db, present_today, "absence_warning") == []

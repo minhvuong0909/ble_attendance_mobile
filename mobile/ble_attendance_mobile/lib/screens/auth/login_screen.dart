@@ -6,6 +6,7 @@ import '../../core/api_exception.dart';
 import '../../core/validators.dart';
 import '../../providers/auth_controller.dart';
 import '../../widgets/error_banner.dart';
+import '../../widgets/success_banner.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -21,6 +22,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _busy = false;
   bool _obscure = true;
   String? _error;
+  String? _notice;
+  bool _deviceMismatch = false;
 
   void _clearError() {
     if (_error != null) setState(() => _error = null);
@@ -38,6 +41,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     setState(() {
       _busy = true;
       _error = null;
+      _notice = null;
+      _deviceMismatch = false;
     });
     try {
       await ref
@@ -45,9 +50,31 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           .login(_idCtrl.text, _passwordCtrl.text);
       // Đăng nhập xong, router tự chuyển sang trang chủ theo vai trò.
     } catch (error) {
-      if (mounted) setState(() => _error = friendlyError(error));
+      if (mounted) {
+        setState(() {
+          _error = friendlyError(error);
+          _deviceMismatch =
+              error is ApiException && error.code == 'device_mismatch';
+        });
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _openDeviceChange() async {
+    final sent = await showDialog<bool>(
+      context: context,
+      builder: (_) =>
+          _DeviceChangeDialog(id: _idCtrl.text, password: _passwordCtrl.text),
+    );
+    if (sent == true && mounted) {
+      setState(() {
+        _error = null;
+        _deviceMismatch = false;
+        _notice =
+            'Đã gửi đơn đổi thiết bị. Hãy chờ admin duyệt rồi đăng nhập lại trên máy này.';
+      });
     }
   }
 
@@ -129,6 +156,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const SizedBox(height: 16),
                     ErrorBanner(_error!),
                   ],
+                  if (_deviceMismatch) ...[
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      onPressed: _busy ? null : _openDeviceChange,
+                      icon: const Icon(Icons.phonelink_setup),
+                      label: const Text('Gửi đơn đổi thiết bị'),
+                    ),
+                  ],
+                  if (_notice != null) ...[
+                    const SizedBox(height: 16),
+                    SuccessBanner(_notice!),
+                  ],
                   const SizedBox(height: 24),
                   FilledButton(
                     onPressed: _busy ? null : _submit,
@@ -151,6 +190,92 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Hộp thoại nhập lý do đổi thiết bị; dùng mã đăng nhập và mật khẩu đã gõ ở màn hình đăng nhập.
+class _DeviceChangeDialog extends ConsumerStatefulWidget {
+  const _DeviceChangeDialog({required this.id, required this.password});
+
+  final String id;
+  final String password;
+
+  @override
+  ConsumerState<_DeviceChangeDialog> createState() =>
+      _DeviceChangeDialogState();
+}
+
+class _DeviceChangeDialogState extends ConsumerState<_DeviceChangeDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final _reasonCtrl = TextEditingController();
+  bool _busy = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _reasonCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _send() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await ref
+          .read(authControllerProvider.notifier)
+          .requestDeviceChange(
+            id: widget.id,
+            password: widget.password,
+            reason: _reasonCtrl.text,
+          );
+      if (mounted) Navigator.of(context).pop(true);
+    } catch (error) {
+      if (mounted) setState(() => _error = friendlyError(error));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Đơn đổi thiết bị'),
+      content: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'Tài khoản chỉ đăng nhập được trên một máy. Admin sẽ duyệt đơn để chuyển sang máy này.',
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              key: const Key('device-reason'),
+              autofocus: true,
+              controller: _reasonCtrl,
+              maxLength: 255,
+              decoration: const InputDecoration(labelText: 'Lý do đổi máy'),
+              validator: (v) => Validators.requiredField(v, 'lý do'),
+            ),
+            if (_error != null) ErrorBanner(_error!),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _busy ? null : () => Navigator.of(context).pop(false),
+          child: const Text('Hủy'),
+        ),
+        FilledButton(
+          onPressed: _busy ? null : _send,
+          child: const Text('Gửi đơn'),
+        ),
+      ],
     );
   }
 }

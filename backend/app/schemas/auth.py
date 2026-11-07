@@ -12,6 +12,8 @@ class RegisterRequest(BaseModel):
 class LoginRequest(BaseModel):
     identifier: str
     password: str
+    # Bắt buộc với sinh viên (xem services/devices.py); giảng viên/admin bỏ qua.
+    device_id: str | None = Field(default=None, max_length=64)
 
 
 class TokenResponse(BaseModel):

@@ -25,8 +25,8 @@ def decode_student(data: bytes):
 async def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--url", default="http://localhost:8000")
-    ap.add_argument("--teacher", default="T001")
-    ap.add_argument("--password", default="Pass@123")
+    ap.add_argument("--teacher", default="GV1")
+    ap.add_argument("--password", default="123456")
     ap.add_argument("--class-code", default=None, help="mã lớp để mở buổi nếu chưa có")
     args = ap.parse_args()
 

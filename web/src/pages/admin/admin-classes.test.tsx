@@ -67,13 +67,13 @@ function api(list = [cls(), cls({ id: 'c2', course_id: 'co2', course_code: 'PRN2
 }
 
 describe('admin classes list', () => {
-  it('lists classes with teacher, join code and student count, and filters by course', async () => {
+  it('lists classes with teacher and student count, and filters by course', async () => {
     signInAs(adminUser)
     api()
     renderApp('/admin/classes')
     expect(await screen.findByText('SE1901')).toBeInTheDocument()
     expect(screen.getByText('NET01')).toBeInTheDocument()
-    expect(screen.getByText('EFC63D')).toBeInTheDocument()
+    expect(screen.queryByText('EFC63D')).not.toBeInTheDocument()
     expect(screen.getByText('Chưa gán')).toBeInTheDocument()
     await userEvent.selectOptions(screen.getByLabelText('Lọc theo môn'), 'co2')
     expect(screen.queryByText('SE1901')).not.toBeInTheDocument()
@@ -149,7 +149,7 @@ describe('admin class detail', () => {
     api()
     renderApp('/admin/classes/c1')
     expect(await screen.findByRole('heading', { name: /PRM393 · SE1901/ })).toBeInTheDocument()
-    expect(screen.getByText('EFC63D')).toBeInTheDocument()
+    expect(screen.queryByText('EFC63D')).not.toBeInTheDocument()
     expect(await screen.findByText('Nguyễn Văn An')).toBeInTheDocument()
     expect(screen.getByText('25CE100')).toBeInTheDocument()
   })

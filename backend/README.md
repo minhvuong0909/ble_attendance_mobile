@@ -24,9 +24,9 @@ Swagger: `http://127.0.0.1:8000/docs`
 pytest -q
 ```
 
-## Tài khoản demo (mật khẩu `Pass@123`)
+## Tài khoản demo (mật khẩu `123456`)
 
-- Admin: `A001` · Giảng viên: `T001` · Sinh viên: `25CE099`, `25CE100`, `D26CE045`
+- Admin: `admin` · Giảng viên: `gv1`, `gv2`, `gv3` · Sinh viên: `sv1`, `sv2`, `sv3`
 
 ## Thay đổi schema
 
@@ -48,7 +48,7 @@ Mọi thời điểm trả ra JSON là UTC kèm hậu tố `Z` (ví dụ `2026-1
 | Xác thực | `POST /auth/register` (SV), `POST /auth/login`, `GET /auth/me`, `POST /auth/change-password` |
 | Admin | `/admin/courses`, `/admin/classes`, `POST /admin/classes/{id}/assign-teacher`, `/admin/teachers`, `POST /admin/users/{id}/reset-password` |
 | Import (admin) | `POST /admin/classes/{id}/import-students`, `POST /admin/imports/teachers`, `POST /admin/imports/classes`, `GET /admin/imports/templates/{students\|teachers\|classes}` |
-| Lớp | `GET /classes/mine`, `POST /classes/join`, `GET /classes/{id}`, `GET /classes/{id}/students` |
+| Lớp | `GET /classes/mine`, `GET /classes/{id}`, `GET /classes/{id}/students` |
 | Buổi học | `POST /classes/{id}/sessions`, `GET /classes/{id}/sessions`, `POST /sessions/{id}/end`, `POST /sessions/{id}/open-finalization`, `GET /sessions/active` |
 | Điểm danh | `POST /detections/batch`, `POST /attendance/finalize`, `GET /sessions/{id}/attendance`, `POST /sessions/{id}/attendance/override` |
 | Sinh viên | `GET /me/attendance?class_id=`, `GET /me/attendance/stats` |

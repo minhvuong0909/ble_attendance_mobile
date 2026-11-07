@@ -229,27 +229,27 @@ ReportStudent sampleReportStudent({
 
 class FakeClassRepository implements ClassRepository {
   Future<List<ClassInfo>> Function() onMyClasses = () async => [];
-  Future<ClassInfo> Function(String joinCode) onJoin = (_) async =>
-      sampleClass();
-  final List<String> joined = [];
   int myClassesCalls = 0;
   Future<List<StudentInfo>> Function(String classId) onStudents = (_) async =>
       [];
+  Future<ClassInfo> Function(String classId, int rssiThreshold) onUpdateRssi =
+      (_, _) async => sampleClass();
+  final List<(String, int)> rssiUpdates = [];
 
   @override
   Future<List<StudentInfo>> classStudents(String classId) =>
       onStudents(classId);
 
   @override
-  Future<List<ClassInfo>> myClasses() {
-    myClassesCalls++;
-    return onMyClasses();
+  Future<ClassInfo> updateRssi(String classId, int rssiThreshold) {
+    rssiUpdates.add((classId, rssiThreshold));
+    return onUpdateRssi(classId, rssiThreshold);
   }
 
   @override
-  Future<ClassInfo> join(String joinCode) {
-    joined.add(joinCode);
-    return onJoin(joinCode);
+  Future<List<ClassInfo>> myClasses() {
+    myClassesCalls++;
+    return onMyClasses();
   }
 }
 

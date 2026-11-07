@@ -12,9 +12,9 @@ from app.services.seed import seed
 def main() -> None:
     db = SessionLocal()
     try:
-        result = seed(db)
-        print("Seed xong: admin A001, giảng viên T001, sinh viên 25CE099/25CE100/D26CE045")
-        print(f"Mã lớp SE1901: {result['join_code']}")
+        seed(db)
+        print("Seed xong (mật khẩu 123456): admin, gv1/gv2/gv3, sv1/sv2/sv3")
+        print("4 lớp: PRM393 SE1901 (gv1, sv1-sv3), PRN232 SE1918 (gv2), MLN131 Half2_EL1902 (gv3), EXE201 SE1919 (gv2)")
     finally:
         db.close()
 

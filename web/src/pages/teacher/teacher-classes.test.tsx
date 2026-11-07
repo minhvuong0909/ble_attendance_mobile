@@ -73,7 +73,7 @@ describe('class detail tabs', () => {
     server.use(http.get(url('/classes/c1/sessions'), () => HttpResponse.json([])))
     renderApp('/teacher/classes/c1')
     expect(await screen.findByRole('heading', { name: /PRM393 · SE1901/ })).toBeInTheDocument()
-    expect(screen.getByText('EFC63D')).toBeInTheDocument()
+    expect(screen.queryByText('EFC63D')).not.toBeInTheDocument()
     expect(await screen.findByText('Nguyễn Văn An')).toBeInTheDocument()
     await userEvent.click(screen.getByRole('tab', { name: 'Buổi học' }))
     expect(await screen.findByText('Chưa có buổi học nào')).toBeInTheDocument()

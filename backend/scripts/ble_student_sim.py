@@ -29,8 +29,8 @@ def payload(student_id: str, tag: str) -> list[str]:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--url", default="http://localhost:8000")
-    ap.add_argument("--student", default="25CE099")
-    ap.add_argument("--password", default="Pass@123")
+    ap.add_argument("--student", default="SV1")
+    ap.add_argument("--password", default="123456")
     args = ap.parse_args()
 
     api = httpx.Client(base_url=args.url, timeout=10)

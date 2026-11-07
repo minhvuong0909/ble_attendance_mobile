@@ -24,5 +24,6 @@ class StudentOut(BaseModel):
     full_name: str
 
 
-class JoinClassIn(BaseModel):
-    join_code: str = Field(min_length=4, max_length=12)
+class RssiUpdate(BaseModel):
+    # Cùng khoảng với admin: -100 (rất xa vẫn tính) đến -30 (phải sát giảng viên).
+    rssi_threshold: int = Field(ge=-100, le=-30)

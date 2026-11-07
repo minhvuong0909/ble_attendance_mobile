@@ -38,6 +38,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/device-change-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create Device Change Request
+         * @description Sinh viên gửi đơn đổi máy từ máy mới. Chưa đăng nhập được nên xác thực bằng mật khẩu.
+         */
+        post: operations["create_device_change_request_auth_device_change_requests_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/me": {
         parameters: {
             query?: never;
@@ -196,6 +216,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/device-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Device Requests */
+        get: operations["list_device_requests_admin_device_requests_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/device-requests/{request_id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve Device Request */
+        post: operations["approve_device_request_admin_device_requests__request_id__approve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/device-requests/{request_id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reject Device Request */
+        post: operations["reject_device_request_admin_device_requests__request_id__reject_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/classes/{class_id}/import-students": {
         parameters: {
             query?: never;
@@ -313,6 +384,26 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/classes/{class_id}/rssi": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Rssi
+         * @description Giảng viên chỉnh ngưỡng RSSI của lớp mình theo kích thước phòng học.
+         */
+        patch: operations["update_rssi_classes__class_id__rssi_patch"];
         trace?: never;
     };
     "/classes/{class_id}/students": {
@@ -954,6 +1045,40 @@ export interface components {
              */
             observed_at: string;
         };
+        /** DeviceChangeIn */
+        DeviceChangeIn: {
+            /** Identifier */
+            identifier: string;
+            /** Password */
+            password: string;
+            /** Device Id */
+            device_id: string;
+            /** Reason */
+            reason: string;
+        };
+        /** DeviceRequestOut */
+        DeviceRequestOut: {
+            /** Id */
+            id: number;
+            /** Student User Id */
+            student_user_id: string;
+            /** Student Id */
+            student_id: string | null;
+            /** Student Name */
+            student_name: string;
+            /** Reason */
+            reason: string;
+            status: components["schemas"]["DeviceRequestStatus"];
+            /** Created At */
+            created_at: string;
+            /** Resolved At */
+            resolved_at: string | null;
+        };
+        /**
+         * DeviceRequestStatus
+         * @enum {string}
+         */
+        DeviceRequestStatus: "pending" | "approved" | "rejected";
         /** FinalizeIn */
         FinalizeIn: {
             /** Session Id */
@@ -1080,6 +1205,8 @@ export interface components {
             identifier: string;
             /** Password */
             password: string;
+            /** Device Id */
+            device_id?: string | null;
         };
         /** NotificationOut */
         NotificationOut: {
@@ -1156,6 +1283,11 @@ export interface components {
             absent_percent: number;
             /** Warning */
             warning: boolean;
+        };
+        /** RssiUpdate */
+        RssiUpdate: {
+            /** Rssi Threshold */
+            rssi_threshold: number;
         };
         /** SessionAttendanceOut */
         SessionAttendanceOut: {
@@ -1320,6 +1452,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TokenResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_device_change_request_auth_device_change_requests_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceChangeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceRequestOut"];
                 };
             };
             /** @description Validation Error */
@@ -1743,6 +1908,99 @@ export interface operations {
             };
         };
     };
+    list_device_requests_admin_device_requests_get: {
+        parameters: {
+            query?: {
+                status?: ("pending" | "approved" | "rejected") | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceRequestOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    approve_device_request_admin_device_requests__request_id__approve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceRequestOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reject_device_request_admin_device_requests__request_id__reject_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceRequestOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     import_class_students_admin_classes__class_id__import_students_post: {
         parameters: {
             query?: {
@@ -1944,6 +2202,41 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_rssi_classes__class_id__rssi_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                class_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RssiUpdate"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {

@@ -22,32 +22,14 @@ def test_my_classes_for_each_role(client, make_user, auth, make_class, enroll):
     assert len(client.get("/classes/mine", headers=auth(admin)).json()) == 2
 
 
-def test_join_class_with_code(client, make_user, auth, make_class):
+def test_students_cannot_join_a_class_by_themselves(client, db, make_user, auth, make_class):
+    """Sinh viên chỉ được admin xếp lớp (nhập danh sách), không tự tham gia bằng mã."""
     student = make_user(UserRole.student, "25CE099")
     cls = make_class()
-    response = client.post(
-        "/classes/join", json={"join_code": cls.join_code.lower()}, headers=auth(student)
-    )
-    assert response.status_code == 200
-    assert response.json()["join_code"] is None
-
-    again = client.post("/classes/join", json={"join_code": cls.join_code}, headers=auth(student))
-    assert again.status_code == 409
-    assert again.json()["code"] == "already_enrolled"
-
-
-def test_join_class_with_bad_code(client, make_user, auth):
-    student = make_user(UserRole.student, "25CE099")
-    response = client.post("/classes/join", json={"join_code": "ZZZZZZ"}, headers=auth(student))
-    assert response.status_code == 404
-    assert response.json()["code"] == "invalid_join_code"
-
-
-def test_teacher_cannot_join_class(client, make_user, auth, make_class):
-    teacher = make_user(UserRole.teacher, "T001")
-    cls = make_class()
-    response = client.post("/classes/join", json={"join_code": cls.join_code}, headers=auth(teacher))
-    assert response.status_code == 403
+    for code in (cls.join_code, cls.join_code.lower(), "ZZZZZZ"):
+        response = client.post("/classes/join", json={"join_code": code}, headers=auth(student))
+        assert response.status_code in (404, 405)
+    assert client.get("/classes/mine", headers=auth(student)).json() == []
 
 
 def test_class_detail_access_rules(client, make_user, auth, make_class, enroll):

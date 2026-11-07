@@ -52,7 +52,7 @@ def test_csv_import_creates_accounts_and_enrollments(client, auth, db, admin, ma
     assert [r["row"] for r in body["rows"]] == [2, 4, 5]  # dòng trống (3) bị bỏ qua nhưng số dòng giữ đúng
     assert enrollment_count(db) == 3
 
-    login = client.post("/auth/login", json={"identifier": "25ce099", "password": "25CE099"})
+    login = client.post("/auth/login", json={"identifier": "25ce099", "password": "25CE099", "device_id": "dev-test-1"})
     assert login.status_code == 200
     assert login.json()["must_change_password"] is True
     assert db.scalar(select(User).where(User.student_id == "25CE099")).full_name == "Nguyen Van A"

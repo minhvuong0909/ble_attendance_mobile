@@ -2,61 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/api_exception.dart';
 import '../../models/class_stats.dart';
-import '../../providers/repositories.dart';
 import '../../providers/stats_provider.dart';
 import '../../widgets/async_value_view.dart';
-import '../../widgets/error_banner.dart';
 import '../../widgets/status_chip.dart';
 
 class StudentClassesScreen extends ConsumerWidget {
   const StudentClassesScreen({super.key});
 
-  Future<void> _join(BuildContext context, WidgetRef ref) async {
-    final messenger = ScaffoldMessenger.of(context);
-    final joinedTitle = await showDialog<String>(
-      context: context,
-      builder: (_) => _JoinDialog(
-        onJoin: (code) async =>
-            (await ref.read(classRepositoryProvider).join(code)).title,
-      ),
-    );
-    if (joinedTitle == null) return;
-    ref.invalidate(classStatsProvider);
-    messenger.showSnackBar(
-      SnackBar(content: Text('Đã tham gia lớp $joinedTitle')),
-    );
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final value = ref.watch(classStatsProvider);
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: null,
-        onPressed: () => _join(context, ref),
-        icon: const Icon(Icons.group_add),
-        label: const Text('Tham gia lớp'),
-      ),
-      body: AsyncValueView<List<ClassStats>>(
-        value: value,
-        onRetry: () => ref.invalidate(classStatsProvider),
+    return AsyncValueView<List<ClassStats>>(
+      value: value,
+      onRetry: () => ref.invalidate(classStatsProvider),
+      onRefresh: () => ref.refresh(classStatsProvider.future),
+      isEmpty: (items) => items.isEmpty,
+      emptyMessage:
+          'Bạn chưa được xếp lớp nào.\nLiên hệ admin hoặc giáo vụ để được xếp lớp.',
+      emptyIcon: Icons.school_outlined,
+      data: (items) => RefreshIndicator(
         onRefresh: () => ref.refresh(classStatsProvider.future),
-        isEmpty: (items) => items.isEmpty,
-        emptyMessage:
-            'Bạn chưa tham gia lớp nào.\nBấm "Tham gia lớp" và nhập mã lớp từ giảng viên.',
-        emptyIcon: Icons.school_outlined,
-        data: (items) => RefreshIndicator(
-          onRefresh: () => ref.refresh(classStatsProvider.future),
-          child: ListView.separated(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
-            itemCount: items.length,
-            separatorBuilder: (_, _) => const SizedBox(height: 8),
-            itemBuilder: (context, index) => _ClassCard(stats: items[index]),
-          ),
+        child: ListView.separated(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16),
+          itemCount: items.length,
+          separatorBuilder: (_, _) => const SizedBox(height: 8),
+          itemBuilder: (context, index) => _ClassCard(stats: items[index]),
         ),
       ),
     );
@@ -141,87 +113,6 @@ class _ClassCard extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _JoinDialog extends StatefulWidget {
-  const _JoinDialog({required this.onJoin});
-
-  final Future<String> Function(String code) onJoin;
-
-  @override
-  State<_JoinDialog> createState() => _JoinDialogState();
-}
-
-class _JoinDialogState extends State<_JoinDialog> {
-  final _formKey = GlobalKey<FormState>();
-  final _codeCtrl = TextEditingController();
-  bool _busy = false;
-  String? _error;
-
-  @override
-  void dispose() {
-    _codeCtrl.dispose();
-    super.dispose();
-  }
-
-  Future<void> _submit() async {
-    if (!_formKey.currentState!.validate() || _busy) return;
-    setState(() {
-      _busy = true;
-      _error = null;
-    });
-    try {
-      final title = await widget.onJoin(_codeCtrl.text.trim().toUpperCase());
-      if (mounted) Navigator.of(context).pop(title);
-    } catch (error) {
-      if (mounted) setState(() => _error = friendlyError(error));
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Nhập mã lớp'),
-      content: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextFormField(
-              key: const Key('join-code'),
-              controller: _codeCtrl,
-              autofocus: true,
-              textCapitalization: TextCapitalization.characters,
-              decoration: const InputDecoration(
-                labelText: 'Mã lớp',
-                helperText: 'Do giảng viên cung cấp',
-              ),
-              validator: (v) => (v == null || v.trim().isEmpty)
-                  ? 'Vui lòng nhập mã lớp'
-                  : null,
-              onFieldSubmitted: (_) => _submit(),
-            ),
-            if (_error != null) ...[
-              const SizedBox(height: 12),
-              ErrorBanner(_error!),
-            ],
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: _busy ? null : () => Navigator.of(context).pop(),
-          child: const Text('Hủy'),
-        ),
-        FilledButton(
-          onPressed: _busy ? null : _submit,
-          child: const Text('Tham gia'),
-        ),
-      ],
     );
   }
 }

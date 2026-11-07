@@ -58,7 +58,6 @@ class _AdminClassesScreenState extends ConsumerState<AdminClassesScreen> {
                         c.title,
                         c.semester,
                         c.teacherName,
-                        c.joinCode,
                       ]),
                     )
                     .toList();
@@ -134,12 +133,6 @@ class _ClassCard extends StatelessWidget {
                     label: Text('${info.studentCount} sinh viên'),
                     visualDensity: VisualDensity.compact,
                   ),
-                  if (info.joinCode != null)
-                    Chip(
-                      avatar: const Icon(Icons.vpn_key_outlined, size: 16),
-                      label: Text('Mã lớp ${info.joinCode}'),
-                      visualDensity: VisualDensity.compact,
-                    ),
                 ],
               ),
             ],

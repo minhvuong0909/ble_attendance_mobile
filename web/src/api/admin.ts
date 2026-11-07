@@ -81,3 +81,17 @@ export function useDeleteClass(classId: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-classes'] }),
   })
 }
+
+export type DeviceRequest = components['schemas']['DeviceRequestOut']
+
+export const useDeviceRequests = () =>
+  useQuery({ queryKey: ['device-requests'], queryFn: () => apiFetch<DeviceRequest[]>('/admin/device-requests') })
+
+export function useResolveDeviceRequest() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (args: { id: number; action: 'approve' | 'reject' }) =>
+      apiFetch<DeviceRequest>(`/admin/device-requests/${args.id}/${args.action}`, { method: 'POST' }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['device-requests'] }),
+  })
+}

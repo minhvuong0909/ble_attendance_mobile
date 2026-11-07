@@ -31,3 +31,6 @@ backend/.env
 .venv/
 backend/web_dist/
 *.apk
+
+# Đầu ra của công cụ phân tích (log, ảnh chụp, đồ thị)
+graphify-out/

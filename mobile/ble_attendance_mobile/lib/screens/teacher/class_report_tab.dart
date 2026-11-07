@@ -54,10 +54,7 @@ class ClassReportTab extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _Header(report: report, classId: classId),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: _Table(report: report),
-                ),
+                _Table(report: report),
               ],
             ),
           ),
@@ -138,55 +135,107 @@ class _Table extends StatelessWidget {
     }
   }
 
+  static const _rowHeight = 64.0;
+
   @override
   Widget build(BuildContext context) {
     final warningColor = Theme.of(
       context,
     ).colorScheme.errorContainer.withValues(alpha: 0.5);
-    return DataTable(
-      columnSpacing: 20,
-      columns: [
-        const DataColumn(label: Text('MSSV')),
-        const DataColumn(label: Text('Họ tên')),
-        for (final s in report.sessions)
-          DataColumn(label: Text(_dayMonth.format(s.startsAt))),
-        const DataColumn(label: Text('Có mặt'), numeric: true),
-        const DataColumn(label: Text('Vắng'), numeric: true),
-        const DataColumn(label: Text('Có phép'), numeric: true),
-        const DataColumn(label: Text('%'), numeric: true),
+    WidgetStateProperty<Color?>? rowColor(ReportStudent s) =>
+        s.warning ? WidgetStatePropertyAll(warningColor) : null;
+
+    // Cột sinh viên đứng yên, các ngày và tổng cuộn ngang bên cạnh nó.
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        DataTable(
+          headingRowHeight: _rowHeight,
+          dataRowMinHeight: _rowHeight,
+          dataRowMaxHeight: _rowHeight,
+          horizontalMargin: 16,
+          columns: const [DataColumn(label: Text('Sinh viên'))],
+          rows: [
+            for (final s in report.students)
+              DataRow(
+                color: rowColor(s),
+                cells: [DataCell(_StudentCell(student: s))],
+              ),
+          ],
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.only(right: 16),
+            child: DataTable(
+              headingRowHeight: _rowHeight,
+              dataRowMinHeight: _rowHeight,
+              dataRowMaxHeight: _rowHeight,
+              columnSpacing: 20,
+              columns: [
+                for (final s in report.sessions)
+                  DataColumn(label: Text(_dayMonth.format(s.startsAt))),
+                const DataColumn(label: Text('Có mặt'), numeric: true),
+                const DataColumn(label: Text('Vắng'), numeric: true),
+                const DataColumn(label: Text('Có phép'), numeric: true),
+                const DataColumn(label: Text('%'), numeric: true),
+              ],
+              rows: [
+                for (final s in report.students)
+                  DataRow(
+                    color: rowColor(s),
+                    cells: [
+                      for (final cell in s.cells) DataCell(_cell(cell)),
+                      DataCell(Text('${s.present}')),
+                      DataCell(Text('${s.absent}')),
+                      DataCell(Text('${s.excused}')),
+                      DataCell(Text(formatPercent(s.attendancePercent))),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+        ),
       ],
-      rows: [
-        for (final s in report.students)
-          DataRow(
-            color: s.warning ? WidgetStatePropertyAll(warningColor) : null,
-            cells: [
-              DataCell(Text(s.studentId ?? '-')),
-              DataCell(
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (s.warning)
-                      const Tooltip(
-                        message: 'Vượt mức vắng cho phép',
-                        child: Icon(
-                          Icons.warning_amber,
-                          size: 18,
-                          color: _orange,
-                        ),
-                      ),
-                    if (s.warning) const SizedBox(width: 4),
-                    Text(s.studentName),
-                  ],
+    );
+  }
+}
+
+class _StudentCell extends StatelessWidget {
+  const _StudentCell({required this.student});
+
+  final ReportStudent student;
+
+  static const _orange = Color(0xFFEF6C00);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return SizedBox(
+      width: 150,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              if (student.warning)
+                const Tooltip(
+                  message: 'Vượt mức vắng cho phép',
+                  child: Icon(Icons.warning_amber, size: 18, color: _orange),
+                ),
+              if (student.warning) const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  student.studentName,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              for (final cell in s.cells) DataCell(_cell(cell)),
-              DataCell(Text('${s.present}')),
-              DataCell(Text('${s.absent}')),
-              DataCell(Text('${s.excused}')),
-              DataCell(Text(formatPercent(s.attendancePercent))),
             ],
           ),
-      ],
+          Text(student.studentId ?? '-', style: theme.textTheme.bodySmall),
+        ],
+      ),
     );
   }
 }

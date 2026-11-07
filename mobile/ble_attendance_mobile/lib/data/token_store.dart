@@ -9,6 +9,10 @@ abstract class TokenStore {
   Future<void> clearToken();
   Future<String?> readBaseUrl();
   Future<void> saveBaseUrl(String url);
+
+  /// Mã thiết bị: sinh một lần, giữ nguyên qua các lần đăng xuất.
+  Future<String?> readDeviceId();
+  Future<void> saveDeviceId(String id);
 }
 
 class SecureTokenStore implements TokenStore {
@@ -17,6 +21,7 @@ class SecureTokenStore implements TokenStore {
 
   static const _tokenKey = 'token';
   static const _baseUrlKey = 'api_base_url';
+  static const _deviceIdKey = 'device_id';
   final FlutterSecureStorage _storage;
 
   @override
@@ -31,6 +36,11 @@ class SecureTokenStore implements TokenStore {
   @override
   Future<void> saveBaseUrl(String url) =>
       _storage.write(key: _baseUrlKey, value: url);
+  @override
+  Future<String?> readDeviceId() => _storage.read(key: _deviceIdKey);
+  @override
+  Future<void> saveDeviceId(String id) =>
+      _storage.write(key: _deviceIdKey, value: id);
 }
 
 /// Bản web: lưu bằng localStorage. flutter_secure_storage cần ngữ cảnh HTTPS,
@@ -38,6 +48,7 @@ class SecureTokenStore implements TokenStore {
 class PrefsTokenStore implements TokenStore {
   static const _tokenKey = 'token';
   static const _baseUrlKey = 'api_base_url';
+  static const _deviceIdKey = 'device_id';
 
   @override
   Future<String?> readToken() async =>
@@ -58,6 +69,14 @@ class PrefsTokenStore implements TokenStore {
   @override
   Future<void> saveBaseUrl(String url) async {
     await (await SharedPreferences.getInstance()).setString(_baseUrlKey, url);
+  }
+
+  @override
+  Future<String?> readDeviceId() async =>
+      (await SharedPreferences.getInstance()).getString(_deviceIdKey);
+  @override
+  Future<void> saveDeviceId(String id) async {
+    await (await SharedPreferences.getInstance()).setString(_deviceIdKey, id);
   }
 }
 

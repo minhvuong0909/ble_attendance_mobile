@@ -1,4 +1,4 @@
-import { BookOpen, Building2, LayoutDashboard, GraduationCap, Menu, Radio, Upload, Users, type LucideIcon } from 'lucide-react'
+import { BookOpen, Building2, LayoutDashboard, GraduationCap, Menu, Radio, Smartphone, Upload, Users, type LucideIcon } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { NavLink } from 'react-router-dom'
 import type { Role } from '@/api/auth'
@@ -23,6 +23,7 @@ export const navFor = (role: Role): NavItem[] =>
         { to: '/admin/classes', label: 'Lớp học', icon: Building2 },
         { to: '/admin/teachers', label: 'Giảng viên', icon: Users },
         { to: '/admin/import', label: 'Nhập danh sách', icon: Upload },
+        { to: '/admin/device-requests', label: 'Đổi thiết bị', icon: Smartphone },
       ]
     : [
         { to: '/teacher/classes', label: 'Lớp của tôi', icon: GraduationCap },

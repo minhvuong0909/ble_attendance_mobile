@@ -12,7 +12,15 @@ class LoginResult {
 }
 
 abstract class AuthRepository {
-  Future<LoginResult> login(String id, String password);
+  Future<LoginResult> login(String id, String password, {String? deviceId});
+
+  /// Đơn đổi thiết bị: gửi từ máy mới khi tài khoản đã gắn với máy khác.
+  Future<void> requestDeviceChange({
+    required String identifier,
+    required String password,
+    required String deviceId,
+    required String reason,
+  });
   Future<AuthUser> register({
     required String fullName,
     required String identifier,
@@ -31,16 +39,42 @@ class ApiAuthRepository implements AuthRepository {
   final ApiClient _api;
 
   @override
-  Future<LoginResult> login(String id, String password) async {
+  Future<LoginResult> login(
+    String id,
+    String password, {
+    String? deviceId,
+  }) async {
     final json =
         await _api.post(
               '/auth/login',
-              data: {'identifier': id, 'password': password},
+              data: {
+                'identifier': id,
+                'password': password,
+                'device_id': ?deviceId,
+              },
             )
             as Map<String, dynamic>;
     return LoginResult(
       accessToken: json['access_token'] as String,
       mustChangePassword: (json['must_change_password'] as bool?) ?? false,
+    );
+  }
+
+  @override
+  Future<void> requestDeviceChange({
+    required String identifier,
+    required String password,
+    required String deviceId,
+    required String reason,
+  }) async {
+    await _api.post(
+      '/auth/device-change-requests',
+      data: {
+        'identifier': identifier,
+        'password': password,
+        'device_id': deviceId,
+        'reason': reason,
+      },
     );
   }
 

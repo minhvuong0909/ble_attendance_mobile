@@ -3,6 +3,7 @@ import { useClass } from '@/api/classes'
 import QueryBoundary from '@/components/QueryBoundary'
 import { cn } from '@/lib/utils'
 import LeaveTab from './LeaveTab'
+import RssiSetting from './RssiSetting'
 import ReportTab from './ReportTab'
 import SessionsTab from './SessionsTab'
 import StudentsTab from './StudentsTab'
@@ -32,10 +33,8 @@ export default function TeacherClassDetailPage() {
             <p className="text-sm text-muted-foreground">
               {cls.course_name} · {cls.semester} · {cls.student_count} sinh viên
             </p>
-            <p className="mt-1 text-sm">
-              Mã tham gia: <code className="rounded bg-muted px-1">{cls.join_code}</code>
-            </p>
           </div>
+          <RssiSetting cls={cls} />
           <div role="tablist" className="flex gap-1 border-b">
             {TABS.map((t) => (
               <button
