@@ -182,7 +182,6 @@ export default function ClassesPage() {
               { header: 'Môn', cell: (c) => `${c.course_code} · ${c.course_name}` },
               { header: 'Học kỳ', cell: (c) => c.semester },
               { header: 'Giảng viên', cell: (c) => c.teacher_name ?? <span className="text-muted-foreground">Chưa gán</span> },
-              { header: 'Mã tham gia', cell: (c) => <code>{c.join_code}</code> },
               { header: 'Sinh viên', cell: (c) => c.student_count, className: 'text-right' },
             ]}
           />
